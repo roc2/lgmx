@@ -1,0 +1,55 @@
+creating a qt C++ application
+
+fazer o merge entre "src/editor/gui/main_window/ui_main_window.h" e "src/editor/ui_main_window.h"
+
+chapter 3 - "Creating Menus and Toolbars"
+
+
+
+Use a splitter. chapter 4 - "The Central Widget"
+
+Another way of using multiple widgets together is to use a QSplitter. The QSplitter arranges its child widgets horizontally or vertically, with splitter handles to give some sizing control to the user. Splitters can contain all kinds of widgets, including other splitters.
+
+
+
+generate source code from form:
+
+ex:
+uic -o ui_main_window.h main_window.ui
+
+
+
+adicionar arquivo ao projeto:
+
+QtCreator->Help->qmake Manual
+
+adicionar os novos arquivos ao .pro
+
+gerar novo Makefile:
+
+qmake -o Makefile lgmx.pro
+
+Criar novo Dialog:
+
+Select File/New ...; then from Files and Classes, pick Qt, and select Qt Designer Form Class from the right-hand-side panel. Choose ... then takes you to another page where you can select a Dialog.
+
+In the 'File menu' :
+New file or project
+Files and classes : Qt
+Qt Designer Form class
+
+################################################################################################
+
+ - open file
+ - close file
+ - save file
+
+
+
+Bug:
+
+ - save não está setando o nome do arquivo
+ - exists() não está mais sendo usado, remover.
+
+
+
