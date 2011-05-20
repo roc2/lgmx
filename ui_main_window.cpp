@@ -447,12 +447,16 @@ bool Ui_MainWindow::okToContinue()
 	return true;
 }
 
-
+/**
+ * Create main window actions
+ * @brief Create main window actions
+ */
 
 void Ui_MainWindow::createActions()
 {
     actionSave = new QAction(this);
     actionSave->setObjectName(QString::fromUtf8("actionSave"));
+    
     actionOpen = new QAction(this);
     actionOpen->setObjectName(QString::fromUtf8("actionOpen"));
     
