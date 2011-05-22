@@ -8,6 +8,7 @@
 #include <QtGui/QHBoxLayout>
 #include <QFileInfo>
 #include <QTextCursor>
+#include <QString>
 
 #include "code_editor.h"
 #include "highlight/cpp_hl.h"
@@ -27,6 +28,7 @@ class src_file : public QWidget {
 	bool is_modified();
     bool saved_on_disk();
     bool set_saved_on_disk(bool saved);
+    void set_src_file_name(const QString &fileName);
 	QString get_content();
 	QString get_src_file_name();
 	QString get_src_file_full_name();

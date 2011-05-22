@@ -74,9 +74,6 @@ bool File::write_file(const QString &fileName, const QString &content, QString &
 	
 	QApplication::restoreOverrideCursor();
 	
-
-	//setCurrentFile(fileName);
-	//statusBar()->showMessage(tr("File saved"), 2000);
 	return true;
 }
 

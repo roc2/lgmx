@@ -48,6 +48,11 @@ void Ui_MainWindow::save()
 }
 #endif
 
+/**
+ * 
+ * 
+ */
+
 bool Ui_MainWindow::save()
 {
     QString file_name;
@@ -81,6 +86,9 @@ bool Ui_MainWindow::saveAs(int index)
     if (fileName.isEmpty())
         return false;
 
+    // set file name!!!
+    src_files.set_file_name(index, fileName);
+
     return saveFile(fileName, index);
 }
 
@@ -96,7 +104,8 @@ bool Ui_MainWindow::saveFile(const QString &fileName, int index)
     cout << "file name -> " << fileName.toStdString() << endl;
 
     if (src_files.get_src_tab_content(index, content)) {
-		if (!file.write_file(fileName, content, error)) {
+		
+        if (!file.write_file(fileName, content, error)) {
 			QMessageBox::warning(this, tr("Application"), tr("Cannot write file %1:\n%2.")
                                  .arg(fileName) .arg(error));
             return false;
@@ -205,7 +214,9 @@ void Ui_MainWindow::open_file()
 
 void Ui_MainWindow::new_file()
 {
-	src_files.new_src_tab("", "");
+    QString content = "";
+    
+	src_files.new_src_tab(content, "");
     //setCentralWidget(editor);
 }
 

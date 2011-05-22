@@ -25,13 +25,14 @@ class src_area : public QTabWidget
 	public:
 	
 	src_area();
-	int new_src_tab(QString content, QString file_name);
+	int new_src_tab(QString &content, QString file_name);
 	void destroy_src_tab(int index);
 
 	bool is_modified(int index);
 	bool exists(int index);
     bool saved_on_disk(int index);
     bool set_saved_on_disk(int index, bool saved);
+    bool set_file_name(int index, QString &fileName);
 	
 	string get_src_tab_name(int index);
 	QString get_src_tab_full_name(int index);

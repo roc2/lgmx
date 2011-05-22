@@ -38,7 +38,7 @@ src_area::src_area()
  * Create new source tab
  */
 
-int src_area::new_src_tab(QString content, QString file_name)
+int src_area::new_src_tab(QString &content, QString file_name)
 {
 	int index;
 	src_file *src_tab;
@@ -105,8 +105,6 @@ void src_area::destroy_src_tab(int index)
 {
 	removeTab(index);
 	cout << "destroyed tab at index " << index << endl;
-
-    show_tabs(false);
 }
 
 /**
@@ -186,6 +184,18 @@ bool src_area::set_saved_on_disk(int index, bool saved)
 		return false;	/* index out of range */
 
 	return src_tab->set_saved_on_disk(saved);
+}
+
+bool src_area::set_file_name(int index, QString &fileName)
+{
+    src_file *src_tab;
+
+	if ((src_tab = (src_file *) widget(index)) == 0)
+		return false;	/* index out of range */
+
+	src_tab->set_src_file_name(fileName);
+    
+    return true;
 }
 
 bool src_area::get_curr_font(QFont &font)

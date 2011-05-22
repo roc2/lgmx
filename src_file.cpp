@@ -103,6 +103,15 @@ QString src_file::get_src_file_name()
  * 
  */
 
+void src_file::set_src_file_name(const QString &fileName)
+{
+    file_info->setFile(fileName);
+}
+
+/**
+ * 
+ */
+
 QString src_file::get_src_file_full_name()
 {
     return file_info->absoluteFilePath();
