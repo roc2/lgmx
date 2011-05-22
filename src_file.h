@@ -27,7 +27,7 @@ class src_file : public QWidget {
 	src_file(const QString file_name, QString content, bool on_disk);
 	bool is_modified();
     bool saved_on_disk();
-    bool set_saved_on_disk(bool saved);
+    bool set_src_file_modified(bool modified);
     void set_src_file_name(const QString &fileName);
 	QString get_content();
 	QString get_src_file_name();
@@ -35,6 +35,7 @@ class src_file : public QWidget {
 	bool exists();
 	QFont get_font();
 	void go_to_line(int line);
+    void update_src_file_info();
     
     bool eventFilter(QObject* pObject, QEvent* pEvent);
 };

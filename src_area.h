@@ -31,12 +31,12 @@ class src_area : public QTabWidget
 	bool is_modified(int index);
 	bool exists(int index);
     bool saved_on_disk(int index);
-    bool set_saved_on_disk(int index, bool saved);
+    bool set_modified(int index, bool modified);
     bool set_file_name(int index, QString &fileName);
 	
 	string get_src_tab_name(int index);
 	QString get_src_tab_full_name(int index);
-	
+	bool update_file_info(int index);
 	
 	bool get_src_tab_content(int index, QString &content);
 

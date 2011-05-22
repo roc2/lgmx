@@ -19,20 +19,32 @@ using namespace std;
 
 void Ui_MainWindow::close_file(int index)
 {
+    QString file_name;
 	QMessageBox::StandardButton ret;
 	
+    /* check if file needs to be saved */
 	if (src_files.is_modified(index)) {
-		ret = QMessageBox::warning(this, tr("Application"),
+		
+        ret = QMessageBox::warning(this, tr("Application"),
 			  tr("The document has been modified.\n"
 				 "Do you want to save your changes?"),
 			  QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 	
-		if (ret == QMessageBox::Save) {
-			if (!save_file(false))
+		if (ret == QMessageBox::Save) { /* save file */
+            
+            file_name = src_files.get_src_tab_full_name(index);
+            
+            if (file_name.isEmpty()) {
+                cout << "file name empty" << endl;
+                saveAs(index);
+                
                 return;
+            }
+    
+            saveFile(file_name, index);
             
         } else if (ret == QMessageBox::Cancel)
-			return;
+			return;     /* if dialog is canceled, do nothing */
 	}
 	
 	src_files.destroy_src_tab(index);   // closes the file
@@ -84,12 +96,15 @@ bool Ui_MainWindow::saveAs(int index)
 {
     QString fileName = QFileDialog::getSaveFileName(this);
     if (fileName.isEmpty())
-        return false;
+        return false;   /* no file specified */
 
-    // set file name!!!
-    src_files.set_file_name(index, fileName);
-
-    return saveFile(fileName, index);
+    if (saveFile(fileName, index)) {
+        src_files.set_file_name(index, fileName);
+        src_files.update_file_info(index);
+        return true;
+    }
+    
+    return false;
 }
 
 /**
@@ -111,7 +126,7 @@ bool Ui_MainWindow::saveFile(const QString &fileName, int index)
             return false;
 		}
         
-        src_files.set_saved_on_disk(index, true);
+        src_files.set_modified(index, true);
 	} else
         return false;
 
@@ -121,7 +136,7 @@ bool Ui_MainWindow::saveFile(const QString &fileName, int index)
 /**
  * 
  */
-
+#if 0
 bool Ui_MainWindow::save_file(bool save_as)
 {
 	QString file_name;
@@ -166,7 +181,7 @@ bool Ui_MainWindow::save_file(bool save_as)
 
 	return true;
 }
-
+#endif
 /**
  * Open a file
  */

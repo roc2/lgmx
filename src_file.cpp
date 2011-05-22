@@ -71,9 +71,9 @@ bool src_file::saved_on_disk()
     return true;
 }
 
-bool src_file::set_saved_on_disk(bool saved)
+bool src_file::set_src_file_modified(bool modified)
 {
-    editor->document()->setModified(false);
+    editor->document()->setModified(modified);
     cout << "set modified to false" << endl;
     //setWindowModified(false);
     //this->saved = saved;
@@ -106,6 +106,16 @@ QString src_file::get_src_file_name()
 void src_file::set_src_file_name(const QString &fileName)
 {
     file_info->setFile(fileName);
+}
+
+/**
+ * Updates file information
+ * @brief Updates file information
+ */
+
+void src_file::update_src_file_info()
+{
+    file_info->refresh();
 }
 
 /**

@@ -176,14 +176,14 @@ bool src_area::saved_on_disk(int index)
 
 }
 
-bool src_area::set_saved_on_disk(int index, bool saved)
+bool src_area::set_modified(int index, bool modified)
 {
     src_file *src_tab;
 
 	if ((src_tab = (src_file *) widget(index)) == 0)
 		return false;	/* index out of range */
 
-	return src_tab->set_saved_on_disk(saved);
+	return src_tab->set_src_file_modified(modified);
 }
 
 bool src_area::set_file_name(int index, QString &fileName)
@@ -198,11 +198,32 @@ bool src_area::set_file_name(int index, QString &fileName)
     return true;
 }
 
+/**
+ * Updates the information from a file already saved on disk
+ * @brief Updates the information from a file already saved on disk
+ * @param index -> tab index
+ * @return true -> info updated ok, false -> invalid index
+ */
+
+bool src_area::update_file_info(int index)
+{
+    src_file *src_tab;
+
+	if ((src_tab = (src_file *) widget(index)) == 0)
+		return false;	/* index out of range */
+
+	src_tab->update_src_file_info();    /* refresh file info */
+    
+    /* set tab text with the short file name */
+    setTabText(index, src_tab->get_src_file_name());
+    
+    return true;
+}
+
 bool src_area::get_curr_font(QFont &font)
 {
 	src_file *src_tab;
 
-	//if ((src_tab = (src_file *) src_tab_widget->widget(0)) == 0)
     if ((src_tab = (src_file *) widget(0)) == 0)
 		return false;	/* index out of range */
 
