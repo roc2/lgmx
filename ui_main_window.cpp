@@ -36,12 +36,12 @@ void Ui_MainWindow::close_file(int index)
             
             if (file_name.isEmpty()) {
                 cout << "file name empty" << endl;
-                saveAs(index);
-                
-                return;
+                if (!saveAs(index))
+                    return; /* could not save, just return */
+            } else {
+                if (!saveFile(file_name, index))
+                    return; /* could not save, just return */
             }
-    
-            saveFile(file_name, index);
             
         } else if (ret == QMessageBox::Cancel)
 			return;     /* if dialog is canceled, do nothing */
@@ -52,17 +52,7 @@ void Ui_MainWindow::close_file(int index)
 
 /**
  * Save file to disk
- */
-#if 0
-void Ui_MainWindow::save()
-{
-	save_file(false);
-}
-#endif
-
-/**
- * 
- * 
+ * @brief Save file to disk
  */
 
 bool Ui_MainWindow::save()
@@ -109,79 +99,29 @@ bool Ui_MainWindow::saveAs(int index)
 
 /**
  * Saves file to disk
+ * @brief Saves file to disk
+ * @param fileName -> file name
+ * @param index -> index in the source tab
+ * @return true -> file saved successfully, false -> error
  */
 
 bool Ui_MainWindow::saveFile(const QString &fileName, int index)
 {
-    QString content, error;
-    File file;
+    QString error;
     
     cout << "file name -> " << fileName.toStdString() << endl;
 
-    if (src_files.get_src_tab_content(index, content)) {
-		
-        if (!file.write_file(fileName, content, error)) {
-			QMessageBox::warning(this, tr("Application"), tr("Cannot write file %1:\n%2.")
+    if (!src_files.src_tab_write_file(index, fileName)) {
+        QMessageBox::warning(this, tr("Application"), tr("Cannot write file %1:\n%2.")
                                  .arg(fileName) .arg(error));
-            return false;
-		}
-        
-        src_files.set_modified(index, true);
-	} else
         return false;
+    }
+
+    src_files.set_modified(index, false);
 
     return true;
 }
 
-/**
- * 
- */
-#if 0
-bool Ui_MainWindow::save_file(bool save_as)
-{
-	QString file_name;
-	File file;
-	QString content, error;
-	bool new_file = true;
-	int index;
-	
-	index = src_files.get_current_tab_index();
-    
-    if (index < 0)      // no file
-        return false;
-	
-	if (src_files.saved_on_disk(index)) {
-		cout << "file exists" << endl;
-		new_file = false;
-	}
-	
-	if (save_as || new_file) {		/* retrive new file path */
-		file_name = QFileDialog::getSaveFileName(this, tr("Save File"), "/home/lgm/untitled.cpp", tr("Images (*.c *.h *.cpp)"));
-	} else {
-		file_name = src_files.get_src_tab_full_name(index);
-	}
-	
-	if (file_name.isEmpty()) {
-		cout << "No file chosen!!" << endl;
-		return false;
-	}
-	
-	cout << "file name -> " << file_name.toStdString() << endl;
-
-	if (src_files.get_src_tab_content(index, content)) {
-		if (!file.write_file(file_name, content, error)) {
-			QMessageBox::warning(this, tr("Application"),
-				  tr("Cannot write file %1:\n%2.")
-				  .arg(file_name)
-				  .arg(error));
-				  return false;
-		}
-        src_files.set_saved_on_disk(index, true);
-	}
-
-	return true;
-}
-#endif
 /**
  * Open a file
  */
@@ -190,14 +130,11 @@ void Ui_MainWindow::open_file()
 {
 	QString file_name;
 	QString content, error;
-	File file;
 	string short_name;
 	int index;
 	
     
     // call may be save!!!!
-    
-    
 	/*
     char *pPath;			// fazer uma funcao q retorna o $HOME
     pPath = getenv("HOME");
@@ -209,7 +146,8 @@ void Ui_MainWindow::open_file()
 	
 	if (file_name.isEmpty())
 		return;
-	
+
+/*
 	if (!file.read_file(file_name, content, error)) {
 		QMessageBox::warning(this, tr("Application"), tr("Cannot read file %1:\n%2.").arg(file_name).arg(error));
 		
@@ -217,7 +155,8 @@ void Ui_MainWindow::open_file()
 	}
 	
 	file.get_file_name(file_name, short_name);
-	index = src_files.new_src_tab(content, file_name);
+*/
+	index = src_files.new_src_tab(file_name);
 	//statusBar()->showMessage(tr("File loaded"), 2000);
 }
 
@@ -229,10 +168,9 @@ void Ui_MainWindow::open_file()
 
 void Ui_MainWindow::new_file()
 {
-    QString content = "";
+    QString fileName = "";
     
-	src_files.new_src_tab(content, "");
-    //setCentralWidget(editor);
+	src_files.new_src_tab(fileName);
 }
 
 /**
@@ -438,9 +376,9 @@ void Ui_MainWindow::closeEvent(QCloseEvent *event)
     
 	cout << "close event" << endl;
 	
-    while ((cur_index = src_files.get_current_tab_index()) >= 0)
+    while ((cur_index = src_files.get_current_tab_index()) >= 0) {
         close_file(cur_index);
-    
+    }
     
 	if (okToContinue()) {
 		write_settings();

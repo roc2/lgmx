@@ -38,27 +38,22 @@ src_area::src_area()
  * Create new source tab
  */
 
-int src_area::new_src_tab(QString &content, QString file_name)
+int src_area::new_src_tab(const QString file_name)
 {
 	int index;
 	src_file *src_tab;
 	QString show_name;
 	string s_name;
-    bool saved_on_disk = true;
-    bool get_name = true;
 
-    if (file_name == "") {
-        show_name = NEW_FILE_NAME;
-        get_name = false;
-    }
-
-	index = addTab(new src_file(file_name, content, saved_on_disk), QString());
+	index = addTab(new src_file(file_name), QString());
 	cout << "added new tab at index " << index << endl;
 
 	if ((src_tab = (src_file *) this->widget(index)) == 0)
     	return false;	/* index out of range */
 
-    if (get_name)
+    if (file_name.isEmpty())
+        show_name = NEW_FILE_NAME;
+    else
         show_name = src_tab->get_src_file_name();
 
     s_name = show_name.toStdString();
@@ -74,7 +69,7 @@ int src_area::new_src_tab(QString &content, QString file_name)
 	 * um slot que troca a cor do texto da tab por vermelho
 	 */
 
-	return 0;
+	return index;
 }
 
 /**
@@ -122,7 +117,7 @@ QString src_area::get_src_tab_full_name(int index)
 }
 
 /**
- *
+ * Retrieves the content of the entire file
  */
 
 bool src_area::get_src_tab_content(int index, QString &content)
@@ -136,6 +131,33 @@ bool src_area::get_src_tab_content(int index, QString &content)
 
 	return true;
 }
+
+/**
+ * 
+ * 
+ */
+
+bool src_area::src_tab_write_file(int index, const QString &fileName)
+{
+    src_file *src_tab;
+
+	if ((src_tab = (src_file *) widget(index)) == 0)
+		return false;	/* index out of range */
+
+	return src_tab->write_file(fileName);
+}
+
+#if 0
+bool src_area::src_tab_load_file(const QString &fileName)
+{
+    src_file *src_tab;
+
+	if ((src_tab = (src_file *) widget(index)) == 0)
+		return false;	/* index out of range */
+
+	return src_tab->load_file(fileName);
+}
+#endif
 
 /**
  * Check if file content was modified

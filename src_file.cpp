@@ -1,10 +1,13 @@
 #include <iostream>
+#include <QTextStream>
 #include <QPalette>
+#include <QMessageBox>
+#include <QString>
 #include "src_file.h"
 
 using namespace std;
 
-src_file::src_file(const QString file_name, QString content, bool on_disk)
+src_file::src_file(const QString file_name)
 {
     tab = new QWidget();
     tab->setObjectName(QString::fromUtf8("untitled"));
@@ -17,12 +20,10 @@ src_file::src_file(const QString file_name, QString content, bool on_disk)
     /* new source code file */
     editor = new CodeEditor(tab);
     editor->setObjectName(QString::fromUtf8("src_editor"));
-    editor->setPlainText(content);
     //editor->setTabStopWidth(num_spaces * font_size_in_pixels);
     editor->setTabStopWidth(4 * 8);
     //editor->document()->setModified(false);   // false by default
     editor->installEventFilter(this);
-    
     
     // change editor colors
     QPalette p = editor->palette();
@@ -41,11 +42,64 @@ src_file::src_file(const QString file_name, QString content, bool on_disk)
     /* file properties */
     if (file_name.isEmpty())
         file_info = new QFileInfo();
-    else
+    else {
         file_info = new QFileInfo(file_name);
+        load_file(file_name);      /* reads file from disk */
+    }
     
-    /* syntax highlighting */
-    highlighter = new Highlighter(editor->document());
+    /* syntax highlighting */ // modificar para aplicar somente no que aparece na tela
+    //highlighter = new Highlighter(editor->document());
+}
+
+/**
+ * 
+ */
+
+/*
+ QFile file("in.txt");
+     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+         return;
+
+     QTextStream in(&file);
+     while (!in.atEnd()) {
+         QString line = in.readLine();
+         process_line(line);
+     }
+*/
+
+// teria q rodar alguma coisa tipo o codigo acima em uma thread separada
+
+
+bool src_file::load_file(const QString &fileName)
+{
+    QFile file(fileName);
+    //QString test = "this is a file";
+    
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr("Application"),
+                             tr("Cannot read file %1:\n%2.")
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        return false;
+    }
+
+    QTextStream in(&file);
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+
+    editor->setPlainText(in.readAll());
+    /*
+    editor->setPlainText(test);
+
+    for (int i = 0; i < 50; i++) {
+        test = "new line";
+        editor->appendPlainText(test);
+    }
+    */
+
+    QApplication::restoreOverrideCursor();
+
+    return true;
 }
 
 /**
@@ -88,6 +142,35 @@ bool src_file::set_src_file_modified(bool modified)
 QString src_file::get_content()
 {
     return editor->toPlainText();
+}
+
+/**
+ * Writes file content to disk
+ */
+
+bool src_file::write_file(const QString &fileName)
+{
+    QFile file(fileName);
+    QString error;
+
+	if (!file.open(QFile::WriteOnly | QFile::Text)) {
+		//QMessageBox::warning(this, tr("Application"),
+				  //tr("Cannot write file %1:\n%2.")
+				  //.arg(fileName)
+				  //.arg(file.errorString()));
+		error = file.errorString();
+		return false;
+	}
+
+	QTextStream out(&file);
+	
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+	
+	out << editor->toPlainText();
+	
+	QApplication::restoreOverrideCursor();
+    
+    return true;
 }
 
 /**

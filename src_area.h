@@ -25,7 +25,7 @@ class src_area : public QTabWidget
 	public:
 	
 	src_area();
-	int new_src_tab(QString &content, QString file_name);
+	int new_src_tab(const QString file_name);
 	void destroy_src_tab(int index);
 
 	bool is_modified(int index);
@@ -38,6 +38,9 @@ class src_area : public QTabWidget
 	QString get_src_tab_full_name(int index);
 	bool update_file_info(int index);
 	
+    bool src_tab_write_file(int index, const QString &fileName);
+    bool src_tab_load_file(const QString &fileName);
+    
 	bool get_src_tab_content(int index, QString &content);
 
 	int get_current_tab_index();

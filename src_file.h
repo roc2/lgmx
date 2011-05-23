@@ -24,7 +24,12 @@ class src_file : public QWidget {
 	
 	public:
 	
-	src_file(const QString file_name, QString content, bool on_disk);
+	//src_file(const QString file_name, QString content, bool on_disk);
+    src_file(const QString file_name);
+    
+    bool write_file(const QString &fileName);
+    bool load_file(const QString &fileName);
+    
 	bool is_modified();
     bool saved_on_disk();
     bool set_src_file_modified(bool modified);
