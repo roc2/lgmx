@@ -3,6 +3,8 @@
 
 #include <QtGui/QPlainTextEdit>
 #include <QtCore/QObject>
+#include <QTextBlock>
+
 
 class QPaintEvent;
 class QResizeEvent;
@@ -21,6 +23,8 @@ class CodeEditor : public QPlainTextEdit
 
      void lineNumberAreaPaintEvent(QPaintEvent *event);
      int lineNumberAreaWidth();
+     
+     //QString get_text_block_content();
 
  protected:
      void resizeEvent(QResizeEvent *event);

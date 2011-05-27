@@ -446,6 +446,12 @@ void Ui_MainWindow::createActions()
     actionMenuBar->setCheckable(true);
     actionMenuBar->setChecked(true);	// default "checked"
     
+    /* full screen */
+    actionFullScreen = new QAction(this);
+    actionFullScreen->setObjectName(QString::fromUtf8("actionFull_Screen"));
+    actionFullScreen->setCheckable(true);
+    actionFullScreen->setChecked(false);	// default "checked"
+    
     /* go to line */
     actionGo_to_line = new QAction(this);
     actionGo_to_line->setObjectName(QString::fromUtf8("actionGo_to_line"));
@@ -558,6 +564,7 @@ Ui_MainWindow::Ui_MainWindow()
         menuView->addAction(actionSide_Bar);
         menuView->addAction(actionStatus_Bar);
         menuView->addAction(actionMenuBar);
+        menuView->addAction(actionFullScreen);
         
         /* add actions to main window, so they work when menuBar is hidden */
         addAction(actionNew);
@@ -567,6 +574,7 @@ Ui_MainWindow::Ui_MainWindow()
         addAction(actionSide_Bar);
         addAction(actionStatus_Bar);
         addAction(actionMenuBar);
+        addAction(actionFullScreen);
         
         menuBar->addAction(menuView->menuAction());
         menuBar->addAction(menu_Search->menuAction());
@@ -589,6 +597,9 @@ Ui_MainWindow::Ui_MainWindow()
 		QObject::connect(actionStatus_Bar, SIGNAL(toggled(bool)), this, SLOT(show_status_bar(bool)));
         /* menu bar */
 		QObject::connect(actionMenuBar, SIGNAL(toggled(bool)), this, SLOT(show_menu_bar(bool)));
+        /* full screen */
+		QObject::connect(actionFullScreen, SIGNAL(toggled(bool)), this, SLOT(show_full_screen(bool)));
+        
 		/* go to line */
 		QObject::connect(actionGo_to_line, SIGNAL(triggered()), this, SLOT(go_to_ln()));
 

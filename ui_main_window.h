@@ -56,6 +56,7 @@ public:
 	QAction *actionSide_Bar;
 	QAction *actionStatus_Bar;
     QAction *actionMenuBar;
+    QAction *actionFullScreen;
 
 	QAction *actionGo_to_line;
 
@@ -101,6 +102,10 @@ public:
         actionMenuBar->setText(QApplication::translate("main_window", "Menu Bar", 0, QApplication::UnicodeUTF8));
         actionMenuBar->setShortcut(QApplication::translate("main_window", "Alt+C", 0, QApplication::UnicodeUTF8));
         actionMenuBar->setShortcutContext(Qt::ApplicationShortcut);
+        
+        actionFullScreen->setText(QApplication::translate("main_window", "Full Screen", 0, QApplication::UnicodeUTF8));
+        actionFullScreen->setShortcut(QApplication::translate("main_window", "F11", 0, QApplication::UnicodeUTF8));
+        actionFullScreen->setShortcutContext(Qt::ApplicationShortcut);
         
         actionGo_to_line->setText(QApplication::translate("main_window", "Go to line", 0, QApplication::UnicodeUTF8));
         actionGo_to_line->setShortcut(QApplication::translate("main_window", "Ctrl+L", 0, QApplication::UnicodeUTF8));

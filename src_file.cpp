@@ -5,6 +5,7 @@
 #include <QString>
 #include "src_file.h"
 
+
 using namespace std;
 
 src_file::src_file(const QString file_name)
@@ -48,7 +49,7 @@ src_file::src_file(const QString file_name)
     }
     
     /* syntax highlighting */ // modificar para aplicar somente no que aparece na tela
-    //highlighter = new Highlighter(editor->document());
+    highlighter = new Highlighter(editor->document());
 }
 
 /**
@@ -73,7 +74,7 @@ src_file::src_file(const QString file_name)
 bool src_file::load_file(const QString &fileName)
 {
     QFile file(fileName);
-    //QString test = "this is a file";
+    //QString test;
     
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Application"),
@@ -86,7 +87,16 @@ bool src_file::load_file(const QString &fileName)
     QTextStream in(&file);
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
-
+/*
+    QString::iterator it;
+    test = in.readAll();
+    
+    for (it = test.begin(); it != test.end(); it++) {
+        if (*it == '/' && *(it + 1) == '*')
+            cout << "in comment" << endl;
+    }
+    cout << "done" << endl;
+    */
     editor->setPlainText(in.readAll());
     /*
     editor->setPlainText(test);

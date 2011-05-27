@@ -63,10 +63,15 @@ Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)
 	commentEndExpression = QRegExp("\\*/");
 }
 
+/*
+passar somente o textblock visível para a funçao
+*/
+
+
 
 void Highlighter::highlightBlock(const QString &text)
 {
-	foreach (const HighlightingRule &rule, highlightingRules) {
+    foreach (const HighlightingRule &rule, highlightingRules) {
          QRegExp expression(rule.pattern);
          int index = expression.indexIn(text);
          while (index >= 0) {

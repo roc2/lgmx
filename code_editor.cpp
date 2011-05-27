@@ -2,7 +2,6 @@
 #include <iostream>
 #include "code_editor.h"
 
-
 using namespace std;
 
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
@@ -16,6 +15,29 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 	updateLineNumberAreaWidth(0);
 	highlightCurrentLine();
 }
+
+/**
+ * Teste
+ */
+/*
+QString CodeEditor::get_text_block_content()
+{
+    QTextBlock block;
+    
+    block = firstVisibleBlock();
+    
+    for (int i = 0; i < 5 ; i++) {
+        cout << "num = " << block.blockNumber () << endl;
+        cout << block.text().toStdString() << endl;
+        block = block.next();
+
+        cout << "num = " << block.blockNumber () << endl;
+        cout << block.text().toStdString() << endl;
+        block = block.next();
+    }
+    return block.text();
+}
+*/
 
 /**
  * Returns the width of the line number area based on the number of digits 
@@ -102,28 +124,28 @@ void CodeEditor::highlightCurrentLine()
  */
 
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
- {
-     QPainter painter(lineNumberArea);
-     painter.fillRect(event->rect(), Qt::lightGray);
+{
+    QPainter painter(lineNumberArea);
+    painter.fillRect(event->rect(), Qt::lightGray);
 
-     QTextBlock block = firstVisibleBlock();
-     int blockNumber = block.blockNumber();
-     int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
-     int bottom = top + (int) blockBoundingRect(block).height();
+    QTextBlock block = firstVisibleBlock();
+    int blockNumber = block.blockNumber();
+    int top = (int) blockBoundingGeometry(block).translated(contentOffset()).top();
+    int bottom = top + (int) blockBoundingRect(block).height();
 
-     while (block.isValid() && top <= event->rect().bottom()) {
-         if (block.isVisible() && bottom >= event->rect().top()) {
-             QString number = QString::number(blockNumber + 1);
-             painter.setPen(Qt::black);
-             painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(),
-                              Qt::AlignRight, number);
-         }
+    while (block.isValid() && top <= event->rect().bottom()) {
+        if (block.isVisible() && bottom >= event->rect().top()) {
+            QString number = QString::number(blockNumber + 1);
+            painter.setPen(Qt::black);
+            painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(),
+                          Qt::AlignRight, number);
+        }
 
-         block = block.next();
-         top = bottom;
-         bottom = top + (int) blockBoundingRect(block).height();
-         ++blockNumber;
-     }
- }
+        block = block.next();
+        top = bottom;
+        bottom = top + (int) blockBoundingRect(block).height();
+        ++blockNumber;
+    }
+}
 
 
