@@ -2,14 +2,15 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <cstdlib>
+#include <QDir>
 
 #include "ui_main_window.h"
 #include "editor.h"
 #include "code_editor.h"
 #include "file.h"
+#include "config.h"
 
 using namespace std;
-
 
 
 /**
@@ -128,36 +129,24 @@ bool Ui_MainWindow::saveFile(const QString &fileName, int index)
 
 void Ui_MainWindow::open_file()
 {
-	QString file_name;
-	QString content, error;
-	string short_name;
+    QStringList files;
+	QString path;
+    QDir dir;
 	int index;
-	
     
-    // call may be save!!!!
-	/*
-    char *pPath;			// fazer uma funcao q retorna o $HOME
-    pPath = getenv("HOME");
+    index = src_files.get_current_tab_index();  /* get current file index */
     
-    if (pPath!=NULL)
-        printf ("The current path is: %s\n",pPath);
-    */
-	file_name = QFileDialog::getOpenFileName(this, tr("Open File"), "/home/lgm", tr("All files (*.c *.cpp *.h)"));
-	
-	if (file_name.isEmpty())
-		return;
+    /* 
+     * "open file" dialog path is the path of the current open file, or "home"
+     * if there is no file open
+     */
+    if (index < 0 || (path = src_files.get_src_tab_path(index)) == "")
+        path = dir.homePath();
+ 
+    files = QFileDialog::getOpenFileNames(this, tr("Open File"), path, tr("All files (*.c *.cpp *.h)"));
 
-/*
-	if (!file.read_file(file_name, content, error)) {
-		QMessageBox::warning(this, tr("Application"), tr("Cannot read file %1:\n%2.").arg(file_name).arg(error));
-		
-		return;
-	}
-	
-	file.get_file_name(file_name, short_name);
-*/
-	index = src_files.new_src_tab(file_name);
-	//statusBar()->showMessage(tr("File loaded"), 2000);
+    for (index = 0; index < files.size(); ++index)
+        src_files.new_src_tab(files.at(index));
 }
 
 
@@ -216,35 +205,18 @@ void Ui_MainWindow::set_tab_width()
 	cout << "size = " << size << endl;
 }
 
-#if 0
-void Ui_MainWindow::hide_src_tabs()
+/**
+ * Returns the user home directory absolute path
+ * @brief Returns the user home directory absolute path
+ * @return absolute path as a QString
+ */
+
+QString Ui_MainWindow::getHomePath()
 {
-	QTabBar *tab; 
-	
-	tab = tabBar();
-	
-	tab->hide();		/* this hides the tab bar from a tabwidget */
-
-
+    QDir dir;
+    
+    return dir.homePath();
 }
-#endif
-
-#if 0
-QString Ui_MainWindow::get_text()
-{
-	QString buff;
-	QWidget *current; 
-	int index = 0;
-	
-	current = src_tab_widget->currentWidget();
-	index = src_tab_widget->currentIndex();
-	
-	cout << "index: " << index << endl;
-	//buff = plainTextEdit->toPlainText();
-	
-	return buff;
-}
-#endif
 
 /**
  * Show or hide the side bar.
@@ -302,6 +274,16 @@ void Ui_MainWindow::show_full_screen(bool fullscreen)
         showNormal();
 }
 
+/**
+ * Show or hide the source files tab bar
+ * @brief Show or hide the source files tab bar
+ * @param show -> true, show menu; false, hide tab bar
+ */
+
+void Ui_MainWindow::show_src_tab_bar(bool show)
+{
+	src_files.show_tabs(show);
+}
 
 /**
  * Go to specified line
@@ -450,7 +432,13 @@ void Ui_MainWindow::createActions()
     actionFullScreen = new QAction(this);
     actionFullScreen->setObjectName(QString::fromUtf8("actionFull_Screen"));
     actionFullScreen->setCheckable(true);
-    actionFullScreen->setChecked(false);	// default "checked"
+    actionFullScreen->setChecked(false);	// default "unchecked"
+    
+    /* source tab bar */
+    actionSrcTabBar = new QAction(this);
+    actionSrcTabBar->setObjectName(QString::fromUtf8("actionSrcTabBar"));
+    actionSrcTabBar->setCheckable(true);
+    actionSrcTabBar->setChecked(true);	// default "checked"
     
     /* go to line */
     actionGo_to_line = new QAction(this);
@@ -484,6 +472,7 @@ Ui_MainWindow::Ui_MainWindow()
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         
         splitter = new QSplitter(centralWidget);
+        //splitter->setHandleWidth(2);
         splitter->setObjectName(QString::fromUtf8("splitter"));
         splitter->setOrientation(Qt::Horizontal);
         
@@ -565,16 +554,19 @@ Ui_MainWindow::Ui_MainWindow()
         menuView->addAction(actionStatus_Bar);
         menuView->addAction(actionMenuBar);
         menuView->addAction(actionFullScreen);
+        menuView->addAction(actionSrcTabBar);
         
         /* add actions to main window, so they work when menuBar is hidden */
         addAction(actionNew);
 		addAction(actionSave);
         addAction(actionOpen);
         
+        /* view actions */
         addAction(actionSide_Bar);
         addAction(actionStatus_Bar);
         addAction(actionMenuBar);
         addAction(actionFullScreen);
+        addAction(actionSrcTabBar);
         
         menuBar->addAction(menuView->menuAction());
         menuBar->addAction(menu_Search->menuAction());
@@ -599,6 +591,8 @@ Ui_MainWindow::Ui_MainWindow()
 		QObject::connect(actionMenuBar, SIGNAL(toggled(bool)), this, SLOT(show_menu_bar(bool)));
         /* full screen */
 		QObject::connect(actionFullScreen, SIGNAL(toggled(bool)), this, SLOT(show_full_screen(bool)));
+        /* source tab bar */
+		QObject::connect(actionSrcTabBar, SIGNAL(toggled(bool)), this, SLOT(show_src_tab_bar(bool)));
         
 		/* go to line */
 		QObject::connect(actionGo_to_line, SIGNAL(triggered()), this, SLOT(go_to_ln()));
@@ -611,6 +605,8 @@ Ui_MainWindow::Ui_MainWindow()
         //show_full_screen(true);
 
         QMetaObject::connectSlotsByName(this);
+        
+        Config conf;
 }
 
 

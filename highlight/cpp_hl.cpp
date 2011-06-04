@@ -1,5 +1,8 @@
 #include <QtGui>
 #include "cpp_hl.h"
+#include <iostream>
+
+using namespace std;
 
 /**
  * Constructor
@@ -119,4 +122,31 @@ void Highlighter::set_keyword_bg_color(const QBrush &brush)
 {
     keywordFormat.setBackground(brush);
 }
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/*
+syntaxHighlighter::syntaxHighlighter(QPlainTextEdit *content)
+{
+    QTextBlock block;
+    
+ //   block = content->firstVisibleBlock();
+   
+    for (int i = 0; i < 5 ; i++) {
+        cout << "num = " << block.blockNumber () << endl;
+        cout << block.text().toStdString() << endl;
+        block = block.next();
+    }
+*/
+
+
+
+
+
+
+
+
 

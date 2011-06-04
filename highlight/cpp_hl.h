@@ -4,6 +4,13 @@
 #include <QSyntaxHighlighter>
 #include <QHash>
 #include <QTextCharFormat>
+#include <QtGui/QPlainTextEdit>
+
+#define NONE            0
+#define C_HIGHLIGHT     1
+#define CPP_HIGHLIGHT   2
+#define JAVA_HIGHLIGHT  3
+#define XML_HIGHLIGHT   4
 
 class Highlighter : public QSyntaxHighlighter
 {
@@ -38,6 +45,40 @@ class Highlighter : public QSyntaxHighlighter
      QTextCharFormat functionFormat;
      QTextCharFormat preProcessorFormat;
 };
+/*
+class syntaxHighlighter
+{
+    
+    public:
+    syntaxHighlighter(QPlainTextEdit *content);
 
+};
+
+class C_highlighter : public syntaxHighlighter
+{
+    public:// essa classe reimplementa o metodo virtual "set_format"
+    C_highlighter(QPlainTextEdit *content){ };
+    void setFormat();
+
+};
+*/
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

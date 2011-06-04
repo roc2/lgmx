@@ -31,6 +31,9 @@ src_area::src_area()
 	setMovable(true);
 
     tab_bar = tabBar();
+    
+    
+    setStyleSheet("QTabBar::tab { height: 25px; }");
 }
 
 
@@ -75,15 +78,6 @@ int src_area::new_src_tab(const QString file_name)
 /**
  *
  */
-#if 0
-QTabWidget* src_area::get_widget()
-{
-	return src_tab_widget;
-}
-#endif
-/**
- *
- */
 
 int src_area::get_current_tab_index()
 {
@@ -117,6 +111,20 @@ QString src_area::get_src_tab_full_name(int index)
 }
 
 /**
+ * 
+ */
+
+QString src_area::get_src_tab_path(int index)
+{
+	src_file *src_tab;
+
+	if ((src_tab = (src_file *) widget(index)) == 0)
+		return "";	/* index out of range */
+
+	return src_tab->get_src_file_path();
+}
+
+/**
  * Retrieves the content of the entire file
  */
 
@@ -146,18 +154,6 @@ bool src_area::src_tab_write_file(int index, const QString &fileName)
 
 	return src_tab->write_file(fileName);
 }
-
-#if 0
-bool src_area::src_tab_load_file(const QString &fileName)
-{
-    src_file *src_tab;
-
-	if ((src_tab = (src_file *) widget(index)) == 0)
-		return false;	/* index out of range */
-
-	return src_tab->load_file(fileName);
-}
-#endif
 
 /**
  * Check if file content was modified

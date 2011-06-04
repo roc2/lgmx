@@ -1,5 +1,6 @@
 #include <QtGui>
 #include <iostream>
+#include <QTextCharFormat>
 #include "code_editor.h"
 
 using namespace std;
@@ -14,18 +15,74 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 
 	updateLineNumberAreaWidth(0);
 	highlightCurrentLine();
+    
+    //setFont( const QFont & );
+    
+    setStyleSheet("border-width: 0px;");
 }
 
 /**
- * Teste
+ * Sets the highlighting rules according to the file type
  */
 /*
-QString CodeEditor::get_text_block_content()
+void CodeEditor::setHighlighter(int srcType)
+{
+    switch (srcType) {
+
+    case C_HIGHLIGHT:
+        highlighter = new C_highlighter();
+        break;
+
+    default:
+        break;
+    }
+}
+*/
+/**
+ * Teste
+ */
+
+void CodeEditor::get_first_visible_block_content()
 {
     QTextBlock block;
+    QTextCharFormat keywordFormat;
+    QString value;
+    QTextCursor cursor = this->textCursor();
     
+    cursor.movePosition(QTextCursor::Start); 
+    cursor.movePosition(QTextCursor::NextCharacter); 
+    cursor.movePosition(QTextCursor::NextCharacter); 
+    cursor.movePosition(QTextCursor::NextCharacter);
+    
+    keywordFormat.setForeground(Qt::red);
     block = firstVisibleBlock();
     
+    value = block.text();
+    
+    QTextBlockFormat blockFormat = cursor.blockFormat();
+    blockFormat.setBackground(QColor("yellow"));
+    blockFormat.setNonBreakableLines(true);
+    blockFormat.setPageBreakPolicy(QTextFormat::PageBreak_AlwaysBefore);
+    cursor.setBlockFormat(blockFormat);
+
+    for (QTextBlock::iterator it = cursor.block().begin(); !(it.atEnd()); ++it)
+    {
+        QTextCharFormat charFormat = it.fragment().charFormat();
+        charFormat.setFont(QFont("Times", 15, QFont::Bold));
+
+        QTextCursor tempCursor = cursor;
+        tempCursor.setPosition(it.fragment().position());
+        tempCursor.setPosition(it.fragment().position() + it.fragment().length(), QTextCursor::KeepAnchor);
+        tempCursor.setCharFormat(charFormat);
+    }
+    
+    //mycursor.setBlockFormat(keywordFormat);
+    cursor.mergeBlockCharFormat(keywordFormat);
+    
+    cout << "position " << cursor.positionInBlock() << endl;
+    
+    //return block;
+    /*
     for (int i = 0; i < 5 ; i++) {
         cout << "num = " << block.blockNumber () << endl;
         cout << block.text().toStdString() << endl;
@@ -36,8 +93,9 @@ QString CodeEditor::get_text_block_content()
         block = block.next();
     }
     return block.text();
+    */
 }
-*/
+
 
 /**
  * Returns the width of the line number area based on the number of digits 

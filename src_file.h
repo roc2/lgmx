@@ -23,8 +23,7 @@ class src_file : public QWidget {
 	QTextCursor *cursor;
 	
 	public:
-	
-	//src_file(const QString file_name, QString content, bool on_disk);
+    
     src_file(const QString file_name);
     
     bool write_file(const QString &fileName);
@@ -36,6 +35,7 @@ class src_file : public QWidget {
     void set_src_file_name(const QString &fileName);
 	QString get_content();
 	QString get_src_file_name();
+    QString get_src_file_path();
 	QString get_src_file_full_name();
 	bool exists();
 	QFont get_font();

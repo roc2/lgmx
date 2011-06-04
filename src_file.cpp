@@ -47,7 +47,7 @@ src_file::src_file(const QString file_name)
         file_info = new QFileInfo(file_name);
         load_file(file_name);      /* reads file from disk */
     }
-    
+
     /* syntax highlighting */ // modificar para aplicar somente no que aparece na tela
     highlighter = new Highlighter(editor->document());
 }
@@ -193,6 +193,16 @@ QString src_file::get_src_file_name()
 }
 
 /**
+ * Returns the file path. It does not include the file name
+ * @brief Returns the file path. It does not include the file name
+ */
+
+QString src_file::get_src_file_path()
+{
+    return file_info->absolutePath();
+}
+
+/**
  * 
  */
 
@@ -217,6 +227,7 @@ void src_file::update_src_file_info()
 
 QString src_file::get_src_file_full_name()
 {
+    editor->get_first_visible_block_content();
     return file_info->absoluteFilePath();
 }
 

@@ -57,6 +57,7 @@ public:
 	QAction *actionStatus_Bar;
     QAction *actionMenuBar;
     QAction *actionFullScreen;
+    QAction *actionSrcTabBar;
 
 	QAction *actionGo_to_line;
 
@@ -107,6 +108,10 @@ public:
         actionFullScreen->setShortcut(QApplication::translate("main_window", "F11", 0, QApplication::UnicodeUTF8));
         actionFullScreen->setShortcutContext(Qt::ApplicationShortcut);
         
+        actionSrcTabBar->setText(QApplication::translate("main_window", "Source Tab Bar", 0, QApplication::UnicodeUTF8));
+        actionSrcTabBar->setShortcut(QApplication::translate("main_window", "Alt+3", 0, QApplication::UnicodeUTF8));
+        actionSrcTabBar->setShortcutContext(Qt::ApplicationShortcut);
+        
         actionGo_to_line->setText(QApplication::translate("main_window", "Go to line", 0, QApplication::UnicodeUTF8));
         actionGo_to_line->setShortcut(QApplication::translate("main_window", "Ctrl+L", 0, QApplication::UnicodeUTF8));
         
@@ -122,7 +127,8 @@ public:
 	
 	void write_settings();
 	void read_settings();
-	
+	QString getHomePath();
+    
 	bool okToContinue();
     Ui_MainWindow();    // constructor
 	//
@@ -151,6 +157,7 @@ private slots:
 	void show_status_bar(bool show);
     void show_menu_bar(bool show);
     void show_full_screen(bool fullscreen);
+    void show_src_tab_bar(bool show);
 	
 	void set_font();
 	void set_tab_width();

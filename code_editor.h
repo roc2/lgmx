@@ -4,7 +4,8 @@
 #include <QtGui/QPlainTextEdit>
 #include <QtCore/QObject>
 #include <QTextBlock>
-
+#include <QTextCursor>
+#include "highlight/cpp_hl.h"
 
 class QPaintEvent;
 class QResizeEvent;
@@ -25,6 +26,8 @@ class CodeEditor : public QPlainTextEdit
      int lineNumberAreaWidth();
      
      //QString get_text_block_content();
+     void setHighlighter(int srcType);
+     void get_first_visible_block_content();
 
  protected:
      void resizeEvent(QResizeEvent *event);
@@ -36,6 +39,7 @@ private slots:
 
  private:
      QWidget *lineNumberArea;
+     //syntaxHighlighter *highlighter;
  };
 
 

@@ -9,6 +9,7 @@
 #include <QtGui/QHBoxLayout>
 #include <QFileInfo>
 #include <QTextCursor>
+#include <QFont>
 
 #include "code_editor.h"
 #include "highlight/cpp_hl.h"
@@ -35,6 +36,7 @@ class src_area : public QTabWidget
     bool set_file_name(int index, QString &fileName);
 	
 	string get_src_tab_name(int index);
+    QString get_src_tab_path(int index);
 	QString get_src_tab_full_name(int index);
 	bool update_file_info(int index);
 	
@@ -51,6 +53,7 @@ class src_area : public QTabWidget
     
 private:
     QTabBar *tab_bar;
+    QFont font;
 };
 
 
