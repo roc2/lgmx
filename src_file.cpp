@@ -87,25 +87,8 @@ bool src_file::load_file(const QString &fileName)
     QTextStream in(&file);
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
-/*
-    QString::iterator it;
-    test = in.readAll();
-    
-    for (it = test.begin(); it != test.end(); it++) {
-        if (*it == '/' && *(it + 1) == '*')
-            cout << "in comment" << endl;
-    }
-    cout << "done" << endl;
-    */
-    editor->setPlainText(in.readAll());
-    /*
-    editor->setPlainText(test);
 
-    for (int i = 0; i < 50; i++) {
-        test = "new line";
-        editor->appendPlainText(test);
-    }
-    */
+    editor->setPlainText(in.readAll());
 
     QApplication::restoreOverrideCursor();
 
@@ -123,7 +106,6 @@ bool src_file::is_modified()
     result = editor->document()->isModified();
     cout << "result = " << result << endl;
     
-    //return editor->document()->isModified();
     return result;
 }
 
@@ -139,8 +121,6 @@ bool src_file::set_src_file_modified(bool modified)
 {
     editor->document()->setModified(modified);
     cout << "set modified to false" << endl;
-    //setWindowModified(false);
-    //this->saved = saved;
     
     return true;
 }
@@ -164,10 +144,10 @@ bool src_file::write_file(const QString &fileName)
     QString error;
 
 	if (!file.open(QFile::WriteOnly | QFile::Text)) {
-		//QMessageBox::warning(this, tr("Application"),
-				  //tr("Cannot write file %1:\n%2.")
-				  //.arg(fileName)
-				  //.arg(file.errorString()));
+		QMessageBox::critical(this, tr("Application"),
+				  tr("Cannot write file %1:\n%2.")
+				  .arg(fileName)
+				  .arg(file.errorString()));
 		error = file.errorString();
 		return false;
 	}
@@ -227,7 +207,6 @@ void src_file::update_src_file_info()
 
 QString src_file::get_src_file_full_name()
 {
-    editor->get_first_visible_block_content();
     return file_info->absoluteFilePath();
 }
 

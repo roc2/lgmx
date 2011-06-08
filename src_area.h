@@ -51,6 +51,8 @@ class src_area : public QTabWidget
     void show_tabs(bool show);
 	void go_to_line(int index, int line);
     
+    void setFont(QFont &font);
+    
 private:
     QTabBar *tab_bar;
     QFont font;

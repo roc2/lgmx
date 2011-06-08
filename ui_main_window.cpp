@@ -3,12 +3,15 @@
 #include <QMessageBox>
 #include <cstdlib>
 #include <QDir>
+#include <QString>
 
 #include "ui_main_window.h"
 #include "editor.h"
 #include "code_editor.h"
-#include "file.h"
 #include "config.h"
+#include "unsvFileDialog.h"
+
+#include "string"
 
 using namespace std;
 
@@ -86,6 +89,9 @@ bool Ui_MainWindow::save()
 bool Ui_MainWindow::saveAs(int index)
 {
     QString fileName = QFileDialog::getSaveFileName(this);
+    // mudar para:
+    //files = QFileDialog::getSaveFileName(this, tr("Save File"), path, tr("All files (*.c *.cpp *.h)"));
+    
     if (fileName.isEmpty())
         return false;   /* no file specified */
 
@@ -112,11 +118,8 @@ bool Ui_MainWindow::saveFile(const QString &fileName, int index)
     
     cout << "file name -> " << fileName.toStdString() << endl;
 
-    if (!src_files.src_tab_write_file(index, fileName)) {
-        QMessageBox::warning(this, tr("Application"), tr("Cannot write file %1:\n%2.")
-                                 .arg(fileName) .arg(error));
+    if (!src_files.src_tab_write_file(index, fileName))
         return false;
-    }
 
     src_files.set_modified(index, false);
 
@@ -149,7 +152,25 @@ void Ui_MainWindow::open_file()
         src_files.new_src_tab(files.at(index));
 }
 
+/**
+ * Opens files passed as parameters
+ * @brief Opens files passed as parameters
+ */
 
+void Ui_MainWindow::openParameterFile(int argc, char **argv)
+{
+    int i;
+    QDir dir;
+    QString curPath = dir.currentPath();
+    QString file;
+    
+    for (i = 1; i < argc; i++) {
+        file = curPath;
+        file.append('/');
+        file.append(argv[i]);
+        src_files.new_src_tab(file);    // fazer com que new file não crie o arquivo caso não encontre
+    }
+}
 
 /**
  * Create new empty file
@@ -168,12 +189,15 @@ void Ui_MainWindow::new_file()
 
 void Ui_MainWindow::set_font()
 {
-	bool ok;
 	QFont initial;
-	initial.setFamily("Courier");
+    
+	initial.setFamily("monospace");
 	initial.setFixedPitch(true);
-	initial.setPointSize(10);
+	initial.setPointSize(12);
 
+    cout << "will set font..." << endl;
+    //src_files.setFont(initial);
+/*
 	cout << "choose font!!" << endl;
 
 	QFont font = QFontDialog::getFont(&ok, QFont("Times", 12), this);
@@ -185,7 +209,7 @@ void Ui_MainWindow::set_font()
      // the user canceled the dialog; font is set to the initial
      // value, in this case Times, 12.
 	}
-
+*/
 	
 	//editor->setFont(font);
 }
@@ -233,7 +257,7 @@ void Ui_MainWindow::show_side_bar(bool show)
 }
 
 /**
- * Show or hide the side bar.
+ * Show or hide the status bar.
  * @brief Show or hide the side bar.
  * @param show -> true, show bar false, hide bar
  */
@@ -319,12 +343,16 @@ void Ui_MainWindow::go_to_ln()
  * Store main window settings
  */
 
-void Ui_MainWindow::write_settings()
+void Ui_MainWindow::writeSettings()
 {
 	QSettings settings(COMPANY, APPLICATION);
 
-	//settings.setValue("geometry", geometry());
-	settings.setValue("geometry", saveGeometry());
+    settings.setValue("pos", pos());
+    settings.setValue("size", size());
+
+	//settings.setValue("geometry", saveGeometry());
+    //settings.setValue("windowState", saveState());
+    
 	cout << "Saved settings" << endl;
 }
 
@@ -332,17 +360,73 @@ void Ui_MainWindow::write_settings()
  * Read and apply main window settings
  */
 
-void Ui_MainWindow::read_settings()
+void Ui_MainWindow::readSettings()
 {
 	QSettings settings(COMPANY, APPLICATION);
-	QRect rect;
+	//QRect rect;
 
-	rect = settings.value("geometry", QRect(200, 200, 400, 400)).toRect();
+    //restoreGeometry(settings.value("myWidget/geometry").toByteArray());
+    //restoreState(settings.value("myWidget/windowState").toByteArray());
+
+    QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
+    QSize size = settings.value("size", QSize(400, 400)).toSize();
+    resize(size);
+    move(pos);
+
+	//rect = settings.value("geometry", QRect(200, 200, 400, 400)).toRect();
 	
-	move(rect.topLeft());
-	resize(rect.size());
+	//move(rect.topLeft());
+	//resize(rect.size());
 
 
+}
+
+/**
+ * Checks if there are unsaved files before closing the application. The 
+ * files are saved or discarded, according to the user's request.
+ * @brief Checks if there are unsaved files before closing the application.
+ * @return true -> files saved or discarded, Ok to close the application. 
+ * false -> The closing was canceled.
+ */
+
+bool Ui_MainWindow::checkUnsavedFiles()
+{
+    int index, tabs;
+    QMessageBox::StandardButton ret;
+    QString file_name;
+    
+    tabs = src_files.count();
+    
+    /* check for unsaved files and save them if requested */
+    for (index = 0; index < tabs; index++) {
+
+        if (src_files.is_modified(index)) {
+            src_files.setCurrentIndex(index);
+            
+            ret = QMessageBox::warning(this, APPLICATION,
+			  tr("The document has been modified.\n"
+				 "Do you want to save your changes?"),
+			  QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+            
+            if (ret == QMessageBox::Save) { /* save file */
+            
+                file_name = src_files.get_src_tab_full_name(index);
+                
+                if (file_name.isEmpty()) {
+                    if (!saveAs(index))
+                        return false; /* could not save, just return */
+                    
+                } else {
+                    if (!saveFile(file_name, index))
+                        return false; /* could not save, just return */
+                    
+                }
+            } else if (ret == QMessageBox::Cancel)
+                return false;     /* if dialog is canceled, do nothing */
+        }
+    }
+    
+    return true;
 }
 
 /**
@@ -354,23 +438,16 @@ void Ui_MainWindow::read_settings()
 
 void Ui_MainWindow::closeEvent(QCloseEvent *event)
 {
-    int cur_index;
-    
-	cout << "close event" << endl;
-	
-    while ((cur_index = src_files.get_current_tab_index()) >= 0) {
-        close_file(cur_index);
+    if (!checkUnsavedFiles()) {
+        event->ignore();
+        return;
     }
-    
-	if (okToContinue()) {
-		write_settings();
-		event->accept();
-	} else {
-		event->ignore();
-	}
+	
+    writeSettings();    /* save current settings */
+    event->accept();
 }
 
-
+#if 0
 bool Ui_MainWindow::okToContinue()
 {
 	int ret;
@@ -392,6 +469,7 @@ bool Ui_MainWindow::okToContinue()
 	}
 	return true;
 }
+#endif
 
 /**
  * Create main window actions
@@ -447,8 +525,7 @@ void Ui_MainWindow::createActions()
 
 /**
  * MainWindow Constructor
- * 
- * 
+ * @brief MainWindow Constructor
  */
 
 
@@ -456,8 +533,8 @@ Ui_MainWindow::Ui_MainWindow()
 {
     if (objectName().isEmpty())
             setObjectName(QString::fromUtf8("main_window"));
-        resize(831, 557);
-        showMaximized();
+        //resize(831, 557);
+        //showMaximized();
 
         gt_ln_dialog = NULL;
         
@@ -493,12 +570,7 @@ Ui_MainWindow::Ui_MainWindow()
         symbol_tab_widget->addTab(tab_2, QString());
         
         splitter->addWidget(symbol_tab_widget);
-        //src_tab_widget = new QTabWidget(splitter);
-        //src_tab_widget->setObjectName(QString::fromUtf8("src_tab_widget"));
-        //src_tab_widget->setTabsClosable(true);
-        //src_tab_widget->setMovable(true);
-        
-        splitter->addWidget(&src_files/*.get_widget()*/);
+        splitter->addWidget(&src_files);
         
         horizontalLayout->addWidget(splitter);
         
@@ -509,8 +581,6 @@ Ui_MainWindow::Ui_MainWindow()
         splitter_size.append(900);
         splitter->setSizes(splitter_size);
         //splitter_size = splitter->sizes();	/* this returns the current splitter sizes */
-
-		//tabBar()->hide();		/* this hides the tab bar from a tabwidget */
 
         setCentralWidget(centralWidget);
         menuBar = new QMenuBar(this);
@@ -541,8 +611,6 @@ Ui_MainWindow::Ui_MainWindow()
         statusBar = new QStatusBar(this);
         statusBar->setObjectName(QString::fromUtf8("statusBar"));
         setStatusBar(statusBar);
-        //statusBar->hide();	/* hide status bar */
-        //statusBar->show();	/* show status bar */
 
 		menuBar->addAction(menu_File->menuAction());
 		menu_File->addAction(actionNew);
@@ -580,7 +648,6 @@ Ui_MainWindow::Ui_MainWindow()
         retranslateUi(this);
 		QObject::connect(actionSave, SIGNAL(triggered()), this, SLOT(save()));
         QObject::connect(actionOpen, SIGNAL(triggered()), this, SLOT(open_file()));
-        //QObject::connect(actionOpen, SIGNAL(triggered()), this, SLOT(set_tab_width()));
         QObject::connect(actionNew, SIGNAL(triggered()), this, SLOT(new_file()));
         
         /* side bar */
@@ -597,23 +664,13 @@ Ui_MainWindow::Ui_MainWindow()
 		/* go to line */
 		QObject::connect(actionGo_to_line, SIGNAL(triggered()), this, SLOT(go_to_ln()));
 
-		//QObject::connect(src_tab_widget, SIGNAL(tabCloseRequested ( int )), this, slot(closeTab(int))).
-		//QObject::connect(src_files.get_widget(), SIGNAL(tabCloseRequested ( int )), this, SLOT(close_file(int)));
         QObject::connect(&src_files, SIGNAL(tabCloseRequested ( int )), this, SLOT(close_file(int)));
-
-        //src_tab_widget->setCurrentIndex(0);
-        //show_full_screen(true);
 
         QMetaObject::connectSlotsByName(this);
         
-        Config conf;
+        set_font();
+        readSettings();
+        //Config conf;
 }
-
-
-
-
-
-
-
 
 

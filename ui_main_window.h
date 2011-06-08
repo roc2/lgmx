@@ -42,6 +42,10 @@ using namespace std;
 #define COMPANY		"lgm."
 #define APPLICATION	"lgmx"
 
+#define SAVE_FILE_OK        0
+#define SAVE_FILE_DISCARD   -1
+#define SAVE_FILE_ERR       -2
+
 QT_BEGIN_NAMESPACE
 
 class Ui_MainWindow : public QMainWindow
@@ -125,11 +129,14 @@ public:
 
 	bool save_file(bool save_as);
 	
-	void write_settings();
-	void read_settings();
+	void writeSettings();
+	void readSettings();
+    
+    void openParameterFile(int argc, char **argv);
+    
 	QString getHomePath();
     
-	bool okToContinue();
+	//bool okToContinue();
     Ui_MainWindow();    // constructor
 	//
 
@@ -139,6 +146,7 @@ protected:
 private:
     void createActions();
     bool saveFile(const QString &fileName, int index);
+    bool checkUnsavedFiles();
 
 private slots:
     // current in use

@@ -17,22 +17,15 @@
 
 src_area::src_area()
 {
-	//src_tab_widget = new QTabWidget;
-	//src_tab_widget->setObjectName(QString::fromUtf8("src_tab_widget"));
-	//src_tab_widget->setTabsClosable(true);
-	//src_tab_widget->setMovable(true);
-    //src_tab_widget->setStyleSheet("QTabBar::tab { height: 25px; }");
-
-
-    setStyleSheet("border-width: 0px;");
-
     setObjectName(QString::fromUtf8("src_tab_widget"));
 	setTabsClosable(true);
 	setMovable(true);
 
     tab_bar = tabBar();
     
+    tab_bar->setStyleSheet("border-width: 0px;");
     
+    setStyleSheet("border-width: 0px;");
     setStyleSheet("QTabBar::tab { height: 25px; }");
 }
 
@@ -60,9 +53,6 @@ int src_area::new_src_tab(const QString file_name)
         show_name = src_tab->get_src_file_name();
 
     s_name = show_name.toStdString();
-
-	//src_tab_widget->setTabText(index, QApplication::translate("main_window", s_name.c_str(), 0, QApplication::UnicodeUTF8));
-	//src_tab_widget->setCurrentIndex(index);
 
     setTabText(index, QApplication::translate("main_window", s_name.c_str(), 0, QApplication::UnicodeUTF8));
 	setCurrentIndex(index);
@@ -173,6 +163,10 @@ bool src_area::is_modified(int index)
 	return src_tab->is_modified();
 }
 
+/**
+ * 
+ */
+#if 0
 bool src_area::exists(int index)
 {
 	src_file *src_tab;
@@ -182,6 +176,7 @@ bool src_area::exists(int index)
 
 	return src_tab->exists();
 }
+
 
 bool src_area::saved_on_disk(int index)
 {
@@ -193,6 +188,7 @@ bool src_area::saved_on_disk(int index)
 	return src_tab->saved_on_disk();
 
 }
+#endif
 
 bool src_area::set_modified(int index, bool modified)
 {
@@ -214,6 +210,15 @@ bool src_area::set_file_name(int index, QString &fileName)
 	src_tab->set_src_file_name(fileName);
     
     return true;
+}
+
+/**
+ * 
+ */
+
+void src_area::setFont(QFont &font)
+{
+    this->setFont(font);
 }
 
 /**
@@ -264,7 +269,9 @@ void src_area::go_to_line(int index, int line)
 }
 
 /**
- *
+ * Shows or hides the source files tabs
+ * @brief Shows or hides the source files tabs
+ * @param show -> true, show tabs; false, hide tabs
  */
 
 void src_area::show_tabs(bool show)
