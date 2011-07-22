@@ -35,10 +35,12 @@ class src_area : public QTabWidget
     bool set_modified(int index, bool modified);
     bool set_file_name(int index, QString &fileName);
 	
-	string get_src_tab_name(int index);
+	//string get_src_tab_name(int index);
     QString get_src_tab_path(int index);
 	QString get_src_tab_full_name(int index);
-	bool update_file_info(int index);
+    QString get_src_tab_short_name(int index);
+	
+    bool update_file_info(int index);
 	
     bool src_tab_write_file(int index, const QString &fileName);
     bool src_tab_load_file(const QString &fileName);
@@ -46,12 +48,12 @@ class src_area : public QTabWidget
 	bool get_src_tab_content(int index, QString &content);
 
 	int get_current_tab_index();
-	bool get_curr_font(QFont &font);
+	bool get_curr_font(int index, QFont &font);
 	
     void show_tabs(bool show);
 	void go_to_line(int index, int line);
     
-    void setFont(QFont &font);
+    //void setFont(QFont &font);
     
 private:
     QTabBar *tab_bar;

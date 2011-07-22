@@ -44,7 +44,7 @@ int src_area::new_src_tab(const QString file_name)
 	index = addTab(new src_file(file_name), QString());
 	cout << "added new tab at index " << index << endl;
 
-	if ((src_tab = (src_file *) this->widget(index)) == 0)
+	if ((src_tab = static_cast<src_file *>(this->widget(index))) == 0)
     	return false;	/* index out of range */
 
     if (file_name.isEmpty())
@@ -94,10 +94,24 @@ QString src_area::get_src_tab_full_name(int index)
 {
 	src_file *src_tab;
 
-	if ((src_tab = (src_file *) widget(index)) == 0)
+    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return "";	/* index out of range */
 
 	return src_tab->get_src_file_full_name();
+}
+
+/**
+ * 
+ */
+
+QString src_area::get_src_tab_short_name(int index)
+{
+	src_file *src_tab;
+
+    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
+		return "";	/* index out of range */
+
+	return src_tab->get_src_file_name();
 }
 
 /**
@@ -108,7 +122,7 @@ QString src_area::get_src_tab_path(int index)
 {
 	src_file *src_tab;
 
-	if ((src_tab = (src_file *) widget(index)) == 0)
+    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return "";	/* index out of range */
 
 	return src_tab->get_src_file_path();
@@ -122,7 +136,7 @@ bool src_area::get_src_tab_content(int index, QString &content)
 {
 	src_file *src_tab;
 
-	if ((src_tab = (src_file *) widget(index)) == 0)
+    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
 	content = src_tab->get_content();
@@ -139,7 +153,7 @@ bool src_area::src_tab_write_file(int index, const QString &fileName)
 {
     src_file *src_tab;
 
-	if ((src_tab = (src_file *) widget(index)) == 0)
+    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
 	return src_tab->write_file(fileName);
@@ -156,7 +170,7 @@ bool src_area::is_modified(int index)
 {
 	src_file *src_tab;
 
-	if ((src_tab = (src_file *) widget(index)) == 0)
+    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
     cout << "is modified index " << index << endl;
@@ -182,7 +196,7 @@ bool src_area::saved_on_disk(int index)
 {
     src_file *src_tab;
 
-	if ((src_tab = (src_file *) widget(index)) == 0)
+    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
 	return src_tab->saved_on_disk();
@@ -194,7 +208,7 @@ bool src_area::set_modified(int index, bool modified)
 {
     src_file *src_tab;
 
-	if ((src_tab = (src_file *) widget(index)) == 0)
+    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
 	return src_tab->set_src_file_modified(modified);
@@ -204,7 +218,7 @@ bool src_area::set_file_name(int index, QString &fileName)
 {
     src_file *src_tab;
 
-	if ((src_tab = (src_file *) widget(index)) == 0)
+    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
 	src_tab->set_src_file_name(fileName);
@@ -216,10 +230,10 @@ bool src_area::set_file_name(int index, QString &fileName)
  * 
  */
 
-void src_area::setFont(QFont &font)
-{
-    this->setFont(font);
-}
+//void src_area::setFont(QFont &font)
+//{
+    //this->setFont(font);
+//}
 
 /**
  * Updates the information from a file already saved on disk
@@ -232,7 +246,7 @@ bool src_area::update_file_info(int index)
 {
     src_file *src_tab;
 
-	if ((src_tab = (src_file *) widget(index)) == 0)
+    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
 	src_tab->update_src_file_info();    /* refresh file info */
@@ -243,14 +257,15 @@ bool src_area::update_file_info(int index)
     return true;
 }
 
-bool src_area::get_curr_font(QFont &font)
+bool src_area::get_curr_font(int index, QFont &font)
 {
 	src_file *src_tab;
 
-    if ((src_tab = (src_file *) widget(0)) == 0)
+    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
+  //  if ((src_tab = (src_file *) widget(index)) == 0)
 		return false;	/* index out of range */
 
-	font = src_tab->get_font();
+	//font = src_tab->get_font();
 	return true;
 }
 
@@ -259,7 +274,7 @@ void src_area::go_to_line(int index, int line)
 	src_file *src_tab;
 
 	//if ((src_tab = (src_file *) src_tab_widget->widget(index)) == 0)
-    if ((src_tab = (src_file *) widget(index)) == 0)
+    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return;		/* index out of range */
 
 	cout << index << " " << line << endl;

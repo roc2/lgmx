@@ -23,15 +23,15 @@ using namespace std;
 
 void Ui_MainWindow::close_file(int index)
 {
-    QString file_name;
+    QString file_name, msg;
 	QMessageBox::StandardButton ret;
 	
     /* check if file needs to be saved */
 	if (src_files.is_modified(index)) {
 		
-        ret = QMessageBox::warning(this, tr("Application"),
-			  tr("The document has been modified.\n"
-				 "Do you want to save your changes?"),
+        this->build_close_file_msg(index, msg);
+        
+        ret = QMessageBox::warning(this, APPLICATION, msg,
 			  QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 	
 		if (ret == QMessageBox::Save) { /* save file */
@@ -51,7 +51,7 @@ void Ui_MainWindow::close_file(int index)
 			return;     /* if dialog is canceled, do nothing */
 	}
 	
-	src_files.destroy_src_tab(index);   // closes the file
+	src_files.destroy_src_tab(index);   /* closes the file */
 }
 
 /**
@@ -89,7 +89,7 @@ bool Ui_MainWindow::save()
 bool Ui_MainWindow::saveAs(int index)
 {
     QString fileName = QFileDialog::getSaveFileName(this);
-    // mudar para:
+    // mudar para abrir na home do user se o arquivo nao existe:
     //files = QFileDialog::getSaveFileName(this, tr("Save File"), path, tr("All files (*.c *.cpp *.h)"));
     
     if (fileName.isEmpty())
@@ -196,7 +196,7 @@ void Ui_MainWindow::set_font()
 	initial.setPointSize(12);
 
     cout << "will set font..." << endl;
-    //src_files.setFont(initial);
+    src_files.setFont(initial);
 /*
 	cout << "choose font!!" << endl;
 
@@ -220,7 +220,7 @@ void Ui_MainWindow::set_tab_width()
 	QFontMetrics font_metrics(font);
 	int size;
 	
-	src_files.get_curr_font(font);
+	src_files.get_curr_font(0, font);
 	
 	if ((size = font.pixelSize()) < 0) {
 		//size = font.pointSize();
@@ -382,6 +382,25 @@ void Ui_MainWindow::readSettings()
 }
 
 /**
+ * Constructs the message to warn the user the file has non saved changes
+ * @brief Constructs the message to warn the user the file has non saved changes
+ * @param index -> tab index
+ * @param msg -> string to hold the message
+ */
+
+void Ui_MainWindow::build_close_file_msg(int index, QString &msg)
+{
+    QString file = src_files.get_src_tab_short_name(index);
+            
+    if (file.isEmpty()) {
+        msg = tr("The file 'untitled' has been modified.\nDo you want to save your changes?");
+    } else {
+        msg = tr("The file '") + file + 
+              tr("' has been modified.\nDo you want to save your changes?");
+    }
+}
+
+/**
  * Checks if there are unsaved files before closing the application. The 
  * files are saved or discarded, according to the user's request.
  * @brief Checks if there are unsaved files before closing the application.
@@ -394,6 +413,7 @@ bool Ui_MainWindow::checkUnsavedFiles()
     int index, tabs;
     QMessageBox::StandardButton ret;
     QString file_name;
+    QString msg;
     
     tabs = src_files.count();
     
@@ -403,10 +423,10 @@ bool Ui_MainWindow::checkUnsavedFiles()
         if (src_files.is_modified(index)) {
             src_files.setCurrentIndex(index);
             
-            ret = QMessageBox::warning(this, APPLICATION,
-			  tr("The document has been modified.\n"
-				 "Do you want to save your changes?"),
-			  QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+            this->build_close_file_msg(index, msg);
+            
+            ret = QMessageBox::warning(this, APPLICATION, msg,
+			      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
             
             if (ret == QMessageBox::Save) { /* save file */
             

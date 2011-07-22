@@ -147,6 +147,7 @@ private:
     void createActions();
     bool saveFile(const QString &fileName, int index);
     bool checkUnsavedFiles();
+    void build_close_file_msg(int index, QString &msg);
 
 private slots:
     // current in use

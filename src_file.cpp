@@ -26,6 +26,15 @@ src_file::src_file(const QString file_name)
     //editor->document()->setModified(false);   // false by default
     editor->installEventFilter(this);
     
+    // set default font
+    QFont initial;
+    
+	initial.setFamily("monospace");
+	initial.setFixedPitch(true);
+	initial.setPointSize(12);
+    
+    editor->setFont(initial);
+    
     // change editor colors
     QPalette p = editor->palette();
     p.setColor(QPalette::Base, Qt::black);
@@ -164,7 +173,9 @@ bool src_file::write_file(const QString &fileName)
 }
 
 /**
- * 
+ * Returns the name of the file (without the path)
+ * @brief Returns the name of the file (without the path)
+ * @return 
  */
 
 QString src_file::get_src_file_name()
