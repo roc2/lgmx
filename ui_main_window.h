@@ -28,6 +28,7 @@
 #include <QList>
 #include <QFontInfo>
 #include <QSettings>
+#include <set>
 
 #include <stack>
 #include "code_editor.h"
@@ -136,7 +137,6 @@ public:
     
 	QString getHomePath();
     
-	//bool okToContinue();
     Ui_MainWindow();    // constructor
 	//
 
@@ -144,10 +144,13 @@ protected:
      void closeEvent(QCloseEvent *event);
 
 private:
+    set<QString> open_files; // current open files
     void createActions();
     bool saveFile(const QString &fileName, int index);
     bool checkUnsavedFiles();
     void build_close_file_msg(int index, QString &msg);
+    int get_file_index(const QString &file_name);
+    void set_current_index(int index);
 
 private slots:
     // current in use

@@ -25,7 +25,10 @@ void Ui_MainWindow::close_file(int index)
 {
     QString file_name, msg;
 	QMessageBox::StandardButton ret;
-	
+	set<QString>::iterator it;
+    
+    file_name = src_files.get_src_tab_full_name(index);
+    
     /* check if file needs to be saved */
 	if (src_files.is_modified(index)) {
 		
@@ -35,8 +38,6 @@ void Ui_MainWindow::close_file(int index)
 			  QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 	
 		if (ret == QMessageBox::Save) { /* save file */
-            
-            file_name = src_files.get_src_tab_full_name(index);
             
             if (file_name.isEmpty()) {
                 cout << "file name empty" << endl;
@@ -52,6 +53,10 @@ void Ui_MainWindow::close_file(int index)
 	}
 	
 	src_files.destroy_src_tab(index);   /* closes the file */
+    
+    it = open_files.find(file_name);    /* pull out of open files list */
+    if (it != open_files.end())
+        open_files.erase(*it);
 }
 
 /**
@@ -122,6 +127,7 @@ bool Ui_MainWindow::saveFile(const QString &fileName, int index)
         return false;
 
     src_files.set_modified(index, false);
+    open_files.insert(fileName);
 
     return true;
 }
@@ -135,7 +141,7 @@ void Ui_MainWindow::open_file()
     QStringList files;
 	QString path;
     QDir dir;
-	int index;
+	int index, size;
     
     index = src_files.get_current_tab_index();  /* get current file index */
     
@@ -148,8 +154,41 @@ void Ui_MainWindow::open_file()
  
     files = QFileDialog::getOpenFileNames(this, tr("Open File"), path, tr("All files (*.c *.cpp *.h)"));
 
-    for (index = 0; index < files.size(); ++index)
-        src_files.new_src_tab(files.at(index));
+    size = files.size();
+    for (index = 0; index < size; ++index) {
+        if (open_files.find(files.at(index)) == open_files.end()) {
+            if (src_files.new_src_tab(files.at(index)) < 0)
+                continue;
+
+            open_files.insert(files.at(index));
+        } else {
+            cout << "file already open" << endl;
+            index = this->get_file_index(files.at(index));
+            if (index >= 0)
+                this->set_current_index(index);
+        }
+    }
+}
+
+void Ui_MainWindow::set_current_index(int index)
+{
+    if (index >= src_files.count())
+        return; /* index out of range */
+    
+    src_files.setCurrentIndex(index);
+}
+
+int Ui_MainWindow::get_file_index(const QString &file_name)
+{
+    int index;
+    int count = src_files.count();
+    
+    for (index = 0; index < count; index++) {
+        if (file_name == src_files.get_src_tab_full_name(index))
+            return index;
+    }
+    
+    return -1;
 }
 
 /**
@@ -466,30 +505,6 @@ void Ui_MainWindow::closeEvent(QCloseEvent *event)
     writeSettings();    /* save current settings */
     event->accept();
 }
-
-#if 0
-bool Ui_MainWindow::okToContinue()
-{
-	int ret;
-	
-	if (isWindowModified()) {
-		ret = QMessageBox::warning(this, tr("Spreadsheet"),
-		tr("The document has been modified.\n"
-		"Do you want to save your changes?"),
-		QMessageBox::Yes | QMessageBox::Default,
-		QMessageBox::No,
-		QMessageBox::Cancel | QMessageBox::Escape);
-		
-		if (ret == QMessageBox::Yes) {
-			//return save();
-			return true;
-		} else if (ret == QMessageBox::Cancel) {
-			return false;
-		}
-	}
-	return true;
-}
-#endif
 
 /**
  * Create main window actions

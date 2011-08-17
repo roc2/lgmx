@@ -45,7 +45,7 @@ int src_area::new_src_tab(const QString file_name)
 	cout << "added new tab at index " << index << endl;
 
 	if ((src_tab = static_cast<src_file *>(this->widget(index))) == 0)
-    	return false;	/* index out of range */
+    	return -1;	/* index out of range */
 
     if (file_name.isEmpty())
         show_name = NEW_FILE_NAME;
