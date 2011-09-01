@@ -196,18 +196,20 @@ int Ui_MainWindow::get_file_index(const QString &file_name)
  * @brief Opens files passed as parameters
  */
 
-void Ui_MainWindow::openParameterFile(int argc, char **argv)
+void Ui_MainWindow::load_parameter_files(list<QString> *files)
 {
-    int i;
     QDir dir;
     QString curPath = dir.currentPath();
     QString file;
     
-    for (i = 1; i < argc; i++) {
-        file = curPath;
-        file.append('/');
-        file.append(argv[i]);
-        src_files.new_src_tab(file);    // fazer com que new file não crie o arquivo caso não encontre
+    for (list<QString>::iterator it = files->begin(); it != files->end(); it++) {
+        if ((*it)[0] != '/') {  // append file path
+            file = curPath;
+            file.append('/');
+            file.append(*it);
+            src_files.new_src_tab(file);    // fazer com que new file não crie o arquivo caso não encontre
+        } else
+            src_files.new_src_tab(*it);    // fazer com que new file não crie o arquivo caso não encontre
     }
 }
 
@@ -705,6 +707,163 @@ Ui_MainWindow::Ui_MainWindow()
         
         set_font();
         readSettings();
+        //Config conf;
+}
+
+/**
+ * MainWindow Constructor with file list as parameter
+ * @brief MainWindow Constructor
+ */
+
+
+Ui_MainWindow::Ui_MainWindow(list<QString> *files)
+{
+    
+    
+    if (objectName().isEmpty())
+            setObjectName(QString::fromUtf8("main_window"));
+        //resize(831, 557);
+        //showMaximized();
+
+        gt_ln_dialog = NULL;
+        
+        createActions();
+        
+        centralWidget = new QWidget(this);
+        centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
+        
+        horizontalLayout = new QHBoxLayout(centralWidget);
+        horizontalLayout->setSpacing(6);
+        horizontalLayout->setContentsMargins(0, 0, 0, 0);
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        
+        splitter = new QSplitter(centralWidget);
+        //splitter->setHandleWidth(2);
+        splitter->setObjectName(QString::fromUtf8("splitter"));
+        splitter->setOrientation(Qt::Horizontal);
+        
+ 
+        symbol_tab_widget = new QTabWidget(splitter);
+        symbol_tab_widget->setObjectName(QString::fromUtf8("symbol_tab_widget"));
+        symbol_tab_widget->setTabsClosable(true);
+        symbol_tab_widget->setMovable(true);
+		//symbol_tab_widget->show();
+		//symbol_tab_widget->hide();
+        
+        tab = new QWidget();
+        tab->setObjectName(QString::fromUtf8("tab"));
+        symbol_tab_widget->addTab(tab, QString());
+        
+        tab_2 = new QWidget();
+        tab_2->setObjectName(QString::fromUtf8("tab_2"));
+        symbol_tab_widget->addTab(tab_2, QString());
+        
+        splitter->addWidget(symbol_tab_widget);
+        splitter->addWidget(&src_files);
+        
+        horizontalLayout->addWidget(splitter);
+        
+        /* Configure splitter sizes. This must be called after the child widgets 
+         * were inserted.
+         */
+        splitter_size.append(100);
+        splitter_size.append(900);
+        splitter->setSizes(splitter_size);
+        //splitter_size = splitter->sizes();	/* this returns the current splitter sizes */
+
+        setCentralWidget(centralWidget);
+        menuBar = new QMenuBar(this);
+        menuBar->setObjectName(QString::fromUtf8("menuBar"));
+        menuBar->setGeometry(QRect(0, 0, 831, 25));
+        
+		menu_File = new QMenu(menuBar);
+        menu_File->setObjectName(QString::fromUtf8("menu_File"));
+        
+        menuView = new QMenu(menuBar);
+        //menu_View = new QMenu(menuBar);
+        menuView->setObjectName(QString::fromUtf8("menuView"));
+        //menu_View->setObjectName(QString::fromUtf8("menu_View"));
+        /* search menu */
+        menu_Search = new QMenu(menuBar);
+        menu_Search->setObjectName(QString::fromUtf8("menu_Search"));
+        
+        setMenuBar(menuBar);
+        
+        /* main window tool bar */
+        mainToolBar = new QToolBar(this);
+        mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
+        addToolBar(Qt::TopToolBarArea, mainToolBar);
+        mainToolBar->hide();	/* hide tool bar */
+        //mainToolBar->show();	/* show tool bar */
+        
+        /* main window status bar */
+        statusBar = new QStatusBar(this);
+        statusBar->setObjectName(QString::fromUtf8("statusBar"));
+        setStatusBar(statusBar);
+
+		menuBar->addAction(menu_File->menuAction());
+		menu_File->addAction(actionNew);
+		menu_File->addAction(actionSave);
+        menu_File->addAction(actionOpen);
+        
+        menuView->addSeparator();
+        menuView->addAction(actionSide_Bar);
+        menuView->addAction(actionStatus_Bar);
+        menuView->addAction(actionMenuBar);
+        menuView->addAction(actionFullScreen);
+        menuView->addAction(actionSrcTabBar);
+        
+        /* add actions to main window, so they work when menuBar is hidden */
+        addAction(actionNew);
+		addAction(actionSave);
+        addAction(actionOpen);
+        
+        /* view actions */
+        addAction(actionSide_Bar);
+        addAction(actionStatus_Bar);
+        addAction(actionMenuBar);
+        addAction(actionFullScreen);
+        addAction(actionSrcTabBar);
+        
+        menuBar->addAction(menuView->menuAction());
+        menuBar->addAction(menu_Search->menuAction());
+		menuView->addSeparator();
+        //menuView->addAction(actionSide_Bar);
+        //menuView->addAction(actionStatus_Bar);
+        menu_Search->addSeparator();
+        menu_Search->addAction(actionGo_to_line);
+        addAction(actionGo_to_line);
+        
+        retranslateUi(this);
+		QObject::connect(actionSave, SIGNAL(triggered()), this, SLOT(save()));
+        QObject::connect(actionOpen, SIGNAL(triggered()), this, SLOT(open_file()));
+        QObject::connect(actionNew, SIGNAL(triggered()), this, SLOT(new_file()));
+        
+        /* side bar */
+        QObject::connect(actionSide_Bar, SIGNAL(toggled(bool)), this, SLOT(show_side_bar(bool)));
+		/* status bar */
+		QObject::connect(actionStatus_Bar, SIGNAL(toggled(bool)), this, SLOT(show_status_bar(bool)));
+        /* menu bar */
+		QObject::connect(actionMenuBar, SIGNAL(toggled(bool)), this, SLOT(show_menu_bar(bool)));
+        /* full screen */
+		QObject::connect(actionFullScreen, SIGNAL(toggled(bool)), this, SLOT(show_full_screen(bool)));
+        /* source tab bar */
+		QObject::connect(actionSrcTabBar, SIGNAL(toggled(bool)), this, SLOT(show_src_tab_bar(bool)));
+        
+		/* go to line */
+		QObject::connect(actionGo_to_line, SIGNAL(triggered()), this, SLOT(go_to_ln()));
+
+        QObject::connect(&src_files, SIGNAL(tabCloseRequested ( int )), this, SLOT(close_file(int)));
+
+        QMetaObject::connectSlotsByName(this);
+        
+        set_font();
+        readSettings();
+        
+        if (!files->empty()) {
+            this->load_parameter_files(files);
+        
+    }
         //Config conf;
 }
 

@@ -6,14 +6,14 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    list<QString> *file_list = new list<QString>;
 
-    Ui_MainWindow main_window;
+    for (int i = 1; i < argc; i++)
+        file_list->push_back(argv[i]);
+    
+    Ui_MainWindow main_window(file_list);
+    delete file_list;
     
     main_window.show();
-    
-    cout << "argc = " << argc << endl;
-    if (argc > 1)
-        main_window.openParameterFile(argc, argv);
-    
     return a.exec();
 }

@@ -29,6 +29,7 @@
 #include <QFontInfo>
 #include <QSettings>
 #include <set>
+#include <list>
 
 #include <stack>
 #include "code_editor.h"
@@ -133,11 +134,10 @@ public:
 	void writeSettings();
 	void readSettings();
     
-    void openParameterFile(int argc, char **argv);
-    
 	QString getHomePath();
     
     Ui_MainWindow();    // constructor
+    Ui_MainWindow(list<QString> *files);
 	//
 
 protected:
@@ -151,6 +151,7 @@ private:
     void build_close_file_msg(int index, QString &msg);
     int get_file_index(const QString &file_name);
     void set_current_index(int index);
+    void load_parameter_files(list<QString> *files);
 
 private slots:
     // current in use
