@@ -74,6 +74,23 @@ passar somente o textblock visível para a funçao
 
 void Highlighter::highlightBlock(const QString &text)
 {
+	//QString::iterator it;
+	bool in_comment = false;
+	
+	//for (QString::const_iterator it = text.begin(); it != text.end(); it++) {
+/*	
+	QString::const_iterator it = text.begin()
+	
+	if (*it == '/' && *(it + 1) == '*') {
+		in_comment = true;
+		while (*it != '*' && *(it + 1) != '/')
+			it++;
+		
+		in_comment = false;
+	}
+	
+	return;
+*/	
     foreach (const HighlightingRule &rule, highlightingRules) {
          QRegExp expression(rule.pattern);
          int index = expression.indexIn(text);

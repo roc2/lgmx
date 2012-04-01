@@ -10,6 +10,7 @@
 #include <QFileInfo>
 #include <QTextCursor>
 #include <QFont>
+#include <QFileSystemWatcher>
 
 #include "code_editor.h"
 #include "highlight/cpp_hl.h"
@@ -23,10 +24,14 @@ using namespace std;
 
 class src_area : public QTabWidget
 {
+	Q_OBJECT
+	
 	public:
 	
 	src_area();
-	int new_src_tab(const QString file_name);
+	~src_area();
+	
+	int new_src_tab(const QString &file_name);
 	void destroy_src_tab(int index);
 
 	bool is_modified(int index);
@@ -37,7 +42,8 @@ class src_area : public QTabWidget
 	
 	//string get_src_tab_name(int index);
     QString get_src_tab_path(int index);
-	QString get_src_tab_full_name(int index);
+	//QString get_src_tab_full_name(int index);
+	bool get_src_tab_full_name(int index, QString &file_name);
     QString get_src_tab_short_name(int index);
 	
     bool update_file_info(int index);
@@ -48,16 +54,19 @@ class src_area : public QTabWidget
 	bool get_src_tab_content(int index, QString &content);
 
 	int get_current_tab_index();
+	src_file *get_current_src_file();
 	bool get_curr_font(int index, QFont &font);
 	
     void show_tabs(bool show);
 	void go_to_line(int index, int line);
     
+    int get_file_index(const QString &file_name);
     //void setFont(QFont &font);
     
 private:
     QTabBar *tab_bar;
     QFont font;
+    QString search_pattern;
 };
 
 

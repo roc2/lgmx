@@ -8,21 +8,25 @@
 
 using namespace std;
 
-src_file::src_file(const QString file_name)
+/**
+ * Constructor.
+ */
+
+src_file::src_file(const QString &file_name)
 {
-    tab = new QWidget();
-    tab->setObjectName(QString::fromUtf8("untitled"));
+    tab.setObjectName(QString::fromUtf8("untitled"));
     
-    horizontalLayout = new QHBoxLayout(tab);
+    horizontalLayout = new QHBoxLayout(&tab);
     horizontalLayout->setSpacing(6);
     horizontalLayout->setContentsMargins(0, 0, 0, 0);
     horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
 
     /* new source code file */
-    editor = new CodeEditor(tab);
+    editor = new CodeEditor(&tab);
     editor->setObjectName(QString::fromUtf8("src_editor"));
     //editor->setTabStopWidth(num_spaces * font_size_in_pixels);
     editor->setTabStopWidth(4 * 8);
+    editor->setLineWrapMode(QPlainTextEdit::NoWrap);
     //editor->document()->setModified(false);   // false by default
     editor->installEventFilter(this);
     
@@ -31,14 +35,14 @@ src_file::src_file(const QString file_name)
     
 	initial.setFamily("monospace");
 	initial.setFixedPitch(true);
-	initial.setPointSize(12);
+	initial.setPointSize(10);
     
     editor->setFont(initial);
     
     // change editor colors
     QPalette p = editor->palette();
-    p.setColor(QPalette::Base, Qt::black);
-    p.setColor(QPalette::Text, Qt::green);
+    p.setColor(QPalette::Base, Qt::white);
+    p.setColor(QPalette::Text, Qt::blue);
     editor->setPalette(p);
         
     //text_document = new QTextDocument(editor->toPlainText(), editor);
@@ -54,11 +58,27 @@ src_file::src_file(const QString file_name)
         file_info = new QFileInfo();
     else {
         file_info = new QFileInfo(file_name);
-        load_file(file_name);      /* reads file from disk */
+        if (!load_file(file_name))      /* reads file from disk */
+			throw 0;
     }
 
+	//editor->setFocus(Qt::OtherFocusReason);
+	editor->setFocus();
     /* syntax highlighting */ // modificar para aplicar somente no que aparece na tela
     highlighter = new Highlighter(editor->document());
+}
+
+/**
+ * Destructor.
+ */
+
+src_file::~src_file()
+{
+	delete highlighter;
+	delete editor;
+	delete horizontalLayout;
+	delete cursor;
+	delete file_info;
 }
 
 /**
@@ -80,10 +100,10 @@ src_file::src_file(const QString file_name)
 // teria q rodar alguma coisa tipo o codigo acima em uma thread separada
 
 
+
 bool src_file::load_file(const QString &fileName)
 {
     QFile file(fileName);
-    //QString test;
     
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Application"),
@@ -120,10 +140,7 @@ bool src_file::is_modified()
 
 bool src_file::saved_on_disk()
 {
-    if (file_info->fileName().isEmpty())
-        return false;
-    
-    return true;
+	return !(file_info->fileName().isEmpty());
 }
 
 bool src_file::set_src_file_modified(bool modified)
@@ -141,6 +158,26 @@ bool src_file::set_src_file_modified(bool modified)
 QString src_file::get_content()
 {
     return editor->toPlainText();
+}
+
+QTextDocument *src_file::get_mutable_content()
+{
+	return editor->document();
+}
+
+QTextCursor src_file::get_cursor()
+{
+	return editor->textCursor();
+}
+
+int src_file::get_cursor_position()
+{
+	return editor->textCursor().position();
+}
+
+void src_file::set_cursor(const QTextCursor &cursor)
+{
+	editor->setTextCursor(cursor);
 }
 
 /**
@@ -216,9 +253,10 @@ void src_file::update_src_file_info()
  * 
  */
 
-QString src_file::get_src_file_full_name()
+bool src_file::get_src_file_full_name(QString &file_path)
 {
-    return file_info->absoluteFilePath();
+    file_path = file_info->absoluteFilePath();
+    return true;
 }
 
 /**
@@ -237,6 +275,11 @@ bool src_file::exists()
 QFont src_file::get_font()
 {
     return editor->font();
+}
+
+void src_file::set_font(QFont &font)
+{
+    editor->setFont(font);
 }
 
 /**

@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "ui_go_to_line.h"
+#include "src_area.h"
 
 class go_to_line : public QDialog, public Ui_go_to_line
 {

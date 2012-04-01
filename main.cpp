@@ -1,19 +1,31 @@
 #include <QMainWindow>
 #include "ui_main_window.h"
-#include "code_editor.h"
 
+#define Q_WS_X11
+
+void load_parameter_files(int argc, char *argv[], Ui_MainWindow **main_window)
+{
+	list<QString> file_list;
+
+    for (int i = 1; i < argc; i++)
+        file_list.push_back(argv[i]);
+
+	*main_window = new Ui_MainWindow(&file_list);
+}
 
 int main(int argc, char *argv[])
 {
+#ifdef Q_WS_X11
+    // QML is unusable with the xlib backend
+    QApplication::setGraphicsSystem("raster");
+#endif
+	
     QApplication a(argc, argv);
-    list<QString> *file_list = new list<QString>;
-
-    for (int i = 1; i < argc; i++)
-        file_list->push_back(argv[i]);
+    Ui_MainWindow *main_window;
     
-    Ui_MainWindow main_window(file_list);
-    delete file_list;
+    load_parameter_files(argc, argv, &main_window);
     
-    main_window.show();
+    main_window->show();
     return a.exec();
 }
+

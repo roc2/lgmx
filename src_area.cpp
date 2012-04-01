@@ -1,4 +1,8 @@
 #include <iostream>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QApplication>
+#include <QDesktopWidget>
 #include "src_area.h"
 
 
@@ -29,20 +33,28 @@ src_area::src_area()
     setStyleSheet("QTabBar::tab { height: 25px; }");
 }
 
+src_area::~src_area()
+{
+}
 
 /**
- * Create new source tab
+ * Create new source tab.
  */
 
-int src_area::new_src_tab(const QString file_name)
+int src_area::new_src_tab(const QString &file_name)
 {
 	int index;
 	src_file *src_tab;
 	QString show_name;
 	string s_name;
 
-	index = addTab(new src_file(file_name), QString());
-	cout << "added new tab at index " << index << endl;
+	try {
+		index = addTab(new src_file(file_name), QString());
+		//cout << "added new tab at index " << index << endl;
+	} catch(...) {
+		
+		return -1;
+	}
 
 	if ((src_tab = static_cast<src_file *>(this->widget(index))) == 0)
     	return -1;	/* index out of range */
@@ -74,6 +86,11 @@ int src_area::get_current_tab_index()
 	return currentIndex();
 }
 
+src_file *src_area::get_current_src_file()
+{
+	return static_cast<src_file *>(currentWidget());
+}
+
 /**
  * Removes the specified tab from the tab widget
  * @brief Removes the specified tab from the tab widget
@@ -90,14 +107,16 @@ void src_area::destroy_src_tab(int index)
  *
  */
 
-QString src_area::get_src_tab_full_name(int index)
+bool src_area::get_src_tab_full_name(int index, QString &file_name)
 {
 	src_file *src_tab;
 
     if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
-		return "";	/* index out of range */
+		return false;	/* index out of range */
 
-	return src_tab->get_src_file_full_name();
+	//file_name = src_tab->get_src_file_full_name();
+	src_tab->get_src_file_full_name(file_name);
+	return true;
 }
 
 /**
@@ -265,7 +284,7 @@ bool src_area::get_curr_font(int index, QFont &font)
   //  if ((src_tab = (src_file *) widget(index)) == 0)
 		return false;	/* index out of range */
 
-	//font = src_tab->get_font();
+	font = src_tab->get_font();
 	return true;
 }
 
@@ -296,4 +315,22 @@ void src_area::show_tabs(bool show)
 	else
         tab_bar->hide();
 }
+
+int src_area::get_file_index(const QString &file_name)
+{
+	int index;
+    int count = this->count();
+    QString file;
+    
+    for (index = 0; index < count; index++) {
+        //if (file_name == this->get_src_tab_full_name(index))
+        this->get_src_tab_full_name(index, file);
+        if (file_name == file)
+            return index;
+    }
+    
+    return -1;
+}
+
+
 

@@ -5,6 +5,10 @@
 
 using namespace std;
 
+/**
+ * Constructor.
+ */
+
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
 	lineNumberArea = new LineNumberArea(this);
@@ -22,7 +26,16 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 }
 
 /**
- * Sets the highlighting rules according to the file type
+ * Destructor.
+ */
+
+CodeEditor::~CodeEditor()
+{
+	delete lineNumberArea;
+}
+
+/**
+ * Set highlighting rules according to file type.
  */
 /*
 void CodeEditor::setHighlighter(int srcType)
@@ -65,8 +78,7 @@ void CodeEditor::get_first_visible_block_content()
     blockFormat.setPageBreakPolicy(QTextFormat::PageBreak_AlwaysBefore);
     cursor.setBlockFormat(blockFormat);
 
-    for (QTextBlock::iterator it = cursor.block().begin(); !(it.atEnd()); ++it)
-    {
+    for (QTextBlock::iterator it = cursor.block().begin(); !(it.atEnd()); ++it) {
         QTextCharFormat charFormat = it.fragment().charFormat();
         charFormat.setFont(QFont("Times", 15, QFont::Bold));
 

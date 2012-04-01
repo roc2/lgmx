@@ -1,0 +1,14 @@
+View manager
+
+
+- Cada view tem no máximo 1 splitter e 2 src_containers e 1 ponteiro para outra view
+
+ - Cada view tem 1 layout.
+ - Cada view tem 1 ponteiro para src_container.
+ - Cada view tem 1 splitter e 2 views (A e B).
+
+ - Se a view não tem split adiciona ao layout o src_container.
+ - Se a view é dividida, move o src_container para a view A, adiciona ao splitter as view A e B e adiciona o splitter ao layout.
+
+ - No início a view "root" tem só 1 src container
+
