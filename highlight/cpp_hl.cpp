@@ -66,6 +66,10 @@ Highlighter::Highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)
 	commentEndExpression = QRegExp("\\*/");
 }
 
+Highlighter::~Highlighter()
+{
+}
+
 /*
 passar somente o textblock visível para a funçao
 */

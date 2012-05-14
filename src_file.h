@@ -9,18 +9,20 @@
 #include <QFileInfo>
 #include <QTextCursor>
 #include <QString>
+#include <QScrollArea>
 
 #include "code_editor.h"
 #include "highlight/cpp_hl.h"
 
 class src_file : public QWidget {
 	
-	QWidget tab;
 	CodeEditor *editor;
 	QHBoxLayout *horizontalLayout;
 	QFileInfo *file_info;
 	Highlighter *highlighter;
 	QTextCursor *cursor;
+	src_file *_clone;
+	QScrollArea *scroll_area_;
 	
 	public:
     
@@ -35,13 +37,18 @@ class src_file : public QWidget {
     bool set_src_file_modified(bool modified);
     void set_src_file_name(const QString &fileName);
 	QString get_content();
+	
 	QTextDocument *get_mutable_content();
+	void set_content(QTextDocument *content);
 	
 	QString get_src_file_name();
     QString get_src_file_path();
+	
 	QString get_src_file_full_name();
 	bool get_src_file_full_name(QString &file_path);
 	bool exists();
+	
+	void focusInEvent(QFocusEvent *event);
 	
 	void set_font(QFont &font);
 	QFont get_font();
@@ -53,6 +60,8 @@ class src_file : public QWidget {
     QTextCursor get_cursor();
     
     int get_cursor_position();
+    
+    void set_clone(src_file *clone);
     
     bool eventFilter(QObject* pObject, QEvent* pEvent);
 };

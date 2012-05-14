@@ -1,7 +1,7 @@
 #ifndef CLIPBOARD_H
 #define CLIPBOARD_H
 
-#include "src_area.h"
+#include "src_container.h"
 #include <QShortcut>
 #include <QSignalMapper>
 
@@ -14,7 +14,7 @@ class clipboard : public QObject
 	Q_OBJECT
 	
 public:
-	clipboard(src_area **src_container, QWidget *parent = 0);
+	clipboard(src_container **src_container, QWidget *parent = 0);
 	~clipboard();
 
 signals:
@@ -27,7 +27,7 @@ public slots:
 private slots:
 
 private:
-	src_area **src_ctr;
+	src_container **src_ctr;
 	
 	QSignalMapper copy_signal_map;
 	QSignalMapper cut_signal_map;

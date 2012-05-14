@@ -18,6 +18,7 @@ class Highlighter : public QSyntaxHighlighter
 
  public:
      Highlighter(QTextDocument *parent = 0);
+     ~Highlighter();
      
      void set_keyword_fg_color(const QBrush &brush);
      void set_keyword_bg_color(const QBrush &brush);

@@ -23,7 +23,7 @@ using namespace std;
  */
 
 
-Ui_MainWindow::Ui_MainWindow(list<QString> *files)
+Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_manager_(this)
 {
     if (objectName().isEmpty())
 		setObjectName(QString::fromUtf8("main_window"));
@@ -40,7 +40,11 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	 * src_container deve sempre apontar para o grupo de arquivos ativo. Como os módulos apontam para src_container, 
 	 * sempre terão o endereço do grupo de arquivos ativo.
 	 */
-	src_container = &_src_container;
+	_src_container_ptr = &_src_container;
+
+	_root_view = view_manager_.get_root_view();
+	_root_src_container = _root_view->get_src_container();
+	//_root_src_container = view_manager_.get_root_src_container();
 
 	gt_ln_dialog = NULL;
 	
@@ -49,9 +53,9 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
     QCoreApplication::setApplicationName(APPLICATION);
 	
 	
-	search_dialog = new search(&_src_container, this);
+	search_dialog = new lgmx::search(&_src_container, this);
 	
-	c_board = new clipboard(&src_container, this);
+	c_board = new clipboard(&_src_container_ptr, this);
 	
 	createActions();
 	
@@ -87,9 +91,13 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	symbol_tab_widget->addTab(tab_2, QString());
 	
 	splitter->addWidget(symbol_tab_widget);
-	splitter->addWidget(&_src_container);
+	//splitter->addWidget(&_src_container);
+	splitter->addWidget(&view_manager_);
+	
 	
 	horizontalLayout->addWidget(splitter);
+	setLayout(horizontalLayout);
+	
 	
 	/* Configure splitter sizes. This must be called after the child widgets 
 	 * were inserted.
@@ -104,6 +112,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	menuBar->setObjectName(QString::fromUtf8("menuBar"));
 	menuBar->setGeometry(QRect(0, 0, 831, 25));
 	
+	
 	menu_File = new QMenu(menuBar);
 	menu_File->setObjectName(QString::fromUtf8("menu_File"));
 	
@@ -116,7 +125,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	menu_Search->setObjectName(QString::fromUtf8("menu_Search"));
 	
 	setMenuBar(menuBar);
-	
+		
 	/* main window tool bar */
 	mainToolBar = new QToolBar(this);
 	mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
@@ -146,11 +155,18 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	menuView->addAction(actionMenuBar);
 	menuView->addAction(actionFullScreen);
 	menuView->addAction(actionSrcTabBar);
+	menuView->addSeparator();
+	menuView->addAction(action_split_horizontally);
+	menuView->addAction(action_split_vertically);
+	menuView->addAction(action_unsplit);
 	
 	/* add actions to main window, so they work when menuBar is hidden */
 	addAction(actionNew);
 	addAction(actionSave);
 	addAction(actionOpen);
+	addAction(action_split_horizontally);
+	addAction(action_split_vertically);
+	addAction(action_unsplit);
 	
 	/* view actions */
 	addAction(actionSide_Bar);
@@ -169,7 +185,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	menu_Search->addAction(action_find);
 	addAction(actionGo_to_line);
 	addAction(action_find);
-	
+		
 	create_shortcuts();
 	
 	retranslateUi(this);
@@ -182,6 +198,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	if (!files->empty()) {
 		this->load_parameter_files(files);
 	}
+	
 	//Config conf;
 }
 
@@ -189,13 +206,15 @@ Ui_MainWindow::~Ui_MainWindow()
 {
 	delete c_board;
 	delete search_dialog;
+
+    destroy_actions();
 }
 
 void Ui_MainWindow::create_connections()
 {
 	QObject::connect(actionSave, SIGNAL(triggered()), this, SLOT(save()));
 	QObject::connect(actionOpen, SIGNAL(triggered()), this, SLOT(open_file()));
-	QObject::connect(actionNew, SIGNAL(triggered()), this, SLOT(new_file()));
+	QObject::connect(actionNew, SIGNAL(triggered()), &view_manager_, SLOT(new_file()));
 	QObject::connect(actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
 	
 	/* side bar */
@@ -208,12 +227,19 @@ void Ui_MainWindow::create_connections()
 	QObject::connect(actionFullScreen, SIGNAL(toggled(bool)), this, SLOT(show_full_screen(bool)));
 	/* source tab bar */
 	QObject::connect(actionSrcTabBar, SIGNAL(toggled(bool)), this, SLOT(show_src_tab_bar(bool)));
+	/* split horizontally */
+	QObject::connect(action_split_horizontally, SIGNAL(triggered()), &view_manager_, SLOT(split_horizontally()));
+	/* split vertically */
+	QObject::connect(action_split_vertically, SIGNAL(triggered()), &view_manager_, SLOT(split_vertically()));
+	/* unsplit */
+	QObject::connect(action_unsplit, SIGNAL(triggered()), &view_manager_, SLOT(unsplit()));
 	
 	/* go to line */
 	QObject::connect(actionGo_to_line, SIGNAL(triggered()), this, SLOT(go_to_ln()));
 	/* find */
 	QObject::connect(action_find, SIGNAL(triggered()), search_dialog, SLOT(show_search_dialog()));
 
+	/* close file signal */
 	QObject::connect(&_src_container, SIGNAL(tabCloseRequested ( int )), this, SLOT(close_file(int)));
 
 	//Object::connect(this, SIGNAL(windowActivated()), this, SLOT(go_to_ln()));
@@ -228,6 +254,15 @@ void Ui_MainWindow::create_connections()
 void Ui_MainWindow::create_shortcuts()
 {
 
+}
+
+/**
+ * 
+ */
+
+src_container* Ui_MainWindow::get_current_src_container()
+{
+	return view_manager_.get_current_src_container();
 }
 
 void Ui_MainWindow::changeEvent(QEvent *e)
@@ -271,6 +306,8 @@ void Ui_MainWindow::close_file(int index)
     QString file_name, msg;
 	QMessageBox::StandardButton ret;
 	set<QString>::iterator it;
+    
+    cout << __FUNCTION__ << endl;
     
     //file_name = _src_container.get_src_tab_full_name(index);
     _src_container.get_src_tab_full_name(index, file_name);
@@ -398,13 +435,13 @@ void Ui_MainWindow::open_file()
     QDir dir;
 	int index, size;
     
-    index = _src_container.get_current_tab_index();  /* get current file index */
+    index = get_current_src_container()->get_current_tab_index();  /* get current file index */
     
     /* 
      * "open file" dialog path is the path of the current open file, or "home"
      * if there is no file open
      */
-    if (index < 0 || (path = _src_container.get_src_tab_path(index)) == "")
+    if (index < 0 || (path = get_current_src_container()->get_src_tab_path(index)) == "")
         path = dir.homePath();
  
     files = QFileDialog::getOpenFileNames(this, tr("Open File"), path, tr("All files (*.c *.cpp *.h)"));
@@ -412,7 +449,7 @@ void Ui_MainWindow::open_file()
     size = files.size();
     for (index = 0; index < size; ++index) {
         if (open_files.find(files.at(index)) == open_files.end()) {
-            if (_src_container.new_src_tab(files.at(index)) < 0)
+            if (_root_src_container->new_src_tab(files.at(index)) < 0)
                 continue;
 
             open_files.insert(files.at(index));
@@ -429,7 +466,8 @@ void Ui_MainWindow::open_file()
 void Ui_MainWindow::open_file(QString &file_name)
 {
 	if (open_files.find(file_name) == open_files.end()) {
-		if (_src_container.new_src_tab(file_name) < 0)
+		//if (_root_src_container->new_src_tab(file_name) < 0)
+		if (view_manager_.get_root_view()->new_file(file_name) < 0)
 			return;
 
 		open_files.insert(file_name);
@@ -474,15 +512,6 @@ void Ui_MainWindow::load_parameter_files(list<QString> *files)
 }
 
 /**
- * Create new empty file
- */
-
-void Ui_MainWindow::new_file()
-{    
-	_src_container.new_src_tab("");
-}
-
-/**
  * 
  */
 
@@ -495,7 +524,7 @@ void Ui_MainWindow::set_font()
 	initial.setPointSize(10);
 
     cout << "will set font..." << endl;
-    _src_container.setFont(initial);
+    _root_src_container->setFont(initial);
 /*
 	cout << "choose font!!" << endl;
 
@@ -519,7 +548,7 @@ void Ui_MainWindow::set_tab_width()
 	QFontMetrics font_metrics(font);
 	int size;
 	
-	_src_container.get_curr_font(0, font);
+	_root_src_container->get_curr_font(0, font);
 	
 	if ((size = font.pixelSize()) < 0) {
 		//size = font.pointSize();
@@ -529,8 +558,7 @@ void Ui_MainWindow::set_tab_width()
 }
 
 /**
- * Returns the user home directory absolute path
- * @brief Returns the user home directory absolute path
+ * Returns the user home directory absolute path.
  * @return absolute path as a QString
  */
 
@@ -598,14 +626,13 @@ void Ui_MainWindow::show_full_screen(bool fullscreen)
 }
 
 /**
- * Show or hide the source files tab bar
- * @brief Show or hide the source files tab bar
- * @param show -> true, show menu; false, hide tab bar
+ * Show or hide source files tab bar.
+ * @param show -> true, tab bar; false, hide tab bar
  */
 
 void Ui_MainWindow::show_src_tab_bar(bool show)
 {
-	_src_container.show_tabs(show);
+	_root_view->show_src_tab_bar(show);
 }
 
 /**
@@ -771,6 +798,10 @@ void Ui_MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
+/**
+ * Exit from application.
+ */
+
 void Ui_MainWindow::quit()
 {
 	this->close();
@@ -782,8 +813,7 @@ void Ui_MainWindow::print_msg()
 }
 
 /**
- * Create main window actions
- * @brief Create main window actions
+ * Create main window actions.
  */
 
 void Ui_MainWindow::createActions()
@@ -835,6 +865,18 @@ void Ui_MainWindow::createActions()
     actionSrcTabBar->setCheckable(true);
     actionSrcTabBar->setChecked(true);	// default "checked"
     
+    /* split horizontally */
+    action_split_horizontally = new QAction(this);
+    action_split_horizontally->setObjectName(QString::fromUtf8("splitHorizontally"));
+    
+    /* split vertically */
+    action_split_vertically = new QAction(this);
+    action_split_vertically->setObjectName(QString::fromUtf8("splitVertically"));
+    
+    /* unsplit */
+    action_unsplit = new QAction(this);
+    action_unsplit->setObjectName(QString::fromUtf8("unsplit"));
+    
     /* go to line */
     actionGo_to_line = new QAction(this);
     actionGo_to_line->setObjectName(QString::fromUtf8("actionGo_to_line"));
@@ -844,9 +886,46 @@ void Ui_MainWindow::createActions()
     action_find->setObjectName(QString::fromUtf8("actionFind"));
 }
 
+/**
+ * Destroy main window actions.
+ */
+
+void Ui_MainWindow::destroy_actions()
+{
+    delete action_find;
+    delete actionGo_to_line;
+    delete actionSrcTabBar;
+    delete actionFullScreen;
+    delete action_split_horizontally;
+    delete action_split_vertically;
+    delete action_unsplit;
+    delete actionMenuBar;
+    delete actionStatus_Bar;
+    delete actionSide_Bar;
+    delete menu_recent_files;
+    delete actionQuit;
+    delete actionNew;
+    delete actionOpen;
+    delete actionSave;
+}
+
+void Ui_MainWindow::create_menu()
+{
+
+}
+
+void Ui_MainWindow::destroy_menu()
+{
+
+}
+
+/**
+ * Translate main window interface.
+ */
+
 void Ui_MainWindow::retranslateUi(QMainWindow *main_window)
 {
-	main_window->setWindowTitle(QApplication::translate("main_window", "main_window", 0, QApplication::UnicodeUTF8));
+	main_window->setWindowTitle(QApplication::translate("main_window", "lgmx", 0, QApplication::UnicodeUTF8));
 	actionSave->setText(QApplication::translate("MainWindow", "Save", 0, QApplication::UnicodeUTF8));
 	actionSave->setShortcut(QApplication::translate("MainWindow", "Ctrl+S", 0, QApplication::UnicodeUTF8));
 	actionOpen->setText(QApplication::translate("MainWindow", "Open", 0, QApplication::UnicodeUTF8));
@@ -870,6 +949,18 @@ void Ui_MainWindow::retranslateUi(QMainWindow *main_window)
 	actionFullScreen->setText(QApplication::translate("main_window", "Full Screen", 0, QApplication::UnicodeUTF8));
 	actionFullScreen->setShortcut(QApplication::translate("main_window", "F11", 0, QApplication::UnicodeUTF8));
 	actionFullScreen->setShortcutContext(Qt::ApplicationShortcut);
+	
+	action_split_horizontally->setText(QApplication::translate("main_window", "Split Horizontally", 0, QApplication::UnicodeUTF8));
+	action_split_horizontally->setShortcut(QApplication::translate("main_window", "Ctrl+E, 2", 0, QApplication::UnicodeUTF8));
+	action_split_horizontally->setShortcutContext(Qt::ApplicationShortcut);
+	
+	action_split_vertically->setText(QApplication::translate("main_window", "Split Vertically", 0, QApplication::UnicodeUTF8));
+	action_split_vertically->setShortcut(QApplication::translate("main_window", "Ctrl+E, 3", 0, QApplication::UnicodeUTF8));
+	action_split_vertically->setShortcutContext(Qt::ApplicationShortcut);
+	
+	action_unsplit->setText(QApplication::translate("main_window", "Unsplit", 0, QApplication::UnicodeUTF8));
+	action_unsplit->setShortcut(QApplication::translate("main_window", "Ctrl+E, 0", 0, QApplication::UnicodeUTF8));
+	action_unsplit->setShortcutContext(Qt::ApplicationShortcut);
 	
 	actionSrcTabBar->setText(QApplication::translate("main_window", "Source Tab Bar", 0, QApplication::UnicodeUTF8));
 	actionSrcTabBar->setShortcut(QApplication::translate("main_window", "Alt+3", 0, QApplication::UnicodeUTF8));

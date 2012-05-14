@@ -1,16 +1,15 @@
 #include "clipboard.h"
-#include <iostream>
 #include <sstream>
 
 /**
  * Constructor.
  */
 
-clipboard::clipboard(src_area **src_container, QWidget *parent) : copy_signal_map(this), cut_signal_map(this), paste_signal_map(this)
+clipboard::clipboard(src_container **src_container, QWidget *parent) : copy_signal_map(this), cut_signal_map(this), paste_signal_map(this)
 {
 	int i;
 
-	src_ctr = src_container;	// set current files pointer
+	src_ctr = src_container;	// set pointer to current file container
 
 	// set copy shortcuts
 	for (i = 0; i < NUM_SHORTCUTS; i++) {

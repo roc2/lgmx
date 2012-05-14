@@ -5,7 +5,7 @@
 #include <QPushButton>
 #include <QComboBox>
 #include <QRegExp>
-#include "src_area.h"
+#include "src_container.h"
 #include <QTextCharFormat>
 #include <QBitArray>
 #include <QSettings>
@@ -37,12 +37,14 @@
 
 #define MAX_ITEMS		10
 
+namespace lgmx {
+
 class search : public QDialog
 {
 	Q_OBJECT
 
 	public:
-	search(src_area *src_files, QWidget *parent = 0);
+	search(src_container *src_files, QWidget *parent = 0);
 	~search();
 	
 	void save_settings();
@@ -130,7 +132,7 @@ class search : public QDialog
 	QTextCursor cursor;
 //////////////////////////////////////////////////////////////////////////////////////
 
-	src_area *src_ctr;
+	src_container *src_ctr;
 	
 	//QBitArray p_flags;	// persistent flags
 	//uint p_flags;
@@ -153,5 +155,7 @@ class search : public QDialog
 	//QPushButton *previous_button;
 	//QPushButton *close_button;
 };
+
+}
 
 #endif

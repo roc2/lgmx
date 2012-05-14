@@ -8,7 +8,7 @@
 
 using namespace std;
 
-search::search(src_area *src_files, QWidget *parent) : QDialog(parent), 
+lgmx::search::search(src_container *src_files, QWidget *parent) : QDialog(parent), 
 		       flags(QTextDocument::FindCaseSensitively | QTextDocument::FindWholeWords)
 {
 	src_ctr = src_files;
@@ -23,13 +23,13 @@ search::search(src_area *src_files, QWidget *parent) : QDialog(parent),
 	load_settings();
 }
 
-search::~search()
+lgmx::search::~search()
 {
 	cout << "search destructor" << endl;
 	save_settings();
 }
 
-void search::show_search_dialog()
+void lgmx::search::show_search_dialog()
 {
 	src_file *curr_file;
 	
@@ -39,7 +39,7 @@ void search::show_search_dialog()
 	this->show();
 }
 
-void search::save_settings()
+void lgmx::search::save_settings()
 {
 	QSettings settings;
 	uint p_flags = 0;	// persistent flags
@@ -63,7 +63,7 @@ void search::save_settings()
 	settings.setValue(SEARCH_SAVE_KEY, v);
 }
 
-void search::load_settings()
+void lgmx::search::load_settings()
 {
 	QSettings settings;
 	
@@ -122,7 +122,7 @@ void search::load_settings()
 	}
 }
 
-void search::set_default_settings()
+void lgmx::search::set_default_settings()
 {
 	regex = true;
 	checkBox->setChecked(true);
@@ -140,19 +140,19 @@ void search::set_default_settings()
 	checkBox_6->setChecked(false);
 }
 
-void search::hide_search_dialog()
+void lgmx::search::hide_search_dialog()
 {
 	this->hide();
 }
 
 
-void search::highlight_all_matches(QString &pattern)
+void lgmx::search::highlight_all_matches(QString &pattern)
 {
 	//int QTextCursor::position ()
 	//this->cursor.setCharFormat(match_format);
 }
 
-void search::search_string(QString &pattern)
+void lgmx::search::search_string(QString &pattern)
 {
 	src_file *curr_file;
 	
@@ -198,7 +198,7 @@ void search::search_string(QString &pattern)
 	}
 }
 
-void search::find_next()
+void lgmx::search::find_next()
 {
 	QString pattern(search_cbox->currentText());
 		
@@ -212,7 +212,7 @@ void search::find_next()
 	add_to_search_history(pattern);
 }
 
-void search::find_previous()
+void lgmx::search::find_previous()
 {
 	QString pattern(search_cbox->currentText());
 	
@@ -225,7 +225,7 @@ void search::find_previous()
 	add_to_search_history(pattern);
 }
 /*
-void search::replace_text(QString &search_pattern, QString &replace_pattern)
+void lgmx::search::replace_text(QString &search_pattern, QString &replace_pattern)
 {
 	src_file *curr_file;
 	
@@ -236,7 +236,7 @@ void search::replace_text(QString &search_pattern, QString &replace_pattern)
 }
 */
 
-void search::replace()
+void lgmx::search::replace()
 {
 	src_file *curr_file;
 	
@@ -253,19 +253,19 @@ void search::replace()
 	}
 }
 
-void search::replace_and_next()
+void lgmx::search::replace_and_next()
 {
 	replace();
 	find_next();
 }
 
-void search::replace_and_previous()
+void lgmx::search::replace_and_previous()
 {
 	replace();
 	find_previous();
 }
 
-void search::match_whole_words(bool checked)
+void lgmx::search::match_whole_words(bool checked)
 {
 	if (checked)
 		flags |= QTextDocument::FindWholeWords;
@@ -273,7 +273,7 @@ void search::match_whole_words(bool checked)
 		flags ^= QTextDocument::FindWholeWords;
 }
 
-void search::case_sensitive(bool checked)
+void lgmx::search::case_sensitive(bool checked)
 {
 	if (checked) {
 		flags |= QTextDocument::FindCaseSensitively;
@@ -284,22 +284,22 @@ void search::case_sensitive(bool checked)
 	}
 }
 
-void search::use_regex(bool checked)
+void lgmx::search::use_regex(bool checked)
 {
 	regex = checked;
 }
 
-void search::wrap_around(bool checked)
+void lgmx::search::wrap_around(bool checked)
 {
 	wrap = checked;
 }
 
-void search::highlight_all_matches(bool checked)
+void lgmx::search::highlight_all_matches(bool checked)
 {
 	highlight_all = checked;
 }
 
-QComboBox *search::create_combo_box(const QString &text)
+QComboBox* lgmx::search::create_combo_box(const QString &text)
 {
 	QComboBox *comboBox = new QComboBox;
 	comboBox->setEditable(true);
@@ -308,7 +308,7 @@ QComboBox *search::create_combo_box(const QString &text)
 	return comboBox;
 }
 
-void search::add_to_search_history(const QString &text)
+void lgmx::search::add_to_search_history(const QString &text)
 {
 	int index;
 
@@ -323,7 +323,7 @@ void search::add_to_search_history(const QString &text)
 		search_cbox->insertItem(0, text);
 }
 
-void search::setup_ui(QDialog *Find)
+void lgmx::search::setup_ui(QDialog *Find)
 {
 	if (Find->objectName().isEmpty())
 		Find->setObjectName(QString::fromUtf8("Find"));
@@ -502,7 +502,7 @@ void search::setup_ui(QDialog *Find)
 	//QMetaObject::connectSlotsByName(Find);
 } // setupUi
 
-void search::retranslate_ui(QDialog *Find)
+void lgmx::search::retranslate_ui(QDialog *Find)
 {
 	Find->setWindowTitle(QApplication::translate("Find", "Find", 0, QApplication::UnicodeUTF8));
 	label->setText(QApplication::translate("Find", "Search for:", 0, QApplication::UnicodeUTF8));
@@ -523,7 +523,7 @@ void search::retranslate_ui(QDialog *Find)
 	next_button->setText(QApplication::translate("Find", "Next", 0, QApplication::UnicodeUTF8));
 } // retranslateUi
 
-void search::connect_slots()
+void lgmx::search::connect_slots()
 {
 	connect(cancel_button, SIGNAL(clicked()), this, SLOT(hide_search_dialog()));
 	

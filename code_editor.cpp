@@ -11,6 +11,8 @@ using namespace std;
 
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
+	this->setContentsMargins(0, 0, 0, 0);
+
 	lineNumberArea = new LineNumberArea(this);
 
 	connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
@@ -108,6 +110,12 @@ void CodeEditor::get_first_visible_block_content()
     */
 }
 
+/*
+void CodeEditor::focusInEvent(QFocusEvent *event)
+{
+	cout << "Editor has focus!!" << endl;
+	//_parent->set_current_widget(this);
+}*/
 
 /**
  * Returns the width of the line number area based on the number of digits 

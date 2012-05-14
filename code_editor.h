@@ -29,6 +29,8 @@ public:
 	//QString get_text_block_content();
 	void setHighlighter(int srcType);
 	void get_first_visible_block_content();
+	
+	//void focusInEvent(QFocusEvent *event);
 
 protected:
 	void resizeEvent(QResizeEvent *event);

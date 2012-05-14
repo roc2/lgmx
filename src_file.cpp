@@ -14,15 +14,17 @@ using namespace std;
 
 src_file::src_file(const QString &file_name)
 {
-    tab.setObjectName(QString::fromUtf8("untitled"));
-    
-    horizontalLayout = new QHBoxLayout(&tab);
+	_clone = 0;
+	
+	this->setContentsMargins(0, 0, 0, 0);
+    //this->setFocusPolicy(Qt::StrongFocus);
+    horizontalLayout = new QHBoxLayout(this);
     horizontalLayout->setSpacing(6);
     horizontalLayout->setContentsMargins(0, 0, 0, 0);
     horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
 
     /* new source code file */
-    editor = new CodeEditor(&tab);
+    editor = new CodeEditor(this);
     editor->setObjectName(QString::fromUtf8("src_editor"));
     //editor->setTabStopWidth(num_spaces * font_size_in_pixels);
     editor->setTabStopWidth(4 * 8);
@@ -41,9 +43,14 @@ src_file::src_file(const QString &file_name)
     
     // change editor colors
     QPalette p = editor->palette();
-    p.setColor(QPalette::Base, Qt::white);
+    //p.setColor(QPalette::Base, Qt::white);
+    p.setColor(QPalette::Base, Qt::black);
     p.setColor(QPalette::Text, Qt::blue);
     editor->setPalette(p);
+    
+    scroll_area_ = new QScrollArea(this);
+	//scroll_area->setBackgroundRole(QPalette::Dark);
+	scroll_area_->setWidget(editor);
         
     //text_document = new QTextDocument(editor->toPlainText(), editor);
     //textEdit->clear();
@@ -63,7 +70,7 @@ src_file::src_file(const QString &file_name)
     }
 
 	//editor->setFocus(Qt::OtherFocusReason);
-	editor->setFocus();
+	//this->setFocus();
     /* syntax highlighting */ // modificar para aplicar somente no que aparece na tela
     highlighter = new Highlighter(editor->document());
 }
@@ -74,11 +81,14 @@ src_file::src_file(const QString &file_name)
 
 src_file::~src_file()
 {
-	delete highlighter;
+	cout << "destroying file..." << endl;
+	
+	delete scroll_area_;
 	delete editor;
 	delete horizontalLayout;
 	delete cursor;
 	delete file_info;
+	//delete highlighter;
 }
 
 /**
@@ -163,6 +173,11 @@ QString src_file::get_content()
 QTextDocument *src_file::get_mutable_content()
 {
 	return editor->document();
+}
+
+void src_file::set_content(QTextDocument *content)
+{
+	editor->setDocument(content);
 }
 
 QTextCursor src_file::get_cursor()
@@ -250,6 +265,15 @@ void src_file::update_src_file_info()
 }
 
 /**
+ * Returns the complete file name, path + name.
+ */
+
+QString src_file::get_src_file_full_name()
+{
+    return file_info->absoluteFilePath();
+}
+
+/**
  * 
  */
 
@@ -303,6 +327,24 @@ void src_file::go_to_line(int line)
     cursor->movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, line - 1);
     
     editor->setTextCursor(*cursor);
+}
+
+/**
+ * 
+ */
+
+void src_file::set_clone(src_file *clone)
+{
+	_clone = clone;
+}
+
+/**
+ * 
+ */
+
+void src_file::focusInEvent(QFocusEvent *event)
+{
+	cout << "this widget has focus!!" << endl;
 }
 
 /**

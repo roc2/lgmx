@@ -34,11 +34,12 @@
 
 #include <stack>
 #include "code_editor.h"
-#include "src_area.h"
+#include "src_container.h"
 #include "go_to_line.h"
 #include "file_watcher.h"
 #include "recent_files.h"
 #include "search.h"
+#include "view_manager.h"
 
 #include <iostream>
 
@@ -69,6 +70,9 @@ public:
     QAction *actionMenuBar;
     QAction *actionFullScreen;
     QAction *actionSrcTabBar;
+    QAction *action_split_horizontally;
+    QAction *action_split_vertically;
+    QAction *action_unsplit;
 
 	QAction *actionGo_to_line;
 	QAction *action_find;
@@ -83,7 +87,7 @@ public:
     QWidget *tab;
     QWidget *tab_2;
     
-    src_area _src_container;
+    src_container _src_container;
     
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
@@ -121,11 +125,19 @@ protected:
 
 private:
 
-	src_area *src_container;	// current active set of source files
+	src_container *_src_container_ptr;	// current active set of source files
+	src_container *_root_src_container;
+	view *_root_view;
+	view_manager view_manager_;
 
-    set<QString> open_files; // current open files
+    set<QString> open_files; /**< current open files */
     
     void createActions();
+    void destroy_actions();
+
+    void create_menu();
+    void destroy_menu();
+
     bool saveFile(const QString &fileName, int index);
     bool checkUnsavedFiles();
     void build_close_file_msg(int index, QString &msg);
@@ -133,8 +145,10 @@ private:
     void set_current_index(int index);
     void load_parameter_files(list<QString> *files);
 
+	src_container* get_current_src_container();
+
 	file_watcher f_watcher;
-	search *search_dialog;
+	lgmx::search *search_dialog;
 
 private slots:
     // current in use
@@ -145,7 +159,6 @@ private slots:
 	//void save_file();
 	void open_file();
 	void open_file(QString &file_name);
-	void new_file();
 	void close_file(int index);
 	void quit();
 	

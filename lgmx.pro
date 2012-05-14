@@ -1,8 +1,10 @@
+CONFIG += qt debug
+
 
 SOURCES += main.cpp \
 		   ui_main_window.cpp \
 		   code_editor.cpp \
-		   src_area.cpp \
+		   src_container.cpp \
            highlight/cpp_hl.cpp \
            go_to_line.cpp \
            src_file.cpp \
@@ -11,10 +13,13 @@ SOURCES += main.cpp \
            file_watcher.cpp \
            recent_files.cpp \
            search.cpp \
-           clipboard.cpp
+           clipboard.cpp \
+           view_manager.cpp \
+           view.cpp
+           
 HEADERS += code_editor.h \
            ui_main_window.h \
-           src_area.h \
+           src_container.h \
            highlight/cpp_hl.h \
            go_to_line.h \
            ui_go_to_line.h \
@@ -24,7 +29,9 @@ HEADERS += code_editor.h \
            file_watcher.h \
            recent_files.h \
            search.h \
-           clipboard.h
+           clipboard.h \
+           view_manager.h \
+           view.h
            
 TARGET = editor       
 

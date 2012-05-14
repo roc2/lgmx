@@ -1,14 +1,31 @@
 View manager
 
+ - Todos os src_containers vão estar em uma list
+ - View manager possui uma referência para esta lista.
+ - No início dos tempos a lista vai ter tamanho 1, e o ponteiro geral aponta para este elemento, que é o root.
+ - View manager vai ter várias views
+ - Sempre que o view manager criar um novo src_container o iterator que aponta para ele deve ser salvo na respectiva view.
+ - Cada view vai ter um iterator para o seu src_container
+ - Toda vez q mudar a view, o view manager seta o ponteiro geral src_ctr para o endereço do conteúdo do iterator da view corrente
 
-- Cada view tem no máximo 1 splitter e 2 src_containers e 1 ponteiro para outra view
+ - Viewmanager e view devem herdar de QWidget, para ter "focus".
+ - Viewmanager possui uma lista de view* com ponteiros para todas as views existentes
+ - Chamar viewmanager.focusWidget(), para pegar o último child widget a ter focus, e depois chamar hasFocus() nesse widget pra garantir que 
+   ele ainda tem o focus.
+ - A classe view deve setar no seu construtor "this->setFocusPolicy(Qt::StrongFocus);", para receber focus por mouse e teclado, e então é possivel 
+   sobrescrever o método virtual "void focusInEvent(QFocusEvent *event)", que é um sinal emitido toda vez q o widget recebe o foco.
+ 
 
- - Cada view tem 1 layout.
+ - Cada view tem 1 layout e 1 stacked layout.
  - Cada view tem 1 ponteiro para src_container.
  - Cada view tem 1 splitter e 2 views (A e B).
 
  - Se a view não tem split adiciona ao layout o src_container.
  - Se a view é dividida, move o src_container para a view A, adiciona ao splitter as view A e B e adiciona o splitter ao layout.
 
- - No início a view "root" tem só 1 src container
+ - Cada clone src_file tem um ponteiro para o seu respectivo root file, assim quando uma tab é fechada dá pra pegar o endereço do 
+   widget que requisitou para ser fechado e pegar o ponteiro para o root file correspondente.
+ - O root file guarda um ponteiro para seu clone, o primeiro clone guarda um ponteiro para segundo clone, e assim por diante???
+
+
 
