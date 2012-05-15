@@ -1,6 +1,7 @@
 #include "view.h"
 #include "view_manager.h"
 #include "stdlib.h"
+#include "debug.h"
 
 view::view(view_manager *manager, view *parent, bool root) : QWidget(parent)
 {
@@ -71,6 +72,7 @@ view::view(const view &copy) : QWidget(copy.get_parent_view())
 view::~view()
 {
 	cout << "~view()" << endl;
+	debug(DEBUG, VIEW, "");
 	manager_->remove_from_view_list(this);
 
 	if (child_view_[0])
@@ -100,7 +102,7 @@ int view::new_file(const QString &file_name)
 		return index;
 	
 	if (splitted_) {
-		cout << "clone files" << endl;
+		debug(DEBUG, VIEW, "clone files");
 		src_file *file = src_container_->get_src_file(index);
 		child_view_[0]->clone_file(file);
 		child_view_[1]->clone_file(file);
@@ -240,8 +242,11 @@ void view::split(Qt::Orientation orientation)
 	child_view_[0] = new view(manager_, this);
 	child_view_[1] = new view(manager_, this);
 	
-	cout << "new child_view_[0] - " << child_view_[0] << endl;
-	cout << "new child_view_[1] - " << child_view_[1] << endl;
+	//cout << "new child_view_[0] - " << child_view_[0] << endl;
+	//cout << "new child_view_[1] - " << child_view_[1] << endl;
+	debug(DEBUG, VIEW, "new child_view_[0] - " << child_view_[0]);
+	debug(DEBUG, VIEW, "new child_view_[1] - " << child_view_[1]);
+	
 	
 	splitter_->addWidget(child_view_[0]);
 	splitter_->addWidget(child_view_[1]);
@@ -266,12 +271,17 @@ void view::split(Qt::Orientation orientation)
 
 void view::unsplit(view *to_be_destroyed)
 {
-	cout << "I am - " << this << endl;
+	//cout << "I am - " << this << endl;
+	debug(DEBUG, VIEW, "I am - " << this);
 	
 	if (!child_view_[0] || !child_view_[1]) {
-		cout << "no children" << endl;
-		cout << "child_view_[0] " << child_view_[0] << endl;
-		cout << "child_view_[1] " << child_view_[1] << endl;
+		//cout << "no children" << endl;
+		debug(DEBUG, VIEW, "no children");
+		
+		debug(DEBUG, VIEW, "child_view_[0] " << child_view_[0]);
+		debug(DEBUG, VIEW, "child_view_[1] " << child_view_[1]);
+		//cout << "child_view_[0] " << child_view_[0] << endl;
+		//cout << "child_view_[1] " << child_view_[1] << endl;
 		return;
 	}
 	

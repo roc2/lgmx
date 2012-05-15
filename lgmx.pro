@@ -17,7 +17,8 @@ SOURCES += main.cpp \
            view_manager.cpp \
            view.cpp
            
-HEADERS += code_editor.h \
+HEADERS += debug.h \
+		   code_editor.h \
            ui_main_window.h \
            src_container.h \
            highlight/cpp_hl.h \
