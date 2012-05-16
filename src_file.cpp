@@ -69,6 +69,8 @@ src_file::src_file(const QString &file_name)
 			throw 0;
     }
 
+	QObject::connect(editor->document(), SIGNAL(modificationChanged(bool)), this, SLOT(file_changed(bool)));
+
 	//editor->setFocus(Qt::OtherFocusReason);
 	//this->setFocus();
     /* syntax highlighting */ // modificar para aplicar somente no que aparece na tela
@@ -178,6 +180,7 @@ QTextDocument *src_file::get_mutable_content()
 void src_file::set_content(QTextDocument *content)
 {
 	editor->setDocument(content);
+	QObject::connect(editor->document(), SIGNAL(modificationChanged(bool)), this, SLOT(file_changed(bool)));
 }
 
 QTextCursor src_file::get_cursor()
@@ -380,4 +383,24 @@ bool src_file::eventFilter(QObject* pObject, QEvent* pEvent)
     // standard event processing
     return QObject::eventFilter(pObject, pEvent);
 }
+
+/**
+ * [slot].
+ */
+
+void src_file::file_changed(bool changed)
+{
+	emit modificationChanged(changed);
+}
+
+
+
+
+
+
+
+
+
+
+
 

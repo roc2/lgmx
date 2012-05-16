@@ -4,7 +4,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include "src_container.h"
-
+#include "debug.h"
 
 /*
  * criar a classe src_container q vai ter um qtabwidget.
@@ -89,7 +89,6 @@ int src_container::new_src_tab(const QString &file_name)
 	int index;
 	src_file *src_tab;
 	QString show_name;
-	string s_name;
 
 	try {
 		index = addTab(new src_file(file_name), "");
@@ -107,15 +106,12 @@ int src_container::new_src_tab(const QString &file_name)
     else
         show_name = src_tab->get_src_file_name();
 
-    s_name = show_name.toStdString();
-
-    setTabText(index, QApplication::translate("main_window", s_name.c_str(), 0, QApplication::UnicodeUTF8));
+    setTabText(index, QApplication::translate("main_window", show_name.toStdString().c_str(), 0, QApplication::UnicodeUTF8));
+    
+    // slot to add an asterisk to the end of file name in case of unsaved modifications
+	QObject::connect(src_tab, SIGNAL(modificationChanged(bool)), this, SLOT(file_changed(bool)));
+    
 	setCurrentIndex(index);
-
-	/*
-	 * ligar o sinal void QPlainTextEdit::textChanged () [signal] em
-	 * um slot que troca a cor do texto da tab por vermelho
-	 */
 
 	return index;
 }
@@ -419,5 +415,30 @@ int src_container::get_file_index(const QString &file_name)
     return -1;
 }
 
+/**
+ * [slot] Add asterisk to end of file name if there are any unsaved modifications.
+ * This slot is triggered by src_file::modificationChanged(bool).
+ * @param changed -> true, if there are unsaved modifications, false otherwise.
+ */
 
+void src_container::file_changed(bool changed)
+{
+	src_file *file = static_cast<src_file *>(sender());
+	
+	if (!file) {
+		debug(ERR, SRC_CONTAINER, "Unable to find signal sender");
+		return;
+	}
+	
+	int index =	this->indexOf(file);
+	QString file_name(file->get_src_file_name());
+	
+	if (file_name.isEmpty())
+		file_name = NEW_FILE_NAME;
+
+	if (changed)
+		file_name += "*";
+		
+	setTabText(index, QApplication::translate("main_window", file_name.toStdString().c_str(), 0, QApplication::UnicodeUTF8));
+}
 

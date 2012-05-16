@@ -14,7 +14,9 @@
 #include "code_editor.h"
 #include "highlight/cpp_hl.h"
 
-class src_file : public QWidget {
+class src_file : public QWidget
+{	
+	Q_OBJECT
 	
 	CodeEditor *editor;
 	QHBoxLayout *horizontalLayout;
@@ -64,6 +66,13 @@ class src_file : public QWidget {
     void set_clone(src_file *clone);
     
     bool eventFilter(QObject* pObject, QEvent* pEvent);
+
+signals:
+	void modificationChanged(bool);
+
+public slots:
+	void file_changed(bool changed);
+    
 };
 
 

@@ -69,7 +69,11 @@ class src_container : public QTabWidget
     //void setFont(QFont &font);
     
     void focusInEvent(QFocusEvent *event);
-    
+
+public slots:
+	void file_changed(bool changed);
+
+
 private:
 	QWidget *_parent;
     QTabBar *tab_bar;
