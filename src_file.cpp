@@ -4,7 +4,7 @@
 #include <QMessageBox>
 #include <QString>
 #include "src_file.h"
-
+#include "src_container.h"
 
 using namespace std;
 
@@ -46,7 +46,7 @@ src_file::src_file(const QString &file_name)
 	//scroll_area->setBackgroundRole(QPalette::Dark);
 	//scroll_area_->setWidget(this);
     
-    cursor = new QTextCursor(this->textCursor());
+    //cursor = new QTextCursor(this->textCursor());
     
     /* file properties */
     if (file_name.isEmpty())
@@ -74,10 +74,8 @@ src_file::~src_file()
 {
 	cout << "destroying file..." << endl;
 	
-	delete scroll_area_;
-	//delete editor;
-	//delete horizontalLayout;
-	delete cursor;
+	//delete scroll_area_;
+	//delete cursor;
 	delete file_info;
 	//delete highlighter;
 }
@@ -306,19 +304,26 @@ void src_file::set_font(QFont &font)
 
 void src_file::go_to_line(int line)
 {
-    int max_lines;
-    
-    max_lines = this->document()->lineCount();
-    
-    if (line > max_lines)
+    if (line > this->document()->lineCount())
         return;
     
+    QTextCursor cursor(textCursor());
+    #if 0
     /* move cursor to start of file */
-    cursor->movePosition(QTextCursor::Start, QTextCursor::MoveAnchor, 1);
+    cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor, 1);
     /* move cursor down "line - 1" times */
-    cursor->movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, line - 1);
+    cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, line - 1);
+    #endif
+    int curr_line = cursor.blockNumber();
+    cout << "block number " << curr_line << endl;
     
-    this->setTextCursor(*cursor);
+    if (line > curr_line)
+		cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, line - curr_line - 1);
+    else if (line < curr_line)
+		cursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor, curr_line - line - 1);
+    
+    this->setTextCursor(cursor);
+    this->centerCursor();
 }
 
 /**

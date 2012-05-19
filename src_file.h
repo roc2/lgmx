@@ -14,13 +14,15 @@
 #include "code_editor.h"
 #include "highlight/cpp_hl.h"
 
+class src_container;
+
 class src_file : public CodeEditor
 {	
 	Q_OBJECT
 	
 	QFileInfo *file_info;
 	Highlighter *highlighter;
-	QTextCursor *cursor;
+	//QTextCursor *cursor;
 	src_file *_clone;
 	QScrollArea *scroll_area_;
 	

@@ -651,8 +651,15 @@ void Ui_MainWindow::go_to_ln()
 {
 	int line = 0;
 	int index;
+	view *curr_view;
 	
-	index = _src_container.get_current_tab_index();
+	curr_view = view_manager_.get_current_view();
+	
+	if (!curr_view)
+		return;
+	
+	index = curr_view->get_src_container()->get_current_tab_index();
+	
 	if (index < 0)
 		return;
 	
@@ -668,7 +675,8 @@ void Ui_MainWindow::go_to_ln()
 		if (line <= 0)
 			return;
 		
-		_src_container.go_to_line(index, line);
+		//_src_container.go_to_line(index, line);
+		curr_view->get_src_container()->go_to_line(index, line);
 	}
 }
 
