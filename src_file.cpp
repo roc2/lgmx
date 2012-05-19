@@ -37,8 +37,8 @@ src_file::src_file(const QString &file_name)
     
     // change editor colors
     QPalette p = this->palette();
-    //p.setColor(QPalette::Base, Qt::white);
-    p.setColor(QPalette::Base, Qt::black);
+    p.setColor(QPalette::Base, Qt::white);
+    //p.setColor(QPalette::Base, Qt::black);
     p.setColor(QPalette::Text, Qt::blue);
     this->setPalette(p);
     
@@ -297,8 +297,7 @@ void src_file::set_font(QFont &font)
 }
 
 /**
- * Moves cursor to the beginning of the specified line
- * @brief Moves cursor to the beginning of the specified line
+ * Moves cursor to the beginning of the specified line.
  * @param line -> line number
  */
 
@@ -308,19 +307,10 @@ void src_file::go_to_line(int line)
         return;
     
     QTextCursor cursor(textCursor());
-    #if 0
-    /* move cursor to start of file */
-    cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor, 1);
-    /* move cursor down "line - 1" times */
-    cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, line - 1);
-    #endif
-    int curr_line = cursor.blockNumber();
-    cout << "block number " << curr_line << endl;
+    int pos;
     
-    if (line > curr_line)
-		cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, line - curr_line - 1);
-    else if (line < curr_line)
-		cursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor, curr_line - line - 1);
+    pos = this->document()->findBlockByLineNumber(line - 1).position();
+    cursor.setPosition(pos, QTextCursor::MoveAnchor);
     
     this->setTextCursor(cursor);
     this->centerCursor();
