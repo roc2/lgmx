@@ -31,6 +31,7 @@ public:
 	void get_first_visible_block_content();
 	
 	//void focusInEvent(QFocusEvent *event);
+	void print_visible_blocks();
 
 protected:
 	void resizeEvent(QResizeEvent *event);

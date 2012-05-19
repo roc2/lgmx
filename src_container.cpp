@@ -23,6 +23,7 @@ src_container::src_container(QWidget *parent) : QTabWidget(parent)
 {
 	_parent = parent;
 	
+	this->installEventFilter(this);
     setObjectName(QString::fromUtf8("src_tab_widget"));
 	setTabsClosable(true);
 	setMovable(true);
@@ -77,7 +78,7 @@ src_container::~src_container()
 
 void src_container::focusInEvent(QFocusEvent *event)
 {
-	cout << "this Tab widget has focus!!" << endl;
+	cout << "Tab widget has focus!!" << endl;
 }
 
 /**

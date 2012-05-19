@@ -14,12 +14,10 @@
 #include "code_editor.h"
 #include "highlight/cpp_hl.h"
 
-class src_file : public QWidget
+class src_file : public CodeEditor
 {	
 	Q_OBJECT
 	
-	CodeEditor *editor;
-	QHBoxLayout *horizontalLayout;
 	QFileInfo *file_info;
 	Highlighter *highlighter;
 	QTextCursor *cursor;
@@ -71,7 +69,6 @@ signals:
 	void modificationChanged(bool);
 
 public slots:
-	void file_changed(bool changed);
     
 };
 

@@ -1,5 +1,6 @@
 #include "view_manager.h"
 #include <iostream>
+#include <debug.h>
 
 using namespace std;
 
@@ -130,7 +131,7 @@ src_container* view_manager::get_current_src_container()
 	
 	if (current)
 		return current_view_->get_src_container();
-	
+
 	return 0;
 }
 
@@ -157,6 +158,22 @@ view* view_manager::get_current_view() const
 	}
 	
 	return 0;
+}
+
+/**
+ * Set the current view pointer. The current view pointer should always 
+ * reference a valid view.
+ * @param curr_view -> new current view.
+ */
+
+void view_manager::set_current_view(view* curr_view)
+{
+	if (!curr_view) {
+		debug(ERR, VIEW_MANAGER, "Invalid view");
+		return;
+	}
+
+	current_view_ = curr_view;
 }
 
 /**
@@ -199,9 +216,22 @@ void view_manager::unsplit()
 		if (current->is_root())
 			return;
 	
-		current->get_parent_view()->unsplit(current);
+		current_view_ = current->get_parent_view();
+		current_view_->unsplit(current);
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

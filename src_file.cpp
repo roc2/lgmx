@@ -16,21 +16,15 @@ src_file::src_file(const QString &file_name)
 {
 	_clone = 0;
 	
-	this->setContentsMargins(0, 0, 0, 0);
+	//this->setContentsMargins(0, 0, 0, 0);
     //this->setFocusPolicy(Qt::StrongFocus);
-    horizontalLayout = new QHBoxLayout(this);
-    horizontalLayout->setSpacing(6);
-    horizontalLayout->setContentsMargins(0, 0, 0, 0);
-    horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
 
-    /* new source code file */
-    editor = new CodeEditor(this);
-    editor->setObjectName(QString::fromUtf8("src_editor"));
+    this->setObjectName(QString::fromUtf8("src_editor"));
     //editor->setTabStopWidth(num_spaces * font_size_in_pixels);
-    editor->setTabStopWidth(4 * 8);
-    editor->setLineWrapMode(QPlainTextEdit::NoWrap);
-    //editor->document()->setModified(false);   // false by default
-    editor->installEventFilter(this);
+    this->setTabStopWidth(4 * 8);
+    this->setLineWrapMode(QPlainTextEdit::NoWrap);
+    //this->document()->setModified(false);   // false by default
+    this->installEventFilter(this);
     
     // set default font
     QFont initial;
@@ -39,26 +33,20 @@ src_file::src_file(const QString &file_name)
 	initial.setFixedPitch(true);
 	initial.setPointSize(10);
     
-    editor->setFont(initial);
+    this->setFont(initial);
     
     // change editor colors
-    QPalette p = editor->palette();
+    QPalette p = this->palette();
     //p.setColor(QPalette::Base, Qt::white);
     p.setColor(QPalette::Base, Qt::black);
     p.setColor(QPalette::Text, Qt::blue);
-    editor->setPalette(p);
+    this->setPalette(p);
     
-    scroll_area_ = new QScrollArea(this);
+    //scroll_area_ = new QScrollArea(this);
 	//scroll_area->setBackgroundRole(QPalette::Dark);
-	scroll_area_->setWidget(editor);
-        
-    //text_document = new QTextDocument(editor->toPlainText(), editor);
-    //textEdit->clear();
+	//scroll_area_->setWidget(this);
     
-    cursor = new QTextCursor(editor->textCursor());
-    
-    horizontalLayout->addWidget(editor);
-    setLayout(horizontalLayout);
+    cursor = new QTextCursor(this->textCursor());
     
     /* file properties */
     if (file_name.isEmpty())
@@ -69,12 +57,13 @@ src_file::src_file(const QString &file_name)
 			throw 0;
     }
 
-	QObject::connect(editor->document(), SIGNAL(modificationChanged(bool)), this, SLOT(file_changed(bool)));
+	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
 
-	//editor->setFocus(Qt::OtherFocusReason);
+	//this->setFocus(Qt::OtherFocusReason);
 	//this->setFocus();
     /* syntax highlighting */ // modificar para aplicar somente no que aparece na tela
-    highlighter = new Highlighter(editor->document());
+    //highlighter = new Highlighter(this->document());
+    //this->print_visible_blocks();
 }
 
 /**
@@ -86,8 +75,8 @@ src_file::~src_file()
 	cout << "destroying file..." << endl;
 	
 	delete scroll_area_;
-	delete editor;
-	delete horizontalLayout;
+	//delete editor;
+	//delete horizontalLayout;
 	delete cursor;
 	delete file_info;
 	//delete highlighter;
@@ -129,7 +118,7 @@ bool src_file::load_file(const QString &fileName)
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    editor->setPlainText(in.readAll());
+    this->setPlainText(in.readAll());
 
     QApplication::restoreOverrideCursor();
 
@@ -144,7 +133,7 @@ bool src_file::is_modified()
 {
     bool result;
     
-    result = editor->document()->isModified();
+    result = this->document()->isModified();
     cout << "result = " << result << endl;
     
     return result;
@@ -157,7 +146,7 @@ bool src_file::saved_on_disk()
 
 bool src_file::set_src_file_modified(bool modified)
 {
-    editor->document()->setModified(modified);
+    this->document()->setModified(modified);
     cout << "set modified to false" << endl;
     
     return true;
@@ -169,33 +158,33 @@ bool src_file::set_src_file_modified(bool modified)
 
 QString src_file::get_content()
 {
-    return editor->toPlainText();
+    return this->toPlainText();
 }
 
 QTextDocument *src_file::get_mutable_content()
 {
-	return editor->document();
+	return this->document();
 }
 
 void src_file::set_content(QTextDocument *content)
 {
-	editor->setDocument(content);
-	QObject::connect(editor->document(), SIGNAL(modificationChanged(bool)), this, SLOT(file_changed(bool)));
+	this->setDocument(content);
+	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
 }
 
 QTextCursor src_file::get_cursor()
 {
-	return editor->textCursor();
+	return this->textCursor();
 }
 
 int src_file::get_cursor_position()
 {
-	return editor->textCursor().position();
+	return this->textCursor().position();
 }
 
 void src_file::set_cursor(const QTextCursor &cursor)
 {
-	editor->setTextCursor(cursor);
+	this->setTextCursor(cursor);
 }
 
 /**
@@ -220,7 +209,7 @@ bool src_file::write_file(const QString &fileName)
 	
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 	
-	out << editor->toPlainText();
+	out << this->toPlainText();
 	
 	QApplication::restoreOverrideCursor();
     
@@ -301,12 +290,12 @@ bool src_file::exists()
 
 QFont src_file::get_font()
 {
-    return editor->font();
+    return this->font();
 }
 
 void src_file::set_font(QFont &font)
 {
-    editor->setFont(font);
+    this->setFont(font);
 }
 
 /**
@@ -319,7 +308,7 @@ void src_file::go_to_line(int line)
 {
     int max_lines;
     
-    max_lines = editor->document()->lineCount();
+    max_lines = this->document()->lineCount();
     
     if (line > max_lines)
         return;
@@ -329,7 +318,7 @@ void src_file::go_to_line(int line)
     /* move cursor down "line - 1" times */
     cursor->movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, line - 1);
     
-    editor->setTextCursor(*cursor);
+    this->setTextCursor(*cursor);
 }
 
 /**
@@ -347,7 +336,7 @@ void src_file::set_clone(src_file *clone)
 
 void src_file::focusInEvent(QFocusEvent *event)
 {
-	cout << "this widget has focus!!" << endl;
+	cout << "src_file widget has focus!!" << endl;
 }
 
 /**
@@ -382,15 +371,6 @@ bool src_file::eventFilter(QObject* pObject, QEvent* pEvent)
 
     // standard event processing
     return QObject::eventFilter(pObject, pEvent);
-}
-
-/**
- * [slot].
- */
-
-void src_file::file_changed(bool changed)
-{
-	emit modificationChanged(changed);
 }
 
 

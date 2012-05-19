@@ -23,6 +23,8 @@ public:
 	view* get_root_view() const;
 	view* get_current_view() const;
 
+	void set_current_view(view* curr_view);
+
 private:
 	void close_file(QTextDocument *content);
 

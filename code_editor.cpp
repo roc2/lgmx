@@ -57,6 +57,17 @@ void CodeEditor::setHighlighter(int srcType)
  * Teste
  */
 
+void CodeEditor::print_visible_blocks()
+{
+	QTextBlock block = firstVisibleBlock();
+
+	while (block.isValid() && block.isVisible()) {
+		cout << block.text().toStdString() << endl;
+		block = block.next();
+	}
+}
+
+
 void CodeEditor::get_first_visible_block_content()
 {
     QTextBlock block;
@@ -65,8 +76,8 @@ void CodeEditor::get_first_visible_block_content()
     QTextCursor cursor = this->textCursor();
     
     cursor.movePosition(QTextCursor::Start); 
-    cursor.movePosition(QTextCursor::NextCharacter); 
-    cursor.movePosition(QTextCursor::NextCharacter); 
+    cursor.movePosition(QTextCursor::NextCharacter);
+    cursor.movePosition(QTextCursor::NextCharacter);
     cursor.movePosition(QTextCursor::NextCharacter);
     
     keywordFormat.setForeground(Qt::red);

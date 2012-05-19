@@ -14,6 +14,8 @@
 
 #include "string"
 
+#include <QDateTime>
+
 using namespace std;
 
 
@@ -22,9 +24,13 @@ using namespace std;
  * @brief MainWindow Constructor
  */
 
+qint64 start;
 
 Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_manager_(this)
 {
+	QDateTime boot_time;
+	start =	boot_time.currentMSecsSinceEpoch();
+	
     if (objectName().isEmpty())
 		setObjectName(QString::fromUtf8("main_window"));
         
@@ -200,6 +206,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_
 	}
 	
 	//Config conf;
+	std::cout << "init time = " << boot_time.currentMSecsSinceEpoch() - start << std::endl;
 }
 
 Ui_MainWindow::~Ui_MainWindow()

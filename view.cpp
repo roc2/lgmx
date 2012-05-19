@@ -286,7 +286,7 @@ void view::unsplit(view *to_be_destroyed)
 	}
 	
 	if (to_be_destroyed->is_splitted()) {
-		cout << "something very wrong here!!" << endl;
+		debug(CRIT, VIEW, "Tried to destroy a view that has child views!!");
 		return;
 	}
 	
