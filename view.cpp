@@ -159,6 +159,7 @@ void view::clone_file(src_file *file)
 			
 			if (new_file) {
 				new_file->set_content(file->get_mutable_content());
+				new_file->setTextCursor(file->textCursor());
 				//file->set_clone(new_file);
 			}
 		}

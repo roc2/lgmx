@@ -59,7 +59,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_
     QCoreApplication::setApplicationName(APPLICATION);
 	
 	
-	search_dialog = new lgmx::search(&_src_container, this);
+	search_dialog = new lgmx::search(view_manager_, this);
 	
 	c_board = new clipboard(&_src_container_ptr, this);
 	

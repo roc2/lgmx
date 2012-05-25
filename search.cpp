@@ -2,16 +2,16 @@
 #include <QLayout>
 
 #include <iostream>
-
+#include <view_manager.h>
 
 #define SEARCH_SAVE_KEY	"search_flags"
 
 using namespace std;
 
-lgmx::search::search(src_container *src_files, QWidget *parent) : QDialog(parent), 
-		       flags(QTextDocument::FindCaseSensitively | QTextDocument::FindWholeWords)
+lgmx::search::search(view_manager &manager, QWidget *parent) : QDialog(parent), 
+		       flags(QTextDocument::FindCaseSensitively | QTextDocument::FindWholeWords), manager_(manager)
 {
-	src_ctr = src_files;
+	//src_ctr = src_files;
 	
 	wrap = false;
 	highlight_all = true;
@@ -31,10 +31,18 @@ lgmx::search::~search()
 
 void lgmx::search::show_search_dialog()
 {
-	src_file *curr_file;
+	//src_file *curr_file;
+	view *curr_view;
 	
-	if (!(curr_file = src_ctr->get_current_src_file()))
+	//if (!(curr_file = src_ctr->get_current_src_file()))
+		//return;
+	
+	curr_view = manager_.get_current_view();
+	
+	if (!curr_view)
 		return;
+	
+	src_ctr = curr_view->get_src_container();
 	
 	this->show();
 }
@@ -171,6 +179,7 @@ void lgmx::search::search_string(QString &pattern)
 	if (!this->cursor.isNull()) {
 		
 		curr_file->set_cursor(this->cursor);
+		curr_file->centerCursor();
 		
 		if (highlight_all)
 			highlight_all_matches(pattern);

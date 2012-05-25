@@ -26,6 +26,8 @@
 #include <QtGui/QVBoxLayout>
 //////////////////////////////////////////////////////////////////////////////////////
 
+class view_manager;
+
 #define NUM_FLAGS	5
 
 // persistent flags masks
@@ -45,6 +47,7 @@ class search : public QDialog
 
 	public:
 	search(src_container *src_files, QWidget *parent = 0);
+	search(view_manager &manager, QWidget *parent = 0);
 	~search();
 	
 	void save_settings();
@@ -133,6 +136,7 @@ class search : public QDialog
 //////////////////////////////////////////////////////////////////////////////////////
 
 	src_container *src_ctr;
+	view_manager &manager_;
 	
 	//QBitArray p_flags;	// persistent flags
 	//uint p_flags;
