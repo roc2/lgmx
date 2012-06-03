@@ -3,8 +3,10 @@
 
 #include <QWidget>
 #include <list>
+#include <set>
 
 #include "view.h"
+#include "recent_files.h"
 
 class view_manager : public QWidget
 {
@@ -16,14 +18,15 @@ public:
 
 	void add_to_view_list(view *v);
 	void remove_from_view_list(view *v);
-	
-	src_container* get_root_src_container();
-	src_container* get_current_src_container();
-	
+	void set_current_view(view* curr_view);
+	void set_recent_files_widget(recent_files *recent_files_widget);
+	void set_current_index(int index);
+
 	view* get_root_view() const;
 	view* get_current_view() const;
-
-	void set_current_view(view* curr_view);
+	src_container* get_root_src_container() const;
+	src_container* get_current_src_container() const;
+	int get_file_index(const QString &file_name);
 
 private:
 	void close_file(QTextDocument *content);
@@ -34,6 +37,8 @@ public slots:
 	void unsplit();
 	void close_file(int index);
 	void new_file();
+	void open_file();
+	void open_file(const QString &file_name);
 
 private slots:
 	//void open_recent_file();
@@ -46,7 +51,11 @@ private:
     view *root_view_;
     view *current_view_;
     
+    set<QString> open_files_; /**< current open files */
+    recent_files *recent_files_;
+    
     QVBoxLayout *layout_;
+    int num_splits_;
 };
 
 #endif

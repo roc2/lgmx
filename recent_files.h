@@ -26,7 +26,7 @@ private:
 	void update_menu();
 
 signals:
-    void open_recent_file(QString &);
+    void open_recent_file(const QString &);
 
 private slots:
 	void open_recent_file();

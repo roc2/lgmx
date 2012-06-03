@@ -31,12 +31,8 @@ lgmx::search::~search()
 
 void lgmx::search::show_search_dialog()
 {
-	//src_file *curr_file;
 	view *curr_view;
-	
-	//if (!(curr_file = src_ctr->get_current_src_file()))
-		//return;
-	
+
 	curr_view = manager_.get_current_view();
 	
 	if (!curr_view)
@@ -203,9 +199,14 @@ void lgmx::search::search_string(QString &pattern)
 			
 		if (!this->cursor.isNull()) {
 			curr_file->set_cursor(this->cursor);
+			curr_file->centerCursor();
 		}
 	}
 }
+
+/**
+ * Finds next pattern match.
+ */
 
 void lgmx::search::find_next()
 {
@@ -221,6 +222,10 @@ void lgmx::search::find_next()
 	add_to_search_history(pattern);
 }
 
+/**
+ * Finds previous pattern match.
+ */
+
 void lgmx::search::find_previous()
 {
 	QString pattern(search_cbox->currentText());
@@ -233,6 +238,7 @@ void lgmx::search::find_previous()
 	search_string(pattern);
 	add_to_search_history(pattern);
 }
+
 /*
 void lgmx::search::replace_text(QString &search_pattern, QString &replace_pattern)
 {
@@ -244,6 +250,10 @@ void lgmx::search::replace_text(QString &search_pattern, QString &replace_patter
 	this->cursor.insertText(replace_pattern);
 }
 */
+
+/**
+ * Replaces current pattern match.
+ */
 
 void lgmx::search::replace()
 {
@@ -262,11 +272,19 @@ void lgmx::search::replace()
 	}
 }
 
+/**
+ * Replaces current pattern match and finds next match.
+ */
+
 void lgmx::search::replace_and_next()
 {
 	replace();
 	find_next();
 }
+
+/**
+ * Replaces current pattern match and finds previous match.
+ */
 
 void lgmx::search::replace_and_previous()
 {

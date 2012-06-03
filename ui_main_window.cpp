@@ -65,6 +65,8 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_
 	
 	createActions();
 	
+	view_manager_.set_recent_files_widget(menu_recent_files);
+	
 	centralWidget = new QWidget(this);
 	centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
 	
@@ -220,7 +222,9 @@ Ui_MainWindow::~Ui_MainWindow()
 void Ui_MainWindow::create_connections()
 {
 	QObject::connect(actionSave, SIGNAL(triggered()), this, SLOT(save()));
-	QObject::connect(actionOpen, SIGNAL(triggered()), this, SLOT(open_file()));
+
+	QObject::connect(actionOpen, SIGNAL(triggered()), &view_manager_, SLOT(open_file()));
+	
 	QObject::connect(actionNew, SIGNAL(triggered()), &view_manager_, SLOT(new_file()));
 	QObject::connect(actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
 	
@@ -431,62 +435,6 @@ bool Ui_MainWindow::saveFile(const QString &fileName, int index)
     return true;
 }
 
-/**
- * Open a file
- */
-
-void Ui_MainWindow::open_file()
-{
-    QStringList files;
-	QString path;
-    QDir dir;
-	int index, size;
-    
-    index = get_current_src_container()->get_current_tab_index();  /* get current file index */
-    
-    /* 
-     * "open file" dialog path is the path of the current open file, or "home"
-     * if there is no file open
-     */
-    if (index < 0 || (path = get_current_src_container()->get_src_tab_path(index)) == "")
-        path = dir.homePath();
- 
-    files = QFileDialog::getOpenFileNames(this, tr("Open File"), path, tr("All files (*.c *.cpp *.h)"));
-
-    size = files.size();
-    for (index = 0; index < size; ++index) {
-        if (open_files.find(files.at(index)) == open_files.end()) {
-            if (_root_src_container->new_src_tab(files.at(index)) < 0)
-                continue;
-
-            open_files.insert(files.at(index));
-            f_watcher.add_path(files.at(index));
-            menu_recent_files->add_file(files.at(index));
-        } else {
-            index = this->get_file_index(files.at(index));
-            if (index >= 0)
-                this->set_current_index(index);
-        }
-    }
-}
-
-void Ui_MainWindow::open_file(QString &file_name)
-{
-	if (open_files.find(file_name) == open_files.end()) {
-		//if (_root_src_container->new_src_tab(file_name) < 0)
-		if (view_manager_.get_root_view()->new_file(file_name) < 0)
-			return;
-
-		open_files.insert(file_name);
-		f_watcher.add_path(file_name);
-		menu_recent_files->add_file(file_name);
-	} else {
-		int index(this->get_file_index(file_name));
-		if (index >= 0)
-			this->set_current_index(index);
-	}
-}
-
 void Ui_MainWindow::set_current_index(int index)
 {
     if (index >= _src_container.count())
@@ -512,9 +460,9 @@ void Ui_MainWindow::load_parameter_files(list<QString> *files)
     for (list<QString>::iterator it = files->begin(); it != files->end(); it++) {
         if ((*it)[0] != '/') {  // append file path
 			QString file(curPath + '/' + *it);
-            open_file(file);
+            view_manager_.open_file(file);
         } else
-			open_file(*it);
+			view_manager_.open_file(*it);
     }
 }
 
@@ -847,7 +795,7 @@ void Ui_MainWindow::createActions()
 
 	/* recent files menu */
     menu_recent_files = new recent_files(tr("Recent Files"), this);
-    connect(menu_recent_files, SIGNAL(open_recent_file(QString &)), this, SLOT(open_file(QString &)));
+    connect(menu_recent_files, SIGNAL(open_recent_file(const QString &)), &view_manager_, SLOT(open_file(const QString &)));
     
     /* menu side bar */
     actionSide_Bar = new QAction(this);

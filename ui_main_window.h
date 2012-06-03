@@ -157,8 +157,6 @@ private slots:
     ///////////////////////////
 	
 	//void save_file();
-	void open_file();
-	void open_file(QString &file_name);
 	void close_file(int index);
 	void quit();
 	
