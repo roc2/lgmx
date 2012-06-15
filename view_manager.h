@@ -20,16 +20,20 @@ public:
 	void remove_from_view_list(view *v);
 	void set_current_view(view* curr_view);
 	void set_recent_files_widget(recent_files *recent_files_widget);
-	void set_current_index(int index);
+	void set_current_file_index(int index);
 
 	view* get_root_view() const;
 	view* get_current_view() const;
 	src_container* get_root_src_container() const;
 	src_container* get_current_src_container() const;
-	int get_file_index(const QString &file_name);
+	int get_current_file_index(const QString &file_name);
 
 private:
 	void close_file(QTextDocument *content);
+	
+	bool save_file_as(src_container *src_c, int index);
+	bool save_file(src_container *src_c, const QString &fileName, int index);
+	
 
 public slots:
 	void split_horizontally();
@@ -39,6 +43,7 @@ public slots:
 	void new_file();
 	void open_file();
 	void open_file(const QString &file_name);
+	bool save();
 
 private slots:
 	//void open_recent_file();

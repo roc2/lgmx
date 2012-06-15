@@ -221,7 +221,7 @@ Ui_MainWindow::~Ui_MainWindow()
 
 void Ui_MainWindow::create_connections()
 {
-	QObject::connect(actionSave, SIGNAL(triggered()), this, SLOT(save()));
+	QObject::connect(actionSave, SIGNAL(triggered()), &view_manager_, SLOT(save()));
 
 	QObject::connect(actionOpen, SIGNAL(triggered()), &view_manager_, SLOT(open_file()));
 	
@@ -352,32 +352,6 @@ void Ui_MainWindow::close_file(int index)
     it = open_files.find(file_name);    /* pop from open files list */
     if (it != open_files.end())
         open_files.erase(*it);
-}
-
-/**
- * Save file to disk
- * @brief Save file to disk
- */
-
-bool Ui_MainWindow::save()
-{
-    QString file_name;
-    int index;
-    
-    index = _src_container.get_current_tab_index();  /* get current file index */
-    
-    if (index < 0)      /* no file open */
-        return false;
-    
-    //file_name = _src_container.get_src_tab_full_name(index);
-    _src_container.get_src_tab_full_name(index, file_name);
-    
-    if (file_name.isEmpty()) {
-        cout << "file name empty" << endl;
-        return saveAs(index);
-    }
-    
-    return saveFile(file_name, index);
 }
 
 void Ui_MainWindow::reload_file(const QString path)

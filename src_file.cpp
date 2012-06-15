@@ -124,30 +124,34 @@ bool src_file::load_file(const QString &fileName)
 }
 
 /**
- * Checks if the file was modified or is not saved yet
+ * Checks whether the file has unsaved modifications or not.
+ * @return true, if file has unsaved modifications, false otherwise.
  */
 
-bool src_file::is_modified()
+bool src_file::is_modified() const
 {
-    bool result;
-    
-    result = this->document()->isModified();
-    cout << "result = " << result << endl;
-    
-    return result;
+    return this->document()->isModified();
 }
+
+/**
+ * Sets the file modification state.
+ * @param modified -> true, to mark the file as modified, false to mark the file
+ * with no modifications.
+ */
+
+void src_file::set_modified(bool modified)
+{
+    this->document()->setModified(modified);
+    emit modificationChanged(modified);
+}
+
+/**
+ * 
+ */
 
 bool src_file::saved_on_disk()
 {
 	return !(file_info->fileName().isEmpty());
-}
-
-bool src_file::set_src_file_modified(bool modified)
-{
-    this->document()->setModified(modified);
-    cout << "set modified to false" << endl;
-    
-    return true;
 }
 
 /**

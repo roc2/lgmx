@@ -34,15 +34,6 @@ view_manager::~view_manager()
 }
 
 /**
- * 
- */
-
-void view_manager::set_recent_files_widget(recent_files *recent_files_widget)
-{
-	recent_files_ = recent_files_widget;
-}
-
-/**
  * Adds view to list. Whenever a view is created it must be added to 
  * this list.
  */
@@ -65,47 +56,14 @@ void view_manager::remove_from_view_list(view *v)
 }
 
 /**
- * Creates new empty file.
+ * Creates new empty file. A file is always created in the root view, which 
+ * in turn propagates the file creation to other views, if they exist.
  */
 
 void view_manager::new_file()
 {
 	root_view_->new_file("");
 }	
-
-/**
- * 
- */
-
-void view_manager::set_current_index(int index)
-{
-	current_view_ = get_current_view();
-
-	if (!current_view_)
-		return;
-	
-	src_container *container = current_view_->get_src_container();
-	
-    if (index >= container->count())
-        return; /* index out of range */
-    
-    container->setCurrentIndex(index);
-}
-
-/**
- * 
- */
-
-int view_manager::get_file_index(const QString &file_name)
-{
-	current_view_ = get_current_view();
-
-	if (!current_view_)
-		return -1;
-	
-	return current_view_->get_src_container()->get_file_index(file_name);
-}
-
 
 /**
  * Slot to handle file close request.
@@ -166,8 +124,6 @@ void view_manager::open_file()
 
 void view_manager::open_file(const QString &file_name)
 {
-	cout << "Open file called" << endl;
-	
 	// checks whether this file is already open
 	if (open_files_.find(file_name) == open_files_.end()) {
 		if (root_view_->new_file(file_name) < 0)
@@ -182,8 +138,86 @@ void view_manager::open_file(const QString &file_name)
 
 		int index = current_view_->get_src_container()->get_file_index(file_name);
 		if (index >= 0)
-			set_current_index(index);
+			set_current_file_index(index);
 	}
+}
+
+/**
+ * Save file to disk [slot].
+ */
+
+bool view_manager::save()
+{
+    QString file_name;
+    int index;
+    
+    src_container *curr_src_c = get_current_src_container();
+
+    if (!curr_src_c)
+		return false;
+    
+    index = curr_src_c->get_current_tab_index();  /* get current file index */
+    
+    if (index < 0)      /* no file open */
+        return false;
+    
+    //file_name = _src_container.get_src_tab_full_name(index);
+    curr_src_c->get_src_tab_full_name(index, file_name);
+    
+    if (file_name.isEmpty()) {
+        cout << "file name empty" << endl;
+        return save_file_as(curr_src_c, index);
+    }
+    
+    return save_file(curr_src_c, file_name, index);
+}
+
+/**
+ * Save file as. Saves a file which has not been written to the 
+ * disk yet.
+ * @param index - file index in the tab widget
+ */
+
+bool view_manager::save_file_as(src_container *src_c, int index)
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"));
+    // mudar para abrir na home do user se o arquivo nao existe:
+    //files = QFileDialog::getSaveFileName(this, tr("Save File"), path, tr("All files (*.c *.cpp *.h)"));
+    
+    if (fileName.isEmpty())
+        return false;   /* no file specified */
+
+    if (save_file(src_c, fileName, index)) {
+        src_c->set_file_name(index, fileName);
+        src_c->update_file_info(index);
+        //f_watcher.add_path(fileName);
+        return true;
+    }
+    
+    return false;
+}
+
+/**
+ * Saves file to disk.
+ * @param fileName -> complete file path.
+ * @param index -> index in the source tab
+ * @return true -> file saved successfully, false -> error
+ */
+
+bool view_manager::save_file(src_container *src_c, const QString &fileName, int index)
+{
+    QString error;
+    
+    cout << "file name -> " << fileName.toStdString() << endl;
+
+    if (!src_c->src_tab_write_file(index, fileName))
+        return false;
+
+    src_c->set_modified(index, false);
+    open_files_.insert(fileName);
+    recent_files_->add_file(fileName);
+
+    return true;
 }
 
 /**
@@ -210,6 +244,39 @@ void view_manager::close_file(QTextDocument *content)
 			break;
 		}
 	}
+}
+
+/**
+ * 
+ */
+
+void view_manager::set_current_file_index(int index)
+{
+	current_view_ = get_current_view();
+
+	if (!current_view_)
+		return;
+	
+	src_container *container = current_view_->get_src_container();
+	
+    if (index >= container->count())
+        return; /* index out of range */
+    
+    container->setCurrentIndex(index);
+}
+
+/**
+ * 
+ */
+
+int view_manager::get_current_file_index(const QString &file_name)
+{
+	current_view_ = get_current_view();
+
+	if (!current_view_)
+		return -1;
+	
+	return current_view_->get_src_container()->get_file_index(file_name);
 }
 
 /**
@@ -303,7 +370,7 @@ void view_manager::split_horizontally()
 	if (current) {
 		current->split(Qt::Vertical);
 		num_splits_++;
-		cout << "splits: " << num_splits_ << endl;
+		debug(INFO, VIEW_MANAGER, "splits: " << num_splits_);
 	}
 }
 
@@ -318,7 +385,7 @@ void view_manager::split_vertically()
 	if (current) {
 		current->split(Qt::Horizontal);
 		num_splits_++;
-		cout << "splits: " << num_splits_ << endl;
+		debug(INFO, VIEW_MANAGER, "splits: " << num_splits_);
 	}
 }
 
@@ -337,11 +404,18 @@ void view_manager::unsplit()
 		current_view_ = current->get_parent_view();
 		current_view_->unsplit(current);
 		num_splits_--;
-		cout << "splits: " << num_splits_ << endl;
+		debug(INFO, VIEW_MANAGER, "splits: " << num_splits_);
 	}
 }
 
+/**
+ * 
+ */
 
+void view_manager::set_recent_files_widget(recent_files *recent_files_widget)
+{
+	recent_files_ = recent_files_widget;
+}
 
 
 

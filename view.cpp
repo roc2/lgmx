@@ -63,6 +63,7 @@ view::view(const view &copy) : QWidget(copy.get_parent_view())
 	QObject::connect(src_container_, SIGNAL(tabCloseRequested(int)), manager_, SLOT(close_file(int)));
  
     this->setFocusPolicy(Qt::StrongFocus);
+    manager_->add_to_view_list(this);
 }
 
 /**
@@ -160,6 +161,7 @@ void view::clone_file(src_file *file)
 			if (new_file) {
 				new_file->set_content(file->get_mutable_content());
 				new_file->setTextCursor(file->textCursor());
+				new_file->set_modified(file->is_modified());
 				//file->set_clone(new_file);
 			}
 		}

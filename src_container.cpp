@@ -308,7 +308,8 @@ bool src_container::set_modified(int index, bool modified)
     if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
-	return src_tab->set_src_file_modified(modified);
+	src_tab->set_modified(modified);
+	return true;
 }
 
 bool src_container::set_file_name(int index, QString &fileName)
@@ -417,7 +418,7 @@ int src_container::get_file_index(const QString &file_name)
 }
 
 /**
- * [slot] Add asterisk to end of file name if there are any unsaved modifications.
+ * [slot] Adds asterisk to end of file name if there are any unsaved modifications.
  * This slot is triggered by src_file::modificationChanged(bool).
  * @param changed -> true, if there are unsaved modifications, false otherwise.
  */

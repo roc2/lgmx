@@ -3,15 +3,6 @@
 
 #define Q_WS_X11
 
-void load_parameter_files(int argc, char *argv[], Ui_MainWindow **main_window)
-{
-	list<QString> file_list;
-
-    for (int i = 1; i < argc; i++)
-        file_list.push_back(argv[i]);
-
-	*main_window = new Ui_MainWindow(&file_list);
-}
 
 int main(int argc, char *argv[])
 {
@@ -22,8 +13,15 @@ int main(int argc, char *argv[])
 	
     QApplication a(argc, argv);
     Ui_MainWindow *main_window;
-    
-    load_parameter_files(argc, argv, &main_window);
+
+    {
+		list<QString> file_list;
+
+		for (int i = 1; i < argc; i++)
+			file_list.push_back(argv[i]);
+
+		main_window = new Ui_MainWindow(&file_list);
+	}
     
     main_window->show();
     return a.exec();

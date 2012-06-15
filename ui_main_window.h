@@ -152,7 +152,6 @@ private:
 
 private slots:
     // current in use
-	bool save();
     bool saveAs(int index);
     ///////////////////////////
 	

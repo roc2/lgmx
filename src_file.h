@@ -26,7 +26,7 @@ class src_file : public CodeEditor
 	src_file *_clone;
 	QScrollArea *scroll_area_;
 	
-	public:
+public:
     
     src_file(const QString &file_name);
     ~src_file();
@@ -34,9 +34,11 @@ class src_file : public CodeEditor
     bool write_file(const QString &fileName);
     bool load_file(const QString &fileName);
     
-	bool is_modified();
+	bool is_modified() const;
+    void set_modified(bool modified);
+    
     bool saved_on_disk();
-    bool set_src_file_modified(bool modified);
+    
     void set_src_file_name(const QString &fileName);
 	QString get_content();
 	
