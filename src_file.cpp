@@ -14,7 +14,7 @@ using namespace std;
 
 src_file::src_file(const QString &file_name)
 {
-	_clone = 0;
+	clone_ = false;
 	
 	//this->setContentsMargins(0, 0, 0, 0);
     //this->setFocusPolicy(Qt::StrongFocus);
@@ -49,13 +49,65 @@ src_file::src_file(const QString &file_name)
     //cursor = new QTextCursor(this->textCursor());
     
     /* file properties */
-    if (file_name.isEmpty())
-        file_info = new QFileInfo();
-    else {
-        file_info = new QFileInfo(file_name);
-        if (!load_file(file_name))      /* reads file from disk */
+	if (file_name.isEmpty())
+		file_info_ = new QFileInfo();
+	else {
+		file_info_ = new QFileInfo(file_name);
+		if (!load_file(file_name)) {      /* reads file from disk */
+			delete file_info_;
 			throw 0;
-    }
+		}
+	}
+
+	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
+
+	//this->setFocus(Qt::OtherFocusReason);
+	//this->setFocus();
+    /* syntax highlighting */ // modificar para aplicar somente no que aparece na tela
+    //highlighter = new Highlighter(this->document());
+    //this->print_visible_blocks();
+}
+
+src_file::src_file(src_file *base_file)
+{
+	clone_ = true;
+	
+	//this->setContentsMargins(0, 0, 0, 0);
+    //this->setFocusPolicy(Qt::StrongFocus);
+
+    this->setObjectName(QString::fromUtf8("src_editor"));
+    //editor->setTabStopWidth(num_spaces * font_size_in_pixels);
+    this->setTabStopWidth(4 * 8);
+    this->setLineWrapMode(QPlainTextEdit::NoWrap);
+    //this->document()->setModified(false);   // false by default
+    this->installEventFilter(this);
+    
+    // set default font
+    QFont initial;
+    
+	initial.setFamily("monospace");
+	initial.setFixedPitch(true);
+	initial.setPointSize(10);
+    
+    this->setFont(initial);
+    
+    // change editor colors
+    QPalette p = this->palette();
+    p.setColor(QPalette::Base, Qt::white);
+    //p.setColor(QPalette::Base, Qt::black);
+    p.setColor(QPalette::Text, Qt::blue);
+    this->setPalette(p);
+    
+    //scroll_area_ = new QScrollArea(this);
+	//scroll_area->setBackgroundRole(QPalette::Dark);
+	//scroll_area_->setWidget(this);
+    
+    //cursor = new QTextCursor(this->textCursor());
+    
+    /* file properties */
+	file_info_ = base_file->get_file_info();
+	set_content(base_file->get_mutable_content());
+
 
 	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
 
@@ -76,7 +128,8 @@ src_file::~src_file()
 	
 	//delete scroll_area_;
 	//delete cursor;
-	delete file_info;
+	if (!clone_)
+		delete file_info_;
 	//delete highlighter;
 }
 
@@ -151,7 +204,26 @@ void src_file::set_modified(bool modified)
 
 bool src_file::saved_on_disk()
 {
-	return !(file_info->fileName().isEmpty());
+	return !(file_info_->fileName().isEmpty());
+}
+
+/**
+ * 
+ */
+
+void src_file::set_file_info(QFileInfo *file_info)
+{
+	if (file_info)
+		file_info_ = file_info;
+}
+
+/**
+ * 
+ */
+
+QFileInfo* src_file::get_file_info() const
+{
+	return file_info_;
 }
 
 /**
@@ -226,7 +298,7 @@ bool src_file::write_file(const QString &fileName)
 
 QString src_file::get_src_file_name()
 {
-    return file_info->fileName();
+    return file_info_->fileName();
 }
 
 /**
@@ -236,7 +308,7 @@ QString src_file::get_src_file_name()
 
 QString src_file::get_src_file_path()
 {
-    return file_info->absolutePath();
+    return file_info_->absolutePath();
 }
 
 /**
@@ -245,7 +317,9 @@ QString src_file::get_src_file_path()
 
 void src_file::set_src_file_name(const QString &fileName)
 {
-    file_info->setFile(fileName);
+    file_info_->setFile(fileName);
+    //update_src_file_info();
+    emit modificationChanged(this->is_modified());
 }
 
 /**
@@ -255,7 +329,7 @@ void src_file::set_src_file_name(const QString &fileName)
 
 void src_file::update_src_file_info()
 {
-    file_info->refresh();
+    file_info_->refresh();
 }
 
 /**
@@ -264,7 +338,7 @@ void src_file::update_src_file_info()
 
 QString src_file::get_src_file_full_name()
 {
-    return file_info->absoluteFilePath();
+    return file_info_->absoluteFilePath();
 }
 
 /**
@@ -273,7 +347,7 @@ QString src_file::get_src_file_full_name()
 
 bool src_file::get_src_file_full_name(QString &file_path)
 {
-    file_path = file_info->absoluteFilePath();
+    file_path = file_info_->absoluteFilePath();
     return true;
 }
 
@@ -282,8 +356,8 @@ bool src_file::get_src_file_full_name(QString &file_path)
  */
 
 bool src_file::exists()
-{ 
-    return file_info->exists();
+{
+    return file_info_->exists();
 }
 
 /**
@@ -323,12 +397,12 @@ void src_file::go_to_line(int line)
 /**
  * 
  */
-
+/*
 void src_file::set_clone(src_file *clone)
 {
 	_clone = clone;
 }
-
+*/
 /**
  * 
  */

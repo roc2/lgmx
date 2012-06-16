@@ -17,18 +17,20 @@
 class src_container;
 
 class src_file : public CodeEditor
-{	
+{
 	Q_OBJECT
 	
-	QFileInfo *file_info;
+	QFileInfo *file_info_;
 	Highlighter *highlighter;
 	//QTextCursor *cursor;
-	src_file *_clone;
+	//src_file *_clone;
 	QScrollArea *scroll_area_;
+	bool clone_;
 	
 public:
     
     src_file(const QString &file_name);
+    src_file(src_file *base_file);
     ~src_file();
     
     bool write_file(const QString &fileName);
@@ -65,7 +67,10 @@ public:
     
     int get_cursor_position();
     
-    void set_clone(src_file *clone);
+    void set_file_info(QFileInfo *file_info);
+    QFileInfo *get_file_info() const;
+    
+    //void set_clone(src_file *clone);
     
     bool eventFilter(QObject* pObject, QEvent* pEvent);
 

@@ -150,6 +150,7 @@ bool view_manager::save()
 {
     QString file_name;
     int index;
+    bool result;
     
     src_container *curr_src_c = get_current_src_container();
 
@@ -161,15 +162,18 @@ bool view_manager::save()
     if (index < 0)      /* no file open */
         return false;
     
-    //file_name = _src_container.get_src_tab_full_name(index);
     curr_src_c->get_src_tab_full_name(index, file_name);
     
     if (file_name.isEmpty()) {
         cout << "file name empty" << endl;
-        return save_file_as(curr_src_c, index);
-    }
-    
-    return save_file(curr_src_c, file_name, index);
+        result = save_file_as(curr_src_c, index);
+    } else
+		result = save_file(curr_src_c, file_name, index);
+	
+	if (result)
+		curr_src_c->set_modified(index, false);
+		
+	return result;
 }
 
 /**
@@ -189,7 +193,8 @@ bool view_manager::save_file_as(src_container *src_c, int index)
 
     if (save_file(src_c, fileName, index)) {
         src_c->set_file_name(index, fileName);
-        src_c->update_file_info(index);
+        //open_files_.insert(fileName);
+		//recent_files_->add_file(fileName);
         //f_watcher.add_path(fileName);
         return true;
     }
@@ -213,7 +218,6 @@ bool view_manager::save_file(src_container *src_c, const QString &fileName, int 
     if (!src_c->src_tab_write_file(index, fileName))
         return false;
 
-    src_c->set_modified(index, false);
     open_files_.insert(fileName);
     recent_files_->add_file(fileName);
 

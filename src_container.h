@@ -33,13 +33,14 @@ class src_container : public QTabWidget
 	~src_container();
 	
 	int new_src_tab(const QString &file_name);
+	int new_clone_tab(src_file *base_file);
 	void destroy_src_tab(int index);
 
 	bool is_modified(int index);
 	bool exists(int index);
     bool saved_on_disk(int index);
     bool set_modified(int index, bool modified);
-    bool set_file_name(int index, QString &fileName);
+    bool set_file_name(int index, const QString &fileName);
 	
 	QWidget* get_parent() const;
 	

@@ -118,6 +118,37 @@ int src_container::new_src_tab(const QString &file_name)
 }
 
 /**
+ * Create new source tab.
+ */
+
+int src_container::new_clone_tab(src_file *base_file)
+{
+	int index;
+	src_file *src_tab;
+	QString show_name;
+
+	try {
+		index = addTab(new src_file(base_file), "");
+		//cout << "added new tab at index " << index << endl;
+	} catch(...) {
+		
+		return -1;
+	}
+
+	if ((src_tab = static_cast<src_file *>(this->widget(index))) == 0)
+    	return -1;	/* index out of range */
+
+    setTabText(index, QApplication::translate("main_window", base_file->get_src_file_name().toStdString().c_str(), 0, QApplication::UnicodeUTF8));
+    
+    // slot to add an asterisk to the end of file name in case of unsaved modifications
+	QObject::connect(src_tab, SIGNAL(modificationChanged(bool)), this, SLOT(file_changed(bool)));
+    
+	setCurrentIndex(index);
+
+	return index;
+}
+
+/**
  * 
  */
 
@@ -312,7 +343,7 @@ bool src_container::set_modified(int index, bool modified)
 	return true;
 }
 
-bool src_container::set_file_name(int index, QString &fileName)
+bool src_container::set_file_name(int index, const QString &fileName)
 {
     src_file *src_tab;
 

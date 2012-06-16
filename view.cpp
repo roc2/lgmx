@@ -152,17 +152,15 @@ void view::clone_file(src_file *file)
 		child_view_[0]->clone_file(file);
 		child_view_[1]->clone_file(file);
 	} else {
-		int index = src_container_->new_src_tab(file->get_src_file_full_name());
+		int index = src_container_->new_clone_tab(file);
 		
 		if (index >= 0) {
 			src_file *new_file;
 			new_file = src_container_->get_src_file(index);
 			
-			if (new_file) {
-				new_file->set_content(file->get_mutable_content());
+			if (new_file) {				
 				new_file->setTextCursor(file->textCursor());
 				new_file->set_modified(file->is_modified());
-				//file->set_clone(new_file);
 			}
 		}
 	}
