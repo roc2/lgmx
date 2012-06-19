@@ -34,6 +34,13 @@ src_container::src_container(QWidget *parent) : QTabWidget(parent)
     
     //this->setFocusPolicy(Qt::StrongFocus);
     
+    //status_line_ = new status_line();
+    
+    //main_layout_ = new QVBoxLayout();
+    //main_layout_->addWidget(this);
+    //main_layout_->addWidget(status_line_);
+    //this->setLayout(main_layout_);
+    
     tab_bar->setStyleSheet("border-width: 0px;");
     
     setStyleSheet("border-width: 0px;");

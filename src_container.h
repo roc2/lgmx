@@ -15,6 +15,7 @@
 #include "code_editor.h"
 #include "highlight/cpp_hl.h"
 #include "src_file.h"
+#include "status_line.h"
 #include <iostream>
 
 using namespace std;
@@ -78,6 +79,8 @@ public slots:
 private:
 	QWidget *_parent;
     QTabBar *tab_bar;
+    status_line *status_line_;
+    QVBoxLayout *main_layout_;
     QFont font;
 };
 

@@ -15,7 +15,8 @@ SOURCES += main.cpp \
            search.cpp \
            clipboard.cpp \
            view_manager.cpp \
-           view.cpp
+           view.cpp \
+           status_line.cpp
            
 HEADERS += debug.h \
 		   code_editor.h \
@@ -32,7 +33,8 @@ HEADERS += debug.h \
            search.h \
            clipboard.h \
            view_manager.h \
-           view.h
+           view.h \
+           status_line.h
            
 TARGET = editor       
 
