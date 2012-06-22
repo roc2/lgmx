@@ -3,6 +3,22 @@
 #include "stdlib.h"
 #include "debug.h"
 
+ctr_wrapper::ctr_wrapper(view *parent)
+{
+	this->src_container_ = new src_container(parent);
+	status_line_ = new status_line();
+	main_layout_ = new QVBoxLayout();
+	
+	status_line_->set_src_container(src_container_);
+	
+	main_layout_->addWidget(src_container_);
+	main_layout_->addWidget(status_line_);
+	main_layout_->setContentsMargins(0, 0, 0, 0);
+	
+	setLayout(main_layout_);
+}
+
+
 view::view(view_manager *manager, view *parent, bool root) : QWidget(parent)
 {
 	splitter_ = nullptr;
@@ -12,7 +28,10 @@ view::view(view_manager *manager, view *parent, bool root) : QWidget(parent)
     manager_ = manager;		// view manager
     parent_ = parent;		// parent view
     
-    src_container_ = new src_container(this);	// current src_container
+    wrapper_ = new ctr_wrapper(this);
+    //src_container_ = new src_container(this);	// current src_container
+	src_container_ = wrapper_->src_container_;
+	status_line_ = wrapper_->status_line_;
 
     root_ = root;
     if (root)
@@ -22,7 +41,8 @@ view::view(view_manager *manager, view *parent, bool root) : QWidget(parent)
     
     // set src_container as current layout
     layout_ = new QStackedLayout();
-    layout_->insertWidget(0, src_container_);
+    //layout_->insertWidget(0, src_container_);
+    layout_->insertWidget(0, wrapper_);
     layout_->setCurrentIndex(0);
     layout_->setContentsMargins(0, 0, 0, 0);
     
@@ -33,6 +53,9 @@ view::view(view_manager *manager, view *parent, bool root) : QWidget(parent)
     
 	/* close file signal */
 	QObject::connect(src_container_, SIGNAL(tabCloseRequested(int)), manager, SLOT(close_file(int)));
+ 
+	/* update status line signal */
+	QObject::connect(src_container_, SIGNAL(currentChanged(int)), status_line_, SLOT(update_file_name(int)));
  
     this->setFocusPolicy(Qt::StrongFocus);
     //this->setContentsMargins(0, 0, 0, 0);

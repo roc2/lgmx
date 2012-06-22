@@ -36,7 +36,7 @@ src_file::src_file(const QString &file_name)
     this->setFont(initial);
     
     // change editor colors
-    QPalette p = this->palette();
+    QPalette p(this->palette());
     p.setColor(QPalette::Base, Qt::white);
     //p.setColor(QPalette::Base, Qt::black);
     p.setColor(QPalette::Text, Qt::blue);

@@ -208,6 +208,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_
 	}
 	
 	//Config conf;
+	show_status_bar(false);
 	std::cout << "init time = " << boot_time.currentMSecsSinceEpoch() - start << std::endl;
 }
 

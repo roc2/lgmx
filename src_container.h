@@ -79,7 +79,6 @@ public slots:
 private:
 	QWidget *_parent;
     QTabBar *tab_bar;
-    status_line *status_line_;
     QVBoxLayout *main_layout_;
     QFont font;
 };

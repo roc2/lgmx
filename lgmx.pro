@@ -1,11 +1,7 @@
-CONFIG += qt debug
+CONFIG += qt
+#CONFIG += debug
 
-
-SOURCES += main.cpp \
-		   ui_main_window.cpp \
-		   code_editor.cpp \
-		   src_container.cpp \
-           highlight/cpp_hl.cpp \
+SOURCES += main.cpp ui_main_window.cpp code_editor.cpp src_container.cpp highlight/cpp_hl.cpp \
            go_to_line.cpp \
            src_file.cpp \
            config.cpp \

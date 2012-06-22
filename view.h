@@ -10,6 +10,18 @@
 #define nullptr	0
 
 class view_manager;
+class view;
+
+class ctr_wrapper : public QWidget
+{
+public:
+
+	ctr_wrapper(view *parent = 0);
+	~ctr_wrapper() {}
+	QVBoxLayout *main_layout_;
+    src_container *src_container_;
+    status_line *status_line_;
+};
 
 class view : public QWidget
 {
@@ -64,7 +76,9 @@ private:
     QStackedLayout *layout_;
     QVBoxLayout *main_layout_;
     src_container *src_container_;
+    status_line *status_line_;
     view_manager *manager_;
+    ctr_wrapper *wrapper_;
     
     bool root_;
     bool splitted_;
