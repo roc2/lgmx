@@ -284,6 +284,22 @@ int view_manager::get_current_file_index(const QString &file_name)
 }
 
 /**
+ * Returns the current source file.
+ * @return pointer to the current source file, NULL pointer if there 
+ * is no current file.
+ */
+
+src_file* view_manager::get_current_src_file() const
+{
+	src_container *curr_ctr = this->get_current_src_container();
+	
+	if (!curr_ctr)
+		return 0;
+
+	return curr_ctr->get_current_src_file();
+}
+
+/**
  * Returns the root view.
  * @return Address of the root view.
  */

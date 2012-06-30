@@ -61,7 +61,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_
 	
 	search_dialog = new lgmx::search(view_manager_, this);
 	
-	c_board = new clipboard(&_src_container_ptr, this);
+	c_board = new clipboard(view_manager_, this);
 	
 	createActions();
 	

@@ -174,7 +174,7 @@ int src_container::get_current_tab_index()
 }
 
 /**
- * Current source file.
+ * Returns the current source file.
  * @return pointer to the current source file, NULL pointer if there 
  * is no current file.
  */

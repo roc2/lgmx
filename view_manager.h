@@ -27,6 +27,7 @@ public:
 	src_container* get_root_src_container() const;
 	src_container* get_current_src_container() const;
 	int get_current_file_index(const QString &file_name);
+	src_file* get_current_src_file() const;
 
 private:
 	void close_file(QTextDocument *content);

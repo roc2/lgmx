@@ -5,11 +5,10 @@
  * Constructor.
  */
 
-clipboard::clipboard(src_container **src_container, QWidget *parent) : copy_signal_map(this), cut_signal_map(this), paste_signal_map(this)
+clipboard::clipboard(view_manager &manager, QWidget *parent) : manager_(manager), copy_signal_map(this), 
+					 cut_signal_map(this), paste_signal_map(this)
 {
 	int i;
-
-	src_ctr = src_container;	// set pointer to current file container
 
 	// set copy shortcuts
 	for (i = 0; i < NUM_SHORTCUTS; i++) {
@@ -74,7 +73,7 @@ void clipboard::copy_buff(int index)
 	src_file *curr_file;
 	QTextCursor cursor;
 	
-	if (!(curr_file = (*src_ctr)->get_current_src_file()))
+	if (!(curr_file = manager_.get_current_src_file()))
 		return;
 
 	if ((cursor = curr_file->get_cursor()).hasSelection())
@@ -90,7 +89,7 @@ void clipboard::cut_buff(int index)
 	src_file *curr_file;
 	QTextCursor cursor;
 	
-	if (!(curr_file = (*src_ctr)->get_current_src_file()))
+	if (!(curr_file = manager_.get_current_src_file()))
 		return;
 
 	if ((cursor = curr_file->get_cursor()).hasSelection()) {
@@ -107,7 +106,7 @@ void clipboard::paste_buff(int index)
 {
 	src_file *curr_file;
 	
-	if (!(curr_file = (*src_ctr)->get_current_src_file()))
+	if (!(curr_file = manager_.get_current_src_file()))
 		return;
 
 	curr_file->get_cursor().insertText(buffers[index]);
