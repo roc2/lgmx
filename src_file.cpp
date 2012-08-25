@@ -12,10 +12,14 @@ using namespace std;
  * Constructor.
  */
 
-src_file::src_file(const QString &file_name)
+src_file::src_file(const QString &file_name, unsigned int id)
 {
 	clone_ = false;
-	
+	child_file_[0] = NULL;
+	child_file_[1] = NULL;
+
+	id_ = id;
+
 	//this->setContentsMargins(0, 0, 0, 0);
     //this->setFocusPolicy(Qt::StrongFocus);
 
@@ -27,19 +31,13 @@ src_file::src_file(const QString &file_name)
     this->installEventFilter(this);
     
     // set default font
-    QFont initial;
-    
-	initial.setFamily("monospace");
-	initial.setFixedPitch(true);
-	initial.setPointSize(10);
-    
-    this->setFont(initial);
+    set_default_font();
     
     // change editor colors
     QPalette p(this->palette());
-    p.setColor(QPalette::Base, Qt::white);
-    //p.setColor(QPalette::Base, Qt::black);
-    p.setColor(QPalette::Text, Qt::blue);
+    //p.setColor(QPalette::Base, Qt::white);
+    p.setColor(QPalette::Base, Qt::black);
+    p.setColor(QPalette::Text, Qt::cyan);
     this->setPalette(p);
     
     //scroll_area_ = new QScrollArea(this);
@@ -66,11 +64,22 @@ src_file::src_file(const QString &file_name)
     /* syntax highlighting */ // modificar para aplicar somente no que aparece na tela
     //highlighter = new Highlighter(this->document());
     //this->print_visible_blocks();
+    //ht = new hilight_thread(this->document());
+    //ht->start();
 }
+
+/**
+ * Constructor for clone files. The file is created with the same 
+ * QTextDocument from base_file.
+ */
 
 src_file::src_file(src_file *base_file)
 {
 	clone_ = true;
+	child_file_[0] = NULL;
+	child_file_[1] = NULL;
+
+	id_ = base_file->get_id();
 	
 	//this->setContentsMargins(0, 0, 0, 0);
     //this->setFocusPolicy(Qt::StrongFocus);
@@ -83,13 +92,7 @@ src_file::src_file(src_file *base_file)
     this->installEventFilter(this);
     
     // set default font
-    QFont initial;
-    
-	initial.setFamily("monospace");
-	initial.setFixedPitch(true);
-	initial.setPointSize(10);
-    
-    this->setFont(initial);
+    set_default_font();
     
     // change editor colors
     QPalette p = this->palette();
@@ -128,6 +131,7 @@ src_file::~src_file()
 	
 	//delete scroll_area_;
 	//delete cursor;
+	
 	if (!clone_)
 		delete file_info_;
 	//delete highlighter;
@@ -244,6 +248,26 @@ void src_file::set_content(QTextDocument *content)
 {
 	this->setDocument(content);
 	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
+}
+
+/**
+ * 
+ */
+
+void src_file::set_child_src_file(src_file *child, int index)
+{
+	cout << child << endl;
+	if (!child) {
+		cout << "Invalid child file" << endl;
+		return;
+	}
+
+	child_file_[index] = child;
+}
+
+unsigned int src_file::get_id() const
+{
+	return id_;
 }
 
 QTextCursor src_file::get_cursor()
@@ -372,6 +396,18 @@ QFont src_file::get_font()
 void src_file::set_font(QFont &font)
 {
     this->setFont(font);
+}
+
+/**
+ * Sets the source file default font.
+ */
+
+void src_file::set_default_font()
+{
+	QFont initial("monospace", 10);
+    initial.setFixedPitch(true);
+    
+    this->setFont(initial);
 }
 
 /**

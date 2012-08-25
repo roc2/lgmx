@@ -77,7 +77,7 @@ view::view(const view &copy) : QWidget(copy.get_parent_view())
 	parent_ = copy.get_parent_view();		// parent view
 
 	src_container_ = new src_container(this);	// current src_container
-	clone_src_container(copy.get_src_container());
+	//clone_src_container(copy.get_src_container());
 
 	root_ = copy.is_root();
 	splitted_ = copy.is_splitted();
@@ -116,11 +116,11 @@ view::~view()
  * 
  */
 
-int view::new_file(const QString &file_name)
+int view::new_file(const QString &file_name, unsigned int file_id)
 {
 	int index;
 	
-	index = src_container_->new_src_tab(file_name);
+	index = src_container_->new_src_tab(file_name, file_id);
 	
 	if (index < 0)
 		return index;
@@ -128,11 +128,9 @@ int view::new_file(const QString &file_name)
 	if (splitted_) {
 		debug(DEBUG, VIEW, "clone files");
 		src_file *file = src_container_->get_src_file(index);
-		child_view_[0]->clone_file(file);
-		child_view_[1]->clone_file(file);
+		child_view_[0]->clone_file(file, 0);
+		child_view_[1]->clone_file(file, 1);
 	}
-	
-	// destroy current src container
 	
 	return index;
 }
@@ -169,31 +167,32 @@ int view::close_file(int index)
  * reflected in the original file as well as in the other clone files.
  */
 
-void view::clone_file(src_file *file)
+void view::clone_file(src_file *file, int index)
 {
-	if (splitted_) {
-		child_view_[0]->clone_file(file);
-		child_view_[1]->clone_file(file);
-	} else {
-		int index = src_container_->new_clone_tab(file);
-		
-		if (index >= 0) {
-			src_file *new_file;
-			new_file = src_container_->get_src_file(index);
-			
-			if (new_file) {				
-				new_file->setTextCursor(file->textCursor());
-				new_file->set_modified(file->is_modified());
-			}
-		}
+	src_file *new_file;
+	
+	try {
+		new_file = src_container_->new_clone_tab(file);
+	} catch (...) {
+		return;
 	}
+	
+	new_file->setTextCursor(file->textCursor());
+	new_file->set_modified(file->is_modified());
+	file->set_child_src_file(new_file, index);
+	
+	if (splitted_) {
+		child_view_[0]->clone_file(new_file, 0);
+		child_view_[1]->clone_file(new_file, 1);
+	} 
 }
 
 /**
  * @param base_src_ctr -> the source container to be cloned.
+ * @param index -> index of the view that owns this source container.
  */
 
-void view::clone_src_container(src_container *base_src_ctr)
+void view::clone_src_container(src_container *base_src_ctr, int index)
 {
 	src_file *file = nullptr;
 	int count = base_src_ctr->count();
@@ -202,7 +201,7 @@ void view::clone_src_container(src_container *base_src_ctr)
 		file = base_src_ctr->get_src_file(i);
 		
 		if (file) {
-			this->clone_file(file);
+			this->clone_file(file, index);
 		}
 	}
 	
@@ -265,20 +264,17 @@ void view::split(Qt::Orientation orientation)
 
 	child_view_[0] = new view(manager_, this);
 	child_view_[1] = new view(manager_, this);
-	
-	//cout << "new child_view_[0] - " << child_view_[0] << endl;
-	//cout << "new child_view_[1] - " << child_view_[1] << endl;
-	debug(DEBUG, VIEW, "new child_view_[0] - " << child_view_[0]);
-	debug(DEBUG, VIEW, "new child_view_[1] - " << child_view_[1]);
-	
+
+	debug(DEBUG, VIEW, "new child_view_[0] - " << child_view_[0] << " of - " << this);
+	debug(DEBUG, VIEW, "new child_view_[1] - " << child_view_[1] << " of - " << this);
 	
 	splitter_->addWidget(child_view_[0]);
 	splitter_->addWidget(child_view_[1]);
 	
 	splitted_ = true;
 
-	child_view_[0]->clone_src_container(this->src_container_);
-	child_view_[1]->clone_src_container(this->src_container_);
+	child_view_[0]->clone_src_container(this->src_container_, 0);
+	child_view_[1]->clone_src_container(this->src_container_, 1);
 
 	layout_->insertWidget(1, splitter_);
 	layout_->setCurrentIndex(1);
@@ -295,17 +291,12 @@ void view::split(Qt::Orientation orientation)
 
 void view::unsplit(view *to_be_destroyed)
 {
-	//cout << "I am - " << this << endl;
 	debug(DEBUG, VIEW, "I am - " << this);
 	
 	if (!child_view_[0] || !child_view_[1]) {
-		//cout << "no children" << endl;
 		debug(DEBUG, VIEW, "no children");
-		
 		debug(DEBUG, VIEW, "child_view_[0] " << child_view_[0]);
 		debug(DEBUG, VIEW, "child_view_[1] " << child_view_[1]);
-		//cout << "child_view_[0] " << child_view_[0] << endl;
-		//cout << "child_view_[1] " << child_view_[1] << endl;
 		return;
 	}
 	
@@ -377,6 +368,26 @@ void view::unsplit(view *to_be_destroyed)
 		
 		splitted_ = false;
 	}
+}
+
+/**
+ * 
+ */
+
+void view::destroy_src_file(unsigned int id)
+{	
+	if (splitted_) {
+		debug(DEBUG, VIEW, "I am splitted - " << this);
+		if (child_view_[0])
+			//child_view_[0]->destroy_src_file(file->get_child_src_file(0));
+			child_view_[0]->destroy_src_file(id);
+		if (child_view_[1])
+			child_view_[1]->destroy_src_file(id);
+			//child_view_[1]->destroy_src_file(file->get_child_src_file(1));
+	}
+
+	debug(DEBUG, VIEW, "Destroying file - " << this);
+	src_container_->destroy_src_tab(id);
 }
 
 /**

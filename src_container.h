@@ -33,9 +33,11 @@ class src_container : public QTabWidget
 	src_container(const src_container &copy);
 	~src_container();
 	
-	int new_src_tab(const QString &file_name);
-	int new_clone_tab(src_file *base_file);
+	int new_src_tab(const QString &file_name, unsigned int file_id);
+	src_file* new_clone_tab(src_file *base_file);
 	void destroy_src_tab(int index);
+	void destroy_src_tab(src_file *file);
+	void destroy_src_tab(unsigned int id);
 
 	bool is_modified(int index);
 	bool exists(int index);
@@ -74,7 +76,6 @@ class src_container : public QTabWidget
 
 public slots:
 	void file_changed(bool changed);
-
 
 private:
 	QWidget *_parent;

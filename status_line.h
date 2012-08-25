@@ -8,6 +8,8 @@
 
 #include "src_container.h"
 
+#define NO_NAME "--" NEW_FILE_NAME "--"
+
 class status_line : public QWidget
 {
 	Q_OBJECT

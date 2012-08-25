@@ -7,7 +7,7 @@
 
 #include "src_container.h"
 
-#define nullptr	0
+#define nullptr	NULL
 
 class view_manager;
 class view;
@@ -40,13 +40,15 @@ public:
 	src_container* get_src_container() const;
 	QSplitter* get_splitter();
 	
-	int new_file(const QString &file_name);
+	int new_file(const QString &file_name, unsigned int file_id);
 	QVBoxLayout *get_main_layout();
 	
 	bool is_splitted() const;
 	bool is_root() const;
 	
 	void unsplit(view *to_be_destroyed);
+	
+	void destroy_src_file(unsigned int id);
 	
 	void show_src_tab_bar(bool show);
 	
@@ -58,8 +60,8 @@ public:
 
 private:
 
-	void clone_file(src_file *file);
-	void clone_src_container(src_container *base_src_ctr);
+	void clone_file(src_file *file, int index);
+	void clone_src_container(src_container *base_src_ctr, int index);
 	//void update_menu();
 	//void mousePressEvent(QMouseEvent *event);
 

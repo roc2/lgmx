@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <list>
+#include <stack>
 #include <set>
 
 #include "view.h"
@@ -35,6 +36,10 @@ private:
 	bool save_file_as(src_container *src_c, int index);
 	bool save_file(src_container *src_c, const QString &fileName, int index);
 	
+	int get_root_src_container_file_index(QTextDocument *content);
+	
+	unsigned int generate_id();
+	void release_id(unsigned int id);
 
 public slots:
 	void split_horizontally();
@@ -44,6 +49,7 @@ public slots:
 	void new_file();
 	void open_file();
 	void open_file(const QString &file_name);
+	void reload_current_file();
 	bool save();
 
 private slots:
@@ -56,12 +62,15 @@ private:
     list<view *> view_list_;	/**< list of pointers to all existent views. root view is always at the beginning */
     view *root_view_;
     view *current_view_;
+    src_container *root_container_;
     
     set<QString> open_files_; /**< current open files */
     recent_files *recent_files_;
     
     QVBoxLayout *layout_;
     int num_splits_;
+    unsigned int file_id_;
+    stack<unsigned int> avail_file_id_;
 };
 
 #endif

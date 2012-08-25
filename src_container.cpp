@@ -7,6 +7,18 @@
 #include "debug.h"
 
 /*
+class lgmx_exception : public std::exception
+{
+	public:
+	lgmx_exception();
+	~lgmx_exception() throw();
+
+	private:
+	std::string msg;
+
+};*/
+
+/*
  * criar a classe src_container q vai ter um qtabwidget.
  * Criar uma classe que vai ter o CodeEditor, e file properties.
  * O construtor dessa classe cria um CodeEditor e um file properties, e
@@ -16,7 +28,8 @@
 
 
 /**
- * Constructor
+ * Constructor.
+ * @param parent -> parent widget.
  */
 
 src_container::src_container(QWidget *parent) : QTabWidget(parent)
@@ -92,14 +105,14 @@ void src_container::focusInEvent(QFocusEvent *event)
  * Create new source tab.
  */
 
-int src_container::new_src_tab(const QString &file_name)
+int src_container::new_src_tab(const QString &file_name, unsigned int file_id)
 {
 	int index;
 	src_file *src_tab;
 	QString show_name;
 
 	try {
-		index = addTab(new src_file(file_name), "");
+		index = addTab(new src_file(file_name, file_id), "");
 		//cout << "added new tab at index " << index << endl;
 	} catch(...) {
 		
@@ -126,9 +139,10 @@ int src_container::new_src_tab(const QString &file_name)
 
 /**
  * Create new source tab.
+ * @return address of the new file.
  */
 
-int src_container::new_clone_tab(src_file *base_file)
+src_file* src_container::new_clone_tab(src_file *base_file)
 {
 	int index;
 	src_file *src_tab;
@@ -138,12 +152,13 @@ int src_container::new_clone_tab(src_file *base_file)
 		index = addTab(new src_file(base_file), "");
 		//cout << "added new tab at index " << index << endl;
 	} catch(...) {
-		
-		return -1;
+		throw;
+		//return -1;
 	}
 
 	if ((src_tab = static_cast<src_file *>(this->widget(index))) == 0)
-    	return -1;	/* index out of range */
+    	throw;
+    	//return -1;	/* index out of range */
 
     setTabText(index, QApplication::translate("main_window", base_file->get_src_file_name().toStdString().c_str(), 0, QApplication::UnicodeUTF8));
     
@@ -152,7 +167,7 @@ int src_container::new_clone_tab(src_file *base_file)
     
 	setCurrentIndex(index);
 
-	return index;
+	return src_tab;
 }
 
 /**
@@ -216,7 +231,49 @@ void src_container::destroy_src_tab(int index)
 	removeTab(index);
 	
 	delete src_tab;
+	src_tab = 0;
 	cout << "destroyed tab at index " << index << endl;
+}
+
+void src_container::destroy_src_tab(src_file *file)
+{
+	int index = indexOf(file);
+	
+	if (index < 0) {
+		cout << "file not found!!" << endl;
+		return;
+	}
+
+	// removeTab nao destroi o widget!!!
+	// precisa pegar o endereço do widget, remover e depois destruir!!
+	removeTab(index);
+	
+	delete file;
+	cout << "destroyed tab at index " << index << endl;
+}
+
+void src_container::destroy_src_tab(unsigned int id)
+{
+	src_file *file = NULL;
+	int count = this->count();
+	
+	for (int i = 0; i < count; i++) {
+		file = this->get_src_file(i);
+		
+		if (file && file->get_id() == id) {
+			removeTab(i);
+			delete file;
+			cout << "destroyed tab at index " << i << endl;
+			break;
+		}
+	}
+
+
+	// removeTab nao destroi o widget!!!
+	// precisa pegar o endereço do widget, remover e depois destruir!!
+	//removeTab(index);
+	
+	//delete file;
 }
 
 /**

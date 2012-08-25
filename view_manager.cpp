@@ -13,7 +13,10 @@ using namespace std;
 
 view_manager::view_manager(QWidget *parent) : QWidget(parent)
 {
-	root_view_ = new view(this, 0, true);
+	file_id_ = 0;
+	root_view_ = new view(this, NULL, true);
+	root_container_ = root_view_->get_src_container();
+	
 	current_view_ = root_view_;
 	
 	num_splits_ = 0;
@@ -62,7 +65,8 @@ void view_manager::remove_from_view_list(view *v)
 
 void view_manager::new_file()
 {
-	root_view_->new_file("");
+	root_view_->new_file("", generate_id());
+	//root_view_->new_file("", file_id_++);
 }	
 
 /**
@@ -71,6 +75,7 @@ void view_manager::new_file()
 
 void view_manager::close_file(int index)
 {
+	int index_r;
 	/*
 	 * The file to be closed is identified by its QTextDocument address.
 	 * When a file is created the root file is created, if there are other views, 
@@ -82,10 +87,89 @@ void view_manager::close_file(int index)
 	 */
 	
 	src_container *container = static_cast<src_container *>(sender());
+
+	index_r = this->get_root_src_container_file_index(container->get_src_file(index)->get_mutable_content());
 	
-	// get pointer to content
-	//QTextDocument *content = container->get_src_file(index)->get_mutable_content();
-	this->close_file(container->get_src_file(index)->get_mutable_content());
+	if (index_r < 0) {
+		cout << "file not found in root source container" << endl;
+		return;
+	}
+	
+	src_file *src_tab;
+
+    if ((src_tab = static_cast<src_file *>(root_container_->widget(index))) == 0)
+		return;	/* index out of range */
+	
+	cout << "Found file in the root source container!!" << endl;
+	
+	QString file_name(src_tab->get_src_file_full_name());	// get file name
+	
+	root_view_->destroy_src_file(src_tab->get_id());
+	
+	cout << "destroyed!!!" << endl;
+	
+	set<QString>::iterator it = open_files_.find(file_name);    /* pull out from open files list */
+    if (it != open_files_.end())
+        open_files_.erase(*it);
+	
+	//root_container_->destroy_src_tab(index_r);
+	// move Ui_MainWindow::close_file to here
+}
+
+/**
+ * Returns the index in the root source container of the file to be closed.
+ * @param content -> pointer to file content.
+ * @return file index within the root source container, -1 if not found.
+ */
+
+int view_manager::get_root_src_container_file_index(QTextDocument *content)
+{
+	if (!content)
+		return -1;
+	
+	int count = root_container_->count();
+	
+	src_file *src_tab;
+
+	for (int i = 0; i < count; i++) {
+		if ((src_tab = static_cast<src_file *>(root_container_->widget(i))) == 0)
+			continue;
+		
+		// search for the same content address
+		if (content == src_tab->get_mutable_content()) {
+			cout << "requested close: " << src_tab->get_src_file_full_name().toStdString() << endl;
+			
+			return i;
+		}
+	}
+	
+	return -1;
+}
+
+/**
+ * 
+ */
+
+unsigned int view_manager::generate_id()
+{
+	unsigned int res;
+
+	if (!avail_file_id_.empty()) {
+		res = avail_file_id_.top();
+		avail_file_id_.pop();
+		return res;
+	}
+
+	return file_id_++;
+}
+
+/**
+ * 
+ */
+
+void view_manager::release_id(unsigned int id)
+{
+	avail_file_id_.push(id);
 }
 
 /**
@@ -97,8 +181,15 @@ void view_manager::open_file()
 	QString path;
     QDir dir;
 	int index, size;
+    src_container* ctr;
     
-    index = get_current_src_container()->get_current_tab_index();  /* get current file index */
+    ctr = get_current_src_container();
+    if (!ctr) {
+		debug(ERR, VIEW_MANAGER, "Invalid view");
+		return;
+    }
+    
+    index = ctr->get_current_tab_index();  /* get current file index */
     
     /* 
      * "open file" dialog path is the path of the current open file, or "home"
@@ -126,7 +217,7 @@ void view_manager::open_file(const QString &file_name)
 {
 	// checks whether this file is already open
 	if (open_files_.find(file_name) == open_files_.end()) {
-		if (root_view_->new_file(file_name) < 0)
+		if (root_view_->new_file(file_name, generate_id()) < 0)
 			return;
 
 		open_files_.insert(file_name);
@@ -140,6 +231,23 @@ void view_manager::open_file(const QString &file_name)
 		if (index >= 0)
 			set_current_file_index(index);
 	}
+}
+
+/**
+ * 
+ */
+
+void view_manager::reload_current_file()
+{
+	src_file *file = this->get_current_src_file();
+	
+	if (!file)
+		return;
+
+	// check for modifications and ask for confirmation
+	// check if file exists on the disk
+
+	file->load_file(file->get_src_file_full_name());
 }
 
 /**
@@ -228,32 +336,6 @@ bool view_manager::save_file(src_container *src_c, const QString &fileName, int 
  * 
  */
 
-void view_manager::close_file(QTextDocument *content)
-{
-	if (!content)
-		return;
-	
-	src_container *root_container = root_view_->get_src_container();
-	int count = root_container->count();
-	
-	src_file *src_tab;
-
-	for (int i = 0; i < count; i++) {
-		if ((src_tab = static_cast<src_file *>(root_container->widget(i))) == 0)
-			continue;
-		
-		// search for the same content address
-		if (content == src_tab->get_mutable_content()) {
-			cout << "requested close: " << src_tab->get_src_file_full_name().toStdString() << endl;
-			break;
-		}
-	}
-}
-
-/**
- * 
- */
-
 void view_manager::set_current_file_index(int index)
 {
 	current_view_ = get_current_view();
@@ -294,7 +376,7 @@ src_file* view_manager::get_current_src_file() const
 	src_container *curr_ctr = this->get_current_src_container();
 	
 	if (!curr_ctr)
-		return 0;
+		return NULL;
 
 	return curr_ctr->get_current_src_file();
 }

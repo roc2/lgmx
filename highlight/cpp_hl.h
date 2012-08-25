@@ -12,6 +12,20 @@
 #define JAVA_HIGHLIGHT  3
 #define XML_HIGHLIGHT   4
 
+#include <QThread>
+
+class hilight_thread : public QThread
+{
+public:
+	hilight_thread(QTextDocument *doc) : doc_(doc) {}
+	void run();
+	
+private:
+	QTextDocument *doc_;
+	
+};
+
+
 class Highlighter : public QSyntaxHighlighter
 {
 	 Q_OBJECT

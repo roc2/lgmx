@@ -155,6 +155,9 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_
 	menu_File->addMenu(menu_recent_files);
 	
 	menu_File->addSeparator();
+	menu_File->addAction(action_reload);
+	
+	menu_File->addSeparator();
 	menu_File->addAction(actionQuit);
 	
 	menuView->addSeparator();
@@ -172,6 +175,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_
 	addAction(actionNew);
 	addAction(actionSave);
 	addAction(actionOpen);
+	addAction(action_reload);
 	addAction(action_split_horizontally);
 	addAction(action_split_vertically);
 	addAction(action_unsplit);
@@ -225,6 +229,8 @@ void Ui_MainWindow::create_connections()
 	QObject::connect(actionSave, SIGNAL(triggered()), &view_manager_, SLOT(save()));
 
 	QObject::connect(actionOpen, SIGNAL(triggered()), &view_manager_, SLOT(open_file()));
+	
+	QObject::connect(action_reload, SIGNAL(triggered()), &view_manager_, SLOT(reload_current_file()));
 	
 	QObject::connect(actionNew, SIGNAL(triggered()), &view_manager_, SLOT(new_file()));
 	QObject::connect(actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
@@ -611,14 +617,9 @@ void Ui_MainWindow::writeSettings()
 {
 	QSettings settings(COMPANY, APPLICATION);
 
-    settings.setValue("pos", pos()); 
-    settings.setValue("size", size());
+    settings.setValue("geometry", saveGeometry());
 
 	menu_recent_files->save_files_to_disk(settings);
-	//search_dialog->save_settings();
-
-	//settings.setValue("geometry", saveGeometry());
-    //settings.setValue("windowState", saveState());
     
     delete search_dialog;
     
@@ -632,20 +633,9 @@ void Ui_MainWindow::writeSettings()
 void Ui_MainWindow::readSettings()
 {
 	QSettings settings(COMPANY, APPLICATION);
-	//QRect rect;
 
-    //restoreGeometry(settings.value("myWidget/geometry").toByteArray());
-    //restoreState(settings.value("myWidget/windowState").toByteArray());
+    restoreGeometry(settings.value("geometry").toByteArray());
 
-    QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
-    QSize size = settings.value("size", QSize(400, 400)).toSize();
-    resize(size);
-    move(pos);
-
-	//rect = settings.value("geometry", QRect(200, 200, 400, 400)).toRect();
-	
-	//move(rect.topLeft());
-	//resize(rect.size());
 	menu_recent_files->load_files_from_disk(settings);
 }
 
@@ -658,7 +648,7 @@ void Ui_MainWindow::readSettings()
 
 void Ui_MainWindow::build_close_file_msg(int index, QString &msg)
 {
-    QString file = _src_container.get_src_tab_short_name(index);
+    QString file(_src_container.get_src_tab_short_name(index));
             
     if (file.isEmpty()) {
         msg = tr("The file 'untitled' has been modified.\nDo you want to save your changes?");
@@ -765,6 +755,9 @@ void Ui_MainWindow::createActions()
     actionNew = new QAction(this);
     actionNew->setObjectName(QString::fromUtf8("actionNew"));
     
+    action_reload = new QAction(this);
+    action_reload->setObjectName(QString::fromUtf8("actionReload"));
+    
     actionQuit = new QAction(this);
     actionQuit->setObjectName(QString::fromUtf8("actionQuit"));
 
@@ -844,6 +837,7 @@ void Ui_MainWindow::destroy_actions()
     delete actionQuit;
     delete actionNew;
     delete actionOpen;
+    delete action_reload;
     delete actionSave;
 }
 
@@ -870,6 +864,8 @@ void Ui_MainWindow::retranslateUi(QMainWindow *main_window)
 	actionOpen->setShortcut(QApplication::translate("MainWindow", "Ctrl+O", 0, QApplication::UnicodeUTF8));
 	actionNew->setText(QApplication::translate("MainWindow", "New", 0, QApplication::UnicodeUTF8));
 	actionNew->setShortcut(QApplication::translate("MainWindow", "Ctrl+N", 0, QApplication::UnicodeUTF8));
+	action_reload->setText(QApplication::translate("MainWindow", "Reload", 0, QApplication::UnicodeUTF8));
+	action_reload->setShortcut(QApplication::translate("MainWindow", "Ctrl+R", 0, QApplication::UnicodeUTF8));
 	
 	actionQuit->setText(QApplication::translate("MainWindow", "Quit", 0, QApplication::UnicodeUTF8));
 	actionQuit->setShortcut(QApplication::translate("MainWindow", "Alt+F4", 0, QApplication::UnicodeUTF8));

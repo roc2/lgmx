@@ -4,7 +4,7 @@
 status_line::status_line()
 {
 	 layout_ = new QHBoxLayout;
-     file_name_ = new QLabel("--", this);
+     file_name_ = new QLabel(NO_NAME, this);
      
      layout_->addWidget(file_name_);
      layout_->setContentsMargins(0, 0, 0, 0);
@@ -37,7 +37,7 @@ void status_line::set_file_name(const QString &file_name)
 void status_line::update_file_name(int index)
 {
 	if (index < 0)
-		set_file_name("--");
+		set_file_name(NO_NAME);
 	else {
 		QString file_name;
 		src_container_->get_src_tab_full_name(index, file_name);

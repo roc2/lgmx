@@ -2,7 +2,35 @@
 #include "cpp_hl.h"
 #include <iostream>
 
+
+
 using namespace std;
+
+
+
+void hilight_thread::run()
+{
+	QTextBlock t_block;
+	QString data;
+	
+	for (;;) {
+		QTextBlock t_block(doc_->firstBlock());
+		cout << data.toStdString() << endl;
+		
+		while (t_block != doc_->lastBlock()) {
+			t_block = t_block.next();
+			cout << t_block.text().toStdString() << endl;
+			
+			if (t_block.blockNumber() == -1 || t_block.blockNumber() > doc_->blockCount())
+				break;
+				
+			this->msleep(1); 
+		}
+		
+	}
+	
+	exec();
+}
 
 /**
  * Constructor

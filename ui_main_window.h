@@ -62,6 +62,7 @@ class Ui_MainWindow : public QMainWindow
 public:
 	QAction *actionSave;
     QAction *actionOpen;
+    QAction *action_reload;
     QAction *actionNew;
 	QAction *actionQuit;
 
