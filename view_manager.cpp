@@ -13,11 +13,11 @@ using namespace std;
 
 view_manager::view_manager(QWidget *parent) : QWidget(parent)
 {
-	file_id_ = 0;
 	root_view_ = new view(this, NULL, true);
 	root_container_ = root_view_->get_src_container();
 	
 	current_view_ = root_view_;
+	add_visible_view(root_view_); 
 	
 	num_splits_ = 0;
 	layout_ = new QVBoxLayout(this);
@@ -65,7 +65,7 @@ void view_manager::remove_from_view_list(view *v)
 
 void view_manager::new_file()
 {
-	root_view_->new_file("", generate_id());
+	root_view_->new_file("", file_id_.generate_id());
 	//root_view_->new_file("", file_id_++);
 }	
 
@@ -147,32 +147,6 @@ int view_manager::get_root_src_container_file_index(QTextDocument *content)
 }
 
 /**
- * 
- */
-
-unsigned int view_manager::generate_id()
-{
-	unsigned int res;
-
-	if (!avail_file_id_.empty()) {
-		res = avail_file_id_.top();
-		avail_file_id_.pop();
-		return res;
-	}
-
-	return file_id_++;
-}
-
-/**
- * 
- */
-
-void view_manager::release_id(unsigned int id)
-{
-	avail_file_id_.push(id);
-}
-
-/**
  * Creates an open file dialog and opens the selected files.
  */
 
@@ -217,7 +191,7 @@ void view_manager::open_file(const QString &file_name)
 {
 	// checks whether this file is already open
 	if (open_files_.find(file_name) == open_files_.end()) {
-		if (root_view_->new_file(file_name, generate_id()) < 0)
+		if (root_view_->new_file(file_name, file_id_.generate_id()) < 0)
 			return;
 
 		open_files_.insert(file_name);
@@ -379,6 +353,41 @@ src_file* view_manager::get_current_src_file() const
 		return NULL;
 
 	return curr_ctr->get_current_src_file();
+}
+
+unsigned int view_manager::generate_view_id()
+{
+	return view_id_.generate_id();	
+}
+
+void view_manager::release_view_id(unsigned int id)
+{
+	view_id_.release_id(id);
+}
+
+/**
+ * 
+ */
+
+void view_manager::add_visible_view(const view *v)
+{
+	if (!v) {
+		debug(ERR, VIEW_MANAGER, "Invalid view");
+		return;
+	}
+	
+	visible_views_[v->get_id()] = v;
+	debug(INFO, VIEW_MANAGER, "Added view: " << v->get_id());
+}
+
+/**
+ * 
+ */
+
+void view_manager::remove_visible_view(unsigned int id)
+{
+	visible_views_.erase(visible_views_.find(id));
+	debug(INFO, VIEW_MANAGER, "Removed view: " << id);
 }
 
 /**

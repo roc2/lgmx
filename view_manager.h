@@ -8,6 +8,7 @@
 
 #include "view.h"
 #include "recent_files.h"
+#include "id.h"
 
 class view_manager : public QWidget
 {
@@ -30,6 +31,12 @@ public:
 	int get_current_file_index(const QString &file_name);
 	src_file* get_current_src_file() const;
 
+	unsigned int generate_view_id();
+	void release_view_id(unsigned int id);
+
+	void add_visible_view(const view *v);
+	void remove_visible_view(unsigned int id);
+
 private:
 	void close_file(QTextDocument *content);
 	
@@ -37,9 +44,6 @@ private:
 	bool save_file(src_container *src_c, const QString &fileName, int index);
 	
 	int get_root_src_container_file_index(QTextDocument *content);
-	
-	unsigned int generate_id();
-	void release_id(unsigned int id);
 
 public slots:
 	void split_horizontally();
@@ -60,6 +64,7 @@ signals:
 
 private:
     list<view *> view_list_;	/**< list of pointers to all existent views. root view is always at the beginning */
+    std::map<unsigned int, const view *> visible_views_;	/**< pointers to all visible views */
     view *root_view_;
     view *current_view_;
     src_container *root_container_;
@@ -69,8 +74,10 @@ private:
     
     QVBoxLayout *layout_;
     int num_splits_;
-    unsigned int file_id_;
-    stack<unsigned int> avail_file_id_;
+
+	// source file ID
+    Id file_id_;
+    Id view_id_;
 };
 
 #endif

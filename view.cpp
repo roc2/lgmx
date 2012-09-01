@@ -28,6 +28,8 @@ view::view(view_manager *manager, view *parent, bool root) : QWidget(parent)
     manager_ = manager;		// view manager
     parent_ = parent;		// parent view
     
+    id_ = manager_->generate_view_id();
+    
     wrapper_ = new ctr_wrapper(this);
     //src_container_ = new src_container(this);	// current src_container
 	src_container_ = wrapper_->src_container_;
@@ -98,6 +100,7 @@ view::~view()
 	cout << "~view()" << endl;
 	debug(DEBUG, VIEW, "");
 	manager_->remove_from_view_list(this);
+	manager_->release_view_id(id_);
 
 	if (child_view_[0])
 		delete child_view_[0];
@@ -259,11 +262,20 @@ void view::split(Qt::Orientation orientation)
 		
 	splitter_ = new QSplitter(orientation, this);
 	splitter_->setHandleWidth(1);
-	splitter_->setChildrenCollapsible(false);
+	//splitter_->setChildrenCollapsible(false);
 	splitter_->setProperty("minisplitter", true);
 
 	child_view_[0] = new view(manager_, this);
 	child_view_[1] = new view(manager_, this);
+	
+	// aqui aparece a janela indesejada do split!!!!!
+	sleep(4);
+	
+	// new child views are visible
+	manager_->add_visible_view(child_view_[0]);
+	manager_->add_visible_view(child_view_[1]);
+	// this view is no longer visible
+	manager_->remove_visible_view(this->get_id());
 
 	debug(DEBUG, VIEW, "new child_view_[0] - " << child_view_[0] << " of - " << this);
 	debug(DEBUG, VIEW, "new child_view_[1] - " << child_view_[1] << " of - " << this);
@@ -281,7 +293,7 @@ void view::split(Qt::Orientation orientation)
 	
     if (!root_) {
 		//delete this->src_container_;
-		//this->src_container_ = 0;
+		//this->src_container_ = NULL;
 	}
 }
 
@@ -330,14 +342,13 @@ void view::unsplit(view *to_be_destroyed)
 		 * automaticamente, e então depois adicionar as novas views.
 		 */
 		
+		manager_->remove_visible_view(child_view_[destroy]->get_id());
 		delete child_view_[destroy];
 		child_view_[destroy] = child_view_[keep]->take_child_view(0, this);	// check if child view exists
 		
 		view *aux = child_view_[keep];
 		child_view_[keep] = child_view_[keep]->take_child_view(1, this);	// check if child view exists
 		delete aux;
-				
-		//splitter_->setOrientation(orientation);
 
 		if (child_view_[0]) {
 			cout << "is root : " << child_view_[0]->is_root() << endl;
@@ -358,6 +369,12 @@ void view::unsplit(view *to_be_destroyed)
 		/* destroy both child views */
 		layout_->setCurrentIndex(0);
 		layout_->takeAt(1);
+		
+		// parent view is now visible
+		manager_->add_visible_view(child_view_[0]->get_parent_view());
+		// child views are no longer visible
+		manager_->remove_visible_view(child_view_[0]->get_id());
+		manager_->remove_visible_view(child_view_[1]->get_id());
 		
 		delete child_view_[0];
 		delete child_view_[1];
@@ -404,6 +421,11 @@ view* view::take_child_view(int index, view *new_parent)
 	child_view_[index] = 0;
 
 	return ret;
+}
+
+unsigned int view::get_id() const
+{
+	return id_;
 }
 
 /**

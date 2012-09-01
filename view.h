@@ -58,6 +58,8 @@ public:
 	
 	view* take_child_view(int index, view *new_parent);
 
+	unsigned int get_id() const;
+
 private:
 
 	void clone_file(src_file *file, int index);
@@ -81,6 +83,7 @@ private:
     status_line *status_line_;
     view_manager *manager_;
     ctr_wrapper *wrapper_;
+    unsigned int id_;
     
     bool root_;
     bool splitted_;
