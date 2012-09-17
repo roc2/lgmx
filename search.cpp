@@ -1,5 +1,6 @@
 #include "search.h"
 #include <QLayout>
+#include <QPointer>
 
 #include <iostream>
 #include <view_manager.h>
@@ -31,7 +32,7 @@ lgmx::search::~search()
 
 void lgmx::search::show_search_dialog()
 {
-	view *curr_view;
+	QPointer<view> curr_view;
 
 	curr_view = manager_.get_current_view();
 	
@@ -159,7 +160,7 @@ void lgmx::search::highlight_all_matches(QString &pattern)
 void lgmx::search::search_string(QString &pattern)
 {
 	src_file *curr_file;
-	
+
 	if (!(curr_file = src_ctr->get_current_src_file()))
 		return;
 	

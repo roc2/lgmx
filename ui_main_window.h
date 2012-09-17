@@ -77,10 +77,7 @@ public:
 
 	QAction *actionGo_to_line;
 	QAction *action_find;
-	
 
-    QWidget *centralWidget;
-    QHBoxLayout *horizontalLayout;
     QSplitter *splitter;
     QList<int> splitter_size;
     
@@ -128,16 +125,14 @@ private:
 
 	src_container *_src_container_ptr;	// current active set of source files
 	src_container *_root_src_container;
-	view *_root_view;
 	view_manager view_manager_;
 
     set<QString> open_files; /**< current open files */
     
     void createActions();
     void destroy_actions();
-
-    void create_menu();
-    void destroy_menu();
+    void create_menus();
+    void destroy_menus();
 
     bool saveFile(const QString &fileName, int index);
     bool checkUnsavedFiles();
@@ -164,7 +159,6 @@ private slots:
 	void show_status_bar(bool show);
     void show_menu_bar(bool show);
     void show_full_screen(bool fullscreen);
-    void show_src_tab_bar(bool show);
 	
 	void set_font();
 	void set_tab_width();

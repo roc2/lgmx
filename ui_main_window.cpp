@@ -48,9 +48,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_
 	 */
 	_src_container_ptr = &_src_container;
 
-	_root_view = view_manager_.get_root_view();
-	_root_src_container = _root_view->get_src_container();
-	//_root_src_container = view_manager_.get_root_src_container();
+	_root_src_container = view_manager_.get_root_src_container();
 
 	gt_ln_dialog = NULL;
 	
@@ -67,16 +65,8 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_
 	
 	view_manager_.set_recent_files_widget(menu_recent_files);
 	
-	centralWidget = new QWidget(this);
-	centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
-	
-	horizontalLayout = new QHBoxLayout(centralWidget);
-	horizontalLayout->setSpacing(6);
-	horizontalLayout->setContentsMargins(0, 0, 0, 0);
-	horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-	
 	// main splitter
-	splitter = new QSplitter(centralWidget);
+	splitter = new QSplitter(this);
 	splitter->setHandleWidth(1);
 	splitter->setChildrenCollapsible(false);
 	splitter->setProperty("minisplitter", true);
@@ -99,13 +89,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_
 	symbol_tab_widget->addTab(tab_2, QString());
 	
 	splitter->addWidget(symbol_tab_widget);
-	//splitter->addWidget(&_src_container);
 	splitter->addWidget(&view_manager_);
-	
-	
-	horizontalLayout->addWidget(splitter);
-	setLayout(horizontalLayout);
-	
 	
 	/* Configure splitter sizes. This must be called after the child widgets 
 	 * were inserted.
@@ -115,62 +99,10 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_
 	splitter->setSizes(splitter_size);
 	//splitter_size = splitter->sizes();	/* this returns the current splitter sizes */
 
-	setCentralWidget(centralWidget);
-	menuBar = new QMenuBar(this);
-	menuBar->setObjectName(QString::fromUtf8("menuBar"));
-	menuBar->setGeometry(QRect(0, 0, 831, 25));
-	
-	
-	menu_File = new QMenu(menuBar);
-	menu_File->setObjectName(QString::fromUtf8("menu_File"));
-	
-	menuView = new QMenu(menuBar);
-	//menu_View = new QMenu(menuBar);
-	menuView->setObjectName(QString::fromUtf8("menuView"));
-	//menu_View->setObjectName(QString::fromUtf8("menu_View"));
-	/* search menu */
-	menu_Search = new QMenu(menuBar);
-	menu_Search->setObjectName(QString::fromUtf8("menu_Search"));
-	
-	setMenuBar(menuBar);
-		
-	/* main window tool bar */
-	mainToolBar = new QToolBar(this);
-	mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
-	addToolBar(Qt::TopToolBarArea, mainToolBar);
-	mainToolBar->hide();	/* hide tool bar */
-	//mainToolBar->show();	/* show tool bar */
-	
-	/* main window status bar */
-	statusBar = new QStatusBar(this);
-	statusBar->setObjectName(QString::fromUtf8("statusBar"));
-	setStatusBar(statusBar);
+	setCentralWidget(splitter);		// main splitter is the central widget
 
-	menuBar->addAction(menu_File->menuAction());
-	menu_File->addAction(actionNew);
-	menu_File->addAction(actionSave);
-	menu_File->addAction(actionOpen);
+	create_menus();
 
-	menu_File->addSeparator();
-	menu_File->addMenu(menu_recent_files);
-	
-	menu_File->addSeparator();
-	menu_File->addAction(action_reload);
-	
-	menu_File->addSeparator();
-	menu_File->addAction(actionQuit);
-	
-	menuView->addSeparator();
-	menuView->addAction(actionSide_Bar);
-	menuView->addAction(actionStatus_Bar);
-	menuView->addAction(actionMenuBar);
-	menuView->addAction(actionFullScreen);
-	menuView->addAction(actionSrcTabBar);
-	menuView->addSeparator();
-	menuView->addAction(action_split_horizontally);
-	menuView->addAction(action_split_vertically);
-	menuView->addAction(action_unsplit);
-	
 	/* add actions to main window, so they work when menuBar is hidden */
 	addAction(actionNew);
 	addAction(actionSave);
@@ -244,7 +176,7 @@ void Ui_MainWindow::create_connections()
 	/* full screen */
 	QObject::connect(actionFullScreen, SIGNAL(toggled(bool)), this, SLOT(show_full_screen(bool)));
 	/* source tab bar */
-	QObject::connect(actionSrcTabBar, SIGNAL(toggled(bool)), this, SLOT(show_src_tab_bar(bool)));
+	QObject::connect(actionSrcTabBar, SIGNAL(toggled(bool)), &view_manager_, SLOT(show_src_tab_bar(bool)));
 	/* split horizontally */
 	QObject::connect(action_split_horizontally, SIGNAL(triggered()), &view_manager_, SLOT(split_horizontally()));
 	/* split vertically */
@@ -527,10 +459,10 @@ void Ui_MainWindow::show_side_bar(bool show)
 
 void Ui_MainWindow::show_status_bar(bool show)
 {
-	if (show)
-		statusBar->show();
-	else
-		statusBar->hide();
+	//if (show)
+	//	statusBar->show();
+	//else
+	//	statusBar->hide();
 }
 
 /**
@@ -555,20 +487,7 @@ void Ui_MainWindow::show_menu_bar(bool show)
 
 void Ui_MainWindow::show_full_screen(bool fullscreen)
 {
-	if (fullscreen)
-        showFullScreen();
-	else
-        showNormal();
-}
-
-/**
- * Show or hide source files tab bar.
- * @param show -> true, tab bar; false, hide tab bar
- */
-
-void Ui_MainWindow::show_src_tab_bar(bool show)
-{
-	_root_view->show_src_tab_bar(show);
+	setWindowState(windowState() ^ Qt::WindowFullScreen);
 }
 
 /**
@@ -617,7 +536,9 @@ void Ui_MainWindow::writeSettings()
 {
 	QSettings settings(COMPANY, APPLICATION);
 
-    settings.setValue("geometry", saveGeometry());
+    //settings.setValue("mainWindow/geometry", saveGeometry());
+    settings.setValue("mainWindow/size", size());
+    settings.setValue("mainWindow/pos", pos());
 
 	menu_recent_files->save_files_to_disk(settings);
     
@@ -634,7 +555,9 @@ void Ui_MainWindow::readSettings()
 {
 	QSettings settings(COMPANY, APPLICATION);
 
-    restoreGeometry(settings.value("geometry").toByteArray());
+    resize(settings.value("mainWindow/size", QSize(400, 400)).toSize());
+    move(settings.value("mainWindow/pos", QPoint(200, 200)).toPoint());
+	//restoreGeometry(settings.value("mainWindow/geometry").toByteArray());
 
 	menu_recent_files->load_files_from_disk(settings);
 }
@@ -841,12 +764,65 @@ void Ui_MainWindow::destroy_actions()
     delete actionSave;
 }
 
-void Ui_MainWindow::create_menu()
+void Ui_MainWindow::create_menus()
 {
+	menuBar = new QMenuBar(this);
+	menuBar->setObjectName(QString::fromUtf8("menuBar"));
+	menuBar->setGeometry(QRect(0, 0, 831, 25));
+	
+	
+	menu_File = new QMenu(menuBar);
+	menu_File->setObjectName(QString::fromUtf8("menu_File"));
+	
+	menuView = new QMenu(menuBar);
+	//menu_View = new QMenu(menuBar);
+	menuView->setObjectName(QString::fromUtf8("menuView"));
+	//menu_View->setObjectName(QString::fromUtf8("menu_View"));
+	/* search menu */
+	menu_Search = new QMenu(menuBar);
+	menu_Search->setObjectName(QString::fromUtf8("menu_Search"));
+	
+	setMenuBar(menuBar);
+		
+	/* main window tool bar */
+	//mainToolBar = new QToolBar(this);
+	//mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
+	//addToolBar(Qt::TopToolBarArea, mainToolBar);
+	//mainToolBar->hide();	/* hide tool bar */
+	//mainToolBar->show();	/* show tool bar */
+	
+	/* main window status bar */
+	//statusBar = new QStatusBar(this);
+	//statusBar->setObjectName(QString::fromUtf8("statusBar"));
+	//setStatusBar(statusBar);
 
+	menuBar->addAction(menu_File->menuAction());
+	menu_File->addAction(actionNew);
+	menu_File->addAction(actionSave);
+	menu_File->addAction(actionOpen);
+
+	menu_File->addSeparator();
+	menu_File->addMenu(menu_recent_files);
+	
+	menu_File->addSeparator();
+	menu_File->addAction(action_reload);
+	
+	menu_File->addSeparator();
+	menu_File->addAction(actionQuit);
+	
+	menuView->addSeparator();
+	menuView->addAction(actionSide_Bar);
+	menuView->addAction(actionStatus_Bar);
+	menuView->addAction(actionMenuBar);
+	menuView->addAction(actionFullScreen);
+	menuView->addAction(actionSrcTabBar);
+	menuView->addSeparator();
+	menuView->addAction(action_split_horizontally);
+	menuView->addAction(action_split_vertically);
+	menuView->addAction(action_unsplit);
 }
 
-void Ui_MainWindow::destroy_menu()
+void Ui_MainWindow::destroy_menus()
 {
 
 }

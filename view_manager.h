@@ -34,9 +34,6 @@ public:
 	unsigned int generate_view_id();
 	void release_view_id(unsigned int id);
 
-	void add_visible_view(const view *v);
-	void remove_visible_view(unsigned int id);
-
 private:
 	void close_file(QTextDocument *content);
 	
@@ -44,10 +41,16 @@ private:
 	bool save_file(src_container *src_c, const QString &fileName, int index);
 	
 	int get_root_src_container_file_index(QTextDocument *content);
+	
+	void add_to_splitter_list(QSplitter *s);
+	void remove_from_splitter_list(QSplitter *s);
+
+	bool new_file(const QString &file_name);
 
 public slots:
 	void split_horizontally();
 	void split_vertically();
+	void split(Qt::Orientation orientation);
 	void unsplit();
 	void close_file(int index);
 	void new_file();
@@ -55,6 +58,8 @@ public slots:
 	void open_file(const QString &file_name);
 	void reload_current_file();
 	bool save();
+	
+	void show_src_tab_bar(bool show);
 
 private slots:
 	//void open_recent_file();
@@ -64,7 +69,8 @@ signals:
 
 private:
     list<view *> view_list_;	/**< list of pointers to all existent views. root view is always at the beginning */
-    std::map<unsigned int, const view *> visible_views_;	/**< pointers to all visible views */
+    list<QSplitter*> view_splitters_;
+    
     view *root_view_;
     view *current_view_;
     src_container *root_container_;
@@ -73,11 +79,10 @@ private:
     recent_files *recent_files_;
     
     QVBoxLayout *layout_;
-    int num_splits_;
+    int m_num_splits;
 
-	// source file ID
-    Id file_id_;
-    Id view_id_;
+    Id file_id_;	/**< source file ID generator */
+    Id view_id_;	/**< view ID generator */ 
 };
 
 #endif

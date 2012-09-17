@@ -3,11 +3,17 @@
 #include "stdlib.h"
 #include "debug.h"
 
-ctr_wrapper::ctr_wrapper(view *parent)
+
+view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
 {
-	this->src_container_ = new src_container(parent);
+    manager_ = manager;		// view manager
+    parent_ = static_cast<view *>(parent);		// parent view
+    
+    id_ = manager_->generate_view_id();	// ask manager for ID
+
+	src_container_ = new src_container(this);
 	status_line_ = new status_line();
-	main_layout_ = new QVBoxLayout();
+	main_layout_ = new QVBoxLayout(this);
 	
 	status_line_->set_src_container(src_container_);
 	
@@ -16,42 +22,6 @@ ctr_wrapper::ctr_wrapper(view *parent)
 	main_layout_->setContentsMargins(0, 0, 0, 0);
 	
 	setLayout(main_layout_);
-}
-
-
-view::view(view_manager *manager, view *parent, bool root) : QWidget(parent)
-{
-	splitter_ = nullptr;
-    child_view_[0] = nullptr;
-    child_view_[1] = nullptr;
-    
-    manager_ = manager;		// view manager
-    parent_ = parent;		// parent view
-    
-    id_ = manager_->generate_view_id();
-    
-    wrapper_ = new ctr_wrapper(this);
-    //src_container_ = new src_container(this);	// current src_container
-	src_container_ = wrapper_->src_container_;
-	status_line_ = wrapper_->status_line_;
-
-    root_ = root;
-    if (root)
-		cout << "root view - " << this << endl;
-    
-    splitted_ = false;
-    
-    // set src_container as current layout
-    layout_ = new QStackedLayout();
-    //layout_->insertWidget(0, src_container_);
-    layout_->insertWidget(0, wrapper_);
-    layout_->setCurrentIndex(0);
-    layout_->setContentsMargins(0, 0, 0, 0);
-    
-    main_layout_ = new QVBoxLayout(this);
-    main_layout_->addLayout(layout_);
-    main_layout_->setContentsMargins(0, 0, 0, 0);
-    setLayout(main_layout_);
     
 	/* close file signal */
 	QObject::connect(src_container_, SIGNAL(tabCloseRequested(int)), manager, SLOT(close_file(int)));
@@ -60,34 +30,7 @@ view::view(view_manager *manager, view *parent, bool root) : QWidget(parent)
 	QObject::connect(src_container_, SIGNAL(currentChanged(int)), status_line_, SLOT(update_file_name(int)));
  
     this->setFocusPolicy(Qt::StrongFocus);
-    //this->setContentsMargins(0, 0, 0, 0);
     
-    manager_->add_to_view_list(this);
-}
-
-/**
- * Copy costructor.
- */
-
-view::view(const view &copy) : QWidget(copy.get_parent_view())
-{
-	splitter_ = nullptr;
-    child_view_[0] = nullptr;
-    child_view_[1] = nullptr;
-    
-    manager_ = copy.get_view_manager();		// view manager
-	parent_ = copy.get_parent_view();		// parent view
-
-	src_container_ = new src_container(this);	// current src_container
-	//clone_src_container(copy.get_src_container());
-
-	root_ = copy.is_root();
-	splitted_ = copy.is_splitted();
-	
-	/* close file signal */
-	QObject::connect(src_container_, SIGNAL(tabCloseRequested(int)), manager_, SLOT(close_file(int)));
- 
-    this->setFocusPolicy(Qt::StrongFocus);
     manager_->add_to_view_list(this);
 }
 
@@ -97,21 +40,12 @@ view::view(const view &copy) : QWidget(copy.get_parent_view())
 
 view::~view()
 {
-	cout << "~view()" << endl;
-	debug(DEBUG, VIEW, "");
+	debug(DEBUG, VIEW, "~view()");
 	manager_->remove_from_view_list(this);
-	manager_->release_view_id(id_);
+	manager_->release_view_id(id_);	// release my ID
 
-	if (child_view_[0])
-		delete child_view_[0];
-	if (child_view_[1])
-		delete child_view_[1];
-	if (splitter_)
-		delete splitter_;
-	if (src_container_)
-		delete src_container_;
-
-	delete layout_;
+	delete status_line_;
+	delete src_container_;
 	delete main_layout_;
 }
 
@@ -124,16 +58,6 @@ int view::new_file(const QString &file_name, unsigned int file_id)
 	int index;
 	
 	index = src_container_->new_src_tab(file_name, file_id);
-	
-	if (index < 0)
-		return index;
-	
-	if (splitted_) {
-		debug(DEBUG, VIEW, "clone files");
-		src_file *file = src_container_->get_src_file(index);
-		child_view_[0]->clone_file(file, 0);
-		child_view_[1]->clone_file(file, 1);
-	}
 	
 	return index;
 }
@@ -183,11 +107,6 @@ void view::clone_file(src_file *file, int index)
 	new_file->setTextCursor(file->textCursor());
 	new_file->set_modified(file->is_modified());
 	file->set_child_src_file(new_file, index);
-	
-	if (splitted_) {
-		child_view_[0]->clone_file(new_file, 0);
-		child_view_[1]->clone_file(new_file, 1);
-	} 
 }
 
 /**
@@ -219,25 +138,6 @@ void view::focusInEvent(QFocusEvent *event)
 }
 */
 
-/**
- * Check whether the view is splitted or not.
- * @return true, if splitted, false otherwise
- */
-
-bool view::is_splitted() const
-{
-	return splitted_;
-}
-
-/**
- * 
- */
-
-bool view::is_root() const
-{
-	return root_;
-}
-
 /*
 void view::mousePressEvent(QMouseEvent *event)
 {
@@ -250,159 +150,11 @@ void view::mousePressEvent(QMouseEvent *event)
 }*/
 
 /**
- * Split current window in two new windows, either horizontally or 
- * vertically.
- * @param orientation -> split direction, vertical or horizontal.
- */
-
-void view::split(Qt::Orientation orientation)
-{
-	if (splitted_)
-		return;
-		
-	splitter_ = new QSplitter(orientation, this);
-	splitter_->setHandleWidth(1);
-	//splitter_->setChildrenCollapsible(false);
-	splitter_->setProperty("minisplitter", true);
-
-	child_view_[0] = new view(manager_, this);
-	child_view_[1] = new view(manager_, this);
-	
-	// aqui aparece a janela indesejada do split!!!!!
-	sleep(4);
-	
-	// new child views are visible
-	manager_->add_visible_view(child_view_[0]);
-	manager_->add_visible_view(child_view_[1]);
-	// this view is no longer visible
-	manager_->remove_visible_view(this->get_id());
-
-	debug(DEBUG, VIEW, "new child_view_[0] - " << child_view_[0] << " of - " << this);
-	debug(DEBUG, VIEW, "new child_view_[1] - " << child_view_[1] << " of - " << this);
-	
-	splitter_->addWidget(child_view_[0]);
-	splitter_->addWidget(child_view_[1]);
-	
-	splitted_ = true;
-
-	child_view_[0]->clone_src_container(this->src_container_, 0);
-	child_view_[1]->clone_src_container(this->src_container_, 1);
-
-	layout_->insertWidget(1, splitter_);
-	layout_->setCurrentIndex(1);
-	
-    if (!root_) {
-		//delete this->src_container_;
-		//this->src_container_ = NULL;
-	}
-}
-
-/**
- * Remove current view.
- */
-
-void view::unsplit(view *to_be_destroyed)
-{
-	debug(DEBUG, VIEW, "I am - " << this);
-	
-	if (!child_view_[0] || !child_view_[1]) {
-		debug(DEBUG, VIEW, "no children");
-		debug(DEBUG, VIEW, "child_view_[0] " << child_view_[0]);
-		debug(DEBUG, VIEW, "child_view_[1] " << child_view_[1]);
-		return;
-	}
-	
-	if (to_be_destroyed->is_splitted()) {
-		debug(CRIT, VIEW, "Tried to destroy a view that has child views!!");
-		return;
-	}
-	
-	int keep, destroy;
-	Qt::Orientation orientation;
-	QList<int> sizes;
-	
-	if (child_view_[0]->is_splitted() || child_view_[1]->is_splitted()) {
-		
-		cout << "splitted child" << endl;
-		if (to_be_destroyed == child_view_[0]) {
-			destroy = 0;
-			keep = 1;
-			orientation = child_view_[1]->get_splitter()->orientation();
-			sizes = child_view_[1]->get_splitter()->sizes();
-		} else {
-			destroy = 1;
-			keep = 0;
-			orientation = child_view_[0]->get_splitter()->orientation();
-			sizes = child_view_[0]->get_splitter()->sizes();
-		}
-		
-		/*
-		 * delete splitter chama os destrutores das views, portanto o melhor a fazer 
-		 * é destruir as views que estão no splitter, assim o splitter remove elas 
-		 * automaticamente, e então depois adicionar as novas views.
-		 */
-		
-		manager_->remove_visible_view(child_view_[destroy]->get_id());
-		delete child_view_[destroy];
-		child_view_[destroy] = child_view_[keep]->take_child_view(0, this);	// check if child view exists
-		
-		view *aux = child_view_[keep];
-		child_view_[keep] = child_view_[keep]->take_child_view(1, this);	// check if child view exists
-		delete aux;
-
-		if (child_view_[0]) {
-			cout << "is root : " << child_view_[0]->is_root() << endl;
-			cout << "child_view_[0] set - " << child_view_[0] << endl;
-			splitter_->addWidget(child_view_[0]);
-		}
-
-		if (child_view_[1]) {
-			cout << "is root : " << child_view_[1]->is_root() << endl;
-			cout << "child_view_[1] set - " << child_view_[1] << endl;
-			splitter_->addWidget(child_view_[1]);
-		}
-
-		splitter_->setOrientation(orientation);
-		splitter_->setSizes(sizes);
-		layout_->setCurrentIndex(1);
-	} else {
-		/* destroy both child views */
-		layout_->setCurrentIndex(0);
-		layout_->takeAt(1);
-		
-		// parent view is now visible
-		manager_->add_visible_view(child_view_[0]->get_parent_view());
-		// child views are no longer visible
-		manager_->remove_visible_view(child_view_[0]->get_id());
-		manager_->remove_visible_view(child_view_[1]->get_id());
-		
-		delete child_view_[0];
-		delete child_view_[1];
-		delete splitter_;
-		
-		child_view_[0] = child_view_[1] = nullptr;
-		splitter_ = nullptr;
-		
-		splitted_ = false;
-	}
-}
-
-/**
  * 
  */
 
 void view::destroy_src_file(unsigned int id)
 {	
-	if (splitted_) {
-		debug(DEBUG, VIEW, "I am splitted - " << this);
-		if (child_view_[0])
-			//child_view_[0]->destroy_src_file(file->get_child_src_file(0));
-			child_view_[0]->destroy_src_file(id);
-		if (child_view_[1])
-			child_view_[1]->destroy_src_file(id);
-			//child_view_[1]->destroy_src_file(file->get_child_src_file(1));
-	}
-
 	debug(DEBUG, VIEW, "Destroying file - " << this);
 	src_container_->destroy_src_tab(id);
 }
@@ -410,18 +162,6 @@ void view::destroy_src_file(unsigned int id)
 /**
  * 
  */
-
-view* view::take_child_view(int index, view *new_parent)
-{
-	if (index < 0 || index > 1)
-		return 0;
-	
-	view *ret = child_view_[index];
-	ret->set_parent(new_parent);
-	child_view_[index] = 0;
-
-	return ret;
-}
 
 unsigned int view::get_id() const
 {
@@ -446,16 +186,6 @@ src_container* view::get_src_container() const
 	return src_container_;
 }
 
-QSplitter* view::get_splitter()
-{
-	return splitter_;
-}
-
-view* view::get_parent_view() const
-{
-	return parent_;
-}
-
 view_manager* view::get_view_manager() const
 {
 	return manager_;
@@ -473,22 +203,8 @@ QVBoxLayout* view::get_main_layout()
 void view::show_src_tab_bar(bool show)
 {
 	src_container_->show_tabs(show);
-	
-	if (child_view_[0])
-		child_view_[0]->show_src_tab_bar(show);
-	if (child_view_[1])
-		child_view_[1]->show_src_tab_bar(show);
 }
 	
-/**
- * 
- */
-
-void view::set_parent(view *parent)
-{
-	parent_ = parent;		// parent view
-	this->setParent(parent);
-}	
 	
 	
 	

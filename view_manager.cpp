@@ -1,5 +1,6 @@
 #include "view_manager.h"
 #include <iostream>
+#include <algorithm>
 #include <debug.h>
 
 #include <QDir>
@@ -13,15 +14,15 @@ using namespace std;
 
 view_manager::view_manager(QWidget *parent) : QWidget(parent)
 {
-	root_view_ = new view(this, NULL, true);
-	root_container_ = root_view_->get_src_container();
+	root_container_ = new src_container(this);
 	
-	current_view_ = root_view_;
-	add_visible_view(root_view_); 
-	
-	num_splits_ = 0;
+	view *new_view = new view(this, this);
+
+	current_view_ = new_view;
+	m_num_splits = 0;
+
 	layout_ = new QVBoxLayout(this);
-	layout_->addWidget(root_view_);
+	layout_->addWidget(new_view);
 	layout_->setContentsMargins (0, 0, 0, 0);
     setLayout(layout_);
 }
@@ -59,15 +60,69 @@ void view_manager::remove_from_view_list(view *v)
 }
 
 /**
+ * Adds splitter to list. Whenever a splitter is created it must be added to 
+ * this list.
+ */
+
+void view_manager::add_to_splitter_list(QSplitter *s)
+{
+	if (s)
+		view_splitters_.insert(view_splitters_.end(), s);
+}
+
+/**
+ * Removes splitter from list. Whenever a splitter is destroyed it must be pulled out from 
+ * this list.
+ */
+
+void view_manager::remove_from_splitter_list(QSplitter *s)
+{
+	if (s)
+		view_splitters_.remove(s);
+}
+
+/**
  * Creates new empty file. A file is always created in the root view, which 
  * in turn propagates the file creation to other views, if they exist.
  */
 
 void view_manager::new_file()
 {
-	root_view_->new_file("", file_id_.generate_id());
-	//root_view_->new_file("", file_id_++);
-}	
+	int index;
+
+	index = root_container_->new_src_tab("", file_id_.generate_id());
+
+	if (index < 0) {
+		return;
+	}
+	
+	src_file *file = root_container_->get_src_file(index);
+	
+	list<view *>::iterator it;
+	
+	for (it = view_list_.begin(); it != view_list_.end(); it++) {
+		(*it)->clone_file(file, 0);
+	}
+}
+
+bool view_manager::new_file(const QString &file_name)
+{
+	int index;
+
+	index = root_container_->new_src_tab(file_name, file_id_.generate_id());
+
+	if (index < 0) {
+		return false;
+	}
+	
+	src_file *file = root_container_->get_src_file(index);
+	
+	list<view *>::iterator it;
+	
+	for (it = view_list_.begin(); it != view_list_.end(); it++) {
+		(*it)->clone_file(file, 0);
+	}
+}
 
 /**
  * Slot to handle file close request.
@@ -191,7 +246,8 @@ void view_manager::open_file(const QString &file_name)
 {
 	// checks whether this file is already open
 	if (open_files_.find(file_name) == open_files_.end()) {
-		if (root_view_->new_file(file_name, file_id_.generate_id()) < 0)
+		//if (root_view_->new_file(file_name, file_id_.generate_id()) < 0)
+		if (!new_file(file_name))
 			return;
 
 		open_files_.insert(file_name);
@@ -366,31 +422,6 @@ void view_manager::release_view_id(unsigned int id)
 }
 
 /**
- * 
- */
-
-void view_manager::add_visible_view(const view *v)
-{
-	if (!v) {
-		debug(ERR, VIEW_MANAGER, "Invalid view");
-		return;
-	}
-	
-	visible_views_[v->get_id()] = v;
-	debug(INFO, VIEW_MANAGER, "Added view: " << v->get_id());
-}
-
-/**
- * 
- */
-
-void view_manager::remove_visible_view(unsigned int id)
-{
-	visible_views_.erase(visible_views_.find(id));
-	debug(INFO, VIEW_MANAGER, "Removed view: " << id);
-}
-
-/**
  * Returns the root view.
  * @return Address of the root view.
  */
@@ -406,18 +437,14 @@ view* view_manager::get_root_view() const
 
 view* view_manager::get_current_view() const
 {
-	if (num_splits_ == 0)
-		return root_view_;
+	if (m_num_splits == 0)
+		return *(view_list_.begin());
 	
 	list<view *>::const_iterator it;
 	int i;
 	QWidget *curr_widget = 0;
 
 	for (i = 0, it = view_list_.begin(); it != view_list_.end(); it++, i++) {
-
-		if ((*it)->is_splitted())
-			continue;	// aqui quando a view é splitada ela deveria ser retirada dessa lista!!
-			
 		curr_widget = (*it)->focusWidget();
 		if (curr_widget && curr_widget->hasFocus()) {
 			cout << "get_current_view " << i << endl;
@@ -425,7 +452,7 @@ view* view_manager::get_current_view() const
 		}
 	}
 	
-	return 0;
+	return *(view_list_.begin());
 }
 
 /**
@@ -435,7 +462,7 @@ view* view_manager::get_current_view() const
 
 src_container* view_manager::get_root_src_container() const
 {
-	return root_view_->get_src_container();
+	return root_container_;
 }
 
 /**
@@ -476,13 +503,7 @@ void view_manager::set_current_view(view* curr_view)
 
 void view_manager::split_horizontally()
 {
-	view *current = get_current_view();
-	
-	if (current) {
-		current->split(Qt::Vertical);
-		num_splits_++;
-		debug(INFO, VIEW_MANAGER, "splits: " << num_splits_);
-	}
+	this->split(Qt::Vertical);
 }
 
 /**
@@ -490,14 +511,94 @@ void view_manager::split_horizontally()
  */
 
 void view_manager::split_vertically()
+{	
+	this->split(Qt::Horizontal);
+}
+
+/**
+ * 
+ */
+
+void view_manager::split(Qt::Orientation orientation)
 {
-	view *current = get_current_view();
-		
-	if (current) {
-		current->split(Qt::Horizontal);
-		num_splits_++;
-		debug(INFO, VIEW_MANAGER, "splits: " << num_splits_);
+	QSplitter *new_splitter;
+	view *new_view;
+	int size;
+	view *curr_view = get_current_view();
+	
+	if (!curr_view) {
+		debug(ERR, VIEW_MANAGER, "No current view");
+		return;
 	}
+	
+	if (m_num_splits == 0) {
+		new_splitter = new QSplitter(orientation, this);
+		new_splitter->setHandleWidth(1);
+		new_splitter->setChildrenCollapsible(false);
+		new_splitter->setProperty("minisplitter", true);
+		
+		// create new view
+		new_view = new view(this, new_splitter);
+		new_view->clone_src_container(curr_view->get_src_container(), 0);
+		
+		if (orientation == Qt::Vertical)
+			size = curr_view->height() / 2;
+		else
+			size = curr_view->width() / 2;
+		
+		new_splitter->addWidget(curr_view);
+		new_splitter->addWidget(new_view);
+		layout_->addWidget(new_splitter);
+
+		QList<int> sizes;
+		sizes.push_back(size);
+		sizes.push_back(size);
+		new_splitter->setSizes(sizes);
+			
+		view_splitters_.push_back(new_splitter);
+		
+	} else {
+		int index = -1;
+
+		if (orientation == Qt::Vertical) {
+			size = curr_view->height() / 2;
+		} else {
+			size = curr_view->width() / 2;
+		}
+
+		QList<int> sizes;
+		sizes.push_back(size);
+		sizes.push_back(size);
+
+		// get parent splitter
+		QSplitter *parent = static_cast<QSplitter*>(curr_view->parentWidget());
+		
+		// get current view index in the splitter
+		index = parent->indexOf(curr_view);
+		
+		// create new splitter
+		new_splitter = new QSplitter(orientation, parent);
+		new_splitter->setHandleWidth(1);
+		new_splitter->setChildrenCollapsible(false);
+		new_splitter->setProperty("minisplitter", true);
+		
+		// create new view
+		new_view = new view(this, new_splitter);
+		new_view->clone_src_container(curr_view->get_src_container(), 0);
+		
+		parent->insertWidget(index, new_splitter);
+		
+		new_splitter->addWidget(curr_view);
+		new_splitter->addWidget(new_view);
+		new_splitter->setSizes(sizes);
+		
+		debug(INFO, VIEW_MANAGER, "splitter count -> " << parent->count());
+		debug(INFO, VIEW_MANAGER, "new splitter count -> " << new_splitter->count());
+		
+		view_splitters_.push_back(new_splitter);
+	}
+	
+	m_num_splits++;
 }
 
 /**
@@ -506,17 +607,65 @@ void view_manager::split_vertically()
 
 void view_manager::unsplit()
 {
-	view *current = get_current_view();
-	
-	if (current) {
-		if (current->is_root())
-			return;
-	
-		current_view_ = current->get_parent_view();
-		current_view_->unsplit(current);
-		num_splits_--;
-		debug(INFO, VIEW_MANAGER, "splits: " << num_splits_);
+	if (m_num_splits == 0)
+		return;
+
+	view *curr_view = get_current_view();
+
+	if (!curr_view) {
+		debug(ERR, VIEW_MANAGER, "No current view");
+		return;
 	}
+
+	QSplitter *grand_parent;
+	list<QSplitter *>::iterator s_it;
+	list<view *>::iterator v_it;
+
+	// get parent splitter
+	QSplitter *parent = static_cast<QSplitter*>(curr_view->parentWidget());
+	
+	if (parent->parentWidget() == this) {	// grandparent is view_manager
+		// view index in the parent splitter
+		int view_index = parent->indexOf(curr_view);
+
+		if (view_index == 0)
+			layout_->addWidget(parent->widget(1));
+		else
+			layout_->addWidget(parent->widget(0));
+	
+		remove_from_splitter_list(parent);
+		
+		delete curr_view;
+		delete parent;
+
+	} else if ((grand_parent = dynamic_cast<QSplitter*>(parent->parentWidget()))) {
+		
+		debug(DEBUG, VIEW_MANAGER, "grand parent is QSplitter");
+		
+		// parent index in the grandparent splitter
+		int index = grand_parent->indexOf(parent);
+		
+		// view index in the parent splitter
+		int view_index = parent->indexOf(curr_view);
+
+		if (view_index == 0)
+			grand_parent->insertWidget(index, parent->widget(1));
+		else
+			grand_parent->insertWidget(index, parent->widget(0));
+		
+		remove_from_splitter_list(parent);
+
+		// destroy current
+		debug(DEBUG, VIEW_MANAGER, "splitter count: " << parent->count());
+		
+		delete curr_view;
+		delete parent;
+	} else {
+		debug(CRIT, VIEW_MANAGER, "Unknown parent splitter");
+		return;
+	}
+	
+	m_num_splits--;
 }
 
 /**
@@ -530,9 +679,13 @@ void view_manager::set_recent_files_widget(recent_files *recent_files_widget)
 
 
 
-
-
-
+void view_manager::show_src_tab_bar(bool show)
+{
+	list<view *>::iterator it;
+	
+	for (it = view_list_.begin(); it != view_list_.end(); it++)
+		(*it)->show_src_tab_bar(show);
+}
 
 
 
