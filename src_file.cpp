@@ -15,8 +15,6 @@ using namespace std;
 src_file::src_file(const QString &file_name, unsigned int id)
 {
 	clone_ = false;
-	child_file_[0] = NULL;
-	child_file_[1] = NULL;
 
 	id_ = id;
 
@@ -76,8 +74,6 @@ src_file::src_file(const QString &file_name, unsigned int id)
 src_file::src_file(src_file *base_file)
 {
 	clone_ = true;
-	child_file_[0] = NULL;
-	child_file_[1] = NULL;
 
 	id_ = base_file->get_id();
 	
@@ -248,21 +244,6 @@ void src_file::set_content(QTextDocument *content)
 {
 	this->setDocument(content);
 	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
-}
-
-/**
- * 
- */
-
-void src_file::set_child_src_file(src_file *child, int index)
-{
-	cout << child << endl;
-	if (!child) {
-		cout << "Invalid child file" << endl;
-		return;
-	}
-
-	child_file_[index] = child;
 }
 
 unsigned int src_file::get_id() const

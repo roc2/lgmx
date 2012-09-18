@@ -53,7 +53,6 @@ private slots:
 	//void open_recent_file();
 
 private:
-    view *parent_;
     QVBoxLayout *main_layout_;
     src_container *src_container_;
     status_line *status_line_;

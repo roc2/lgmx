@@ -65,10 +65,6 @@ public:
     void set_file_info(QFileInfo *file_info);
     QFileInfo *get_file_info() const;
     
-    //void set_clone(src_file *clone);
-    void set_child_src_file(src_file *child, int index);
-    src_file *get_child_src_file(int index) {return child_file_[index];}
-
 	unsigned int get_id() const;
     
     bool eventFilter(QObject* pObject, QEvent* pEvent);
@@ -81,11 +77,8 @@ public slots:
 private:
 	QFileInfo *file_info_;
 	Highlighter *highlighter;
-	//QTextCursor *cursor;
-	//src_file *_clone;
 	QScrollArea *scroll_area_;
 	bool clone_;
-	src_file *child_file_[2];
 	unsigned int id_;
 	
 	hilight_thread *ht;

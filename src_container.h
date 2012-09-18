@@ -78,7 +78,6 @@ public slots:
 	void file_changed(bool changed);
 
 private:
-	QWidget *_parent;
     QTabBar *tab_bar;
     QVBoxLayout *main_layout_;
     QFont font;

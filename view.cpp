@@ -6,9 +6,7 @@
 
 view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
 {
-    manager_ = manager;		// view manager
-    parent_ = static_cast<view *>(parent);		// parent view
-    
+    manager_ = manager;		// view manager    
     id_ = manager_->generate_view_id();	// ask manager for ID
 
 	src_container_ = new src_container(this);
@@ -20,6 +18,7 @@ view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
 	main_layout_->addWidget(src_container_);
 	main_layout_->addWidget(status_line_);
 	main_layout_->setContentsMargins(0, 0, 0, 0);
+	main_layout_->setSpacing(0);
 	
 	setLayout(main_layout_);
     
@@ -106,7 +105,7 @@ void view::clone_file(src_file *file, int index)
 	
 	new_file->setTextCursor(file->textCursor());
 	new_file->set_modified(file->is_modified());
-	file->set_child_src_file(new_file, index);
+	//file->set_child_src_file(new_file, index);
 }
 
 /**

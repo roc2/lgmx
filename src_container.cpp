@@ -34,8 +34,6 @@ class lgmx_exception : public std::exception
 
 src_container::src_container(QWidget *parent) : QTabWidget(parent)
 {
-	_parent = parent;
-	
 	this->installEventFilter(this);
     setObjectName(QString::fromUtf8("src_tab_widget"));
 	setTabsClosable(true);
@@ -46,14 +44,6 @@ src_container::src_container(QWidget *parent) : QTabWidget(parent)
     tab_bar->setContentsMargins(0, 0, 0, 0);
     
     //this->setFocusPolicy(Qt::StrongFocus);
-    
-    //status_line_ = new status_line();
-    
-    //main_layout_ = new QVBoxLayout();
-    //main_layout_->addWidget(this);
-    //main_layout_->addWidget(status_line_);
-    //this->setLayout(main_layout_);
-    
     tab_bar->setStyleSheet("border-width: 0px;");
     
     setStyleSheet("border-width: 0px;");
@@ -68,10 +58,8 @@ src_container::src_container(QWidget *parent) : QTabWidget(parent)
  * @todo fix this copy constructor
  */
 
-src_container::src_container(const src_container &copy) : QTabWidget(copy.get_parent())
+src_container::src_container(const src_container &copy) : QTabWidget(copy.parentWidget())
 {
-	_parent = copy.get_parent();
-	
 	setObjectName(QString::fromUtf8("src_tab_widget"));
 	setTabsClosable(true);
 	setMovable(true);
@@ -168,15 +156,6 @@ src_file* src_container::new_clone_tab(src_file *base_file)
 	setCurrentIndex(index);
 
 	return src_tab;
-}
-
-/**
- * 
- */
-
-QWidget* src_container::get_parent() const
-{
-	return _parent;
 }
 
 /**

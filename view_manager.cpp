@@ -15,6 +15,7 @@ using namespace std;
 view_manager::view_manager(QWidget *parent) : QWidget(parent)
 {
 	root_container_ = new src_container(this);
+	root_container_->hide();
 	
 	view *new_view = new view(this, this);
 
@@ -24,6 +25,7 @@ view_manager::view_manager(QWidget *parent) : QWidget(parent)
 	layout_ = new QVBoxLayout(this);
 	layout_->addWidget(new_view);
 	layout_->setContentsMargins (0, 0, 0, 0);
+	layout_->setSpacing(0);
     setLayout(layout_);
 }
 
@@ -122,6 +124,8 @@ bool view_manager::new_file(const QString &file_name)
 	for (it = view_list_.begin(); it != view_list_.end(); it++) {
 		(*it)->clone_file(file, 0);
 	}
+	
+	return true;
 }
 
 /**

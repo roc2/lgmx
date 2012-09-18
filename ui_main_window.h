@@ -89,7 +89,6 @@ public:
     
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
-    QStatusBar *statusBar;
     QMenu *menu_File;
     QMenu *menuView;
     QMenu *menu_Search;
