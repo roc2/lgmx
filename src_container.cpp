@@ -192,6 +192,19 @@ src_file *src_container::get_src_file(int index)
 	return src_tab;
 }
 
+src_file *src_container::get_src_file(unsigned int id)
+{
+	src_file *file;
+	int count = this->count();
+
+    for (int i = 0; i < count; i++) {
+		file = this->get_src_file(i);
+		if (file->get_id() == id)
+			return file;
+	}
+
+	return NULL;
+}
 
 /**
  * Removes the specified tab from the tab widget.

@@ -1,4 +1,4 @@
-#include <QtGui>
+#include <QPainter>
 #include <iostream>
 #include <QTextCharFormat>
 #include "code_editor.h"

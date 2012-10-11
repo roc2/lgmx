@@ -134,9 +134,8 @@ bool view_manager::new_file(const QString &file_name)
 
 void view_manager::close_file(int index)
 {
-	int index_r;
 	/*
-	 * The file to be closed is identified by its QTextDocument address.
+	 * The file to be closed is identified by its ID.
 	 * When a file is created the root file is created, if there are other views, 
 	 * the file is cloned in all other views. The clone files do not have their 
 	 * own content (QTextDocument *), they all point to the root file's content instead.
@@ -145,34 +144,67 @@ void view_manager::close_file(int index)
 	 * the same in the root file and in their clones.
 	 */
 	
+	unsigned int id;
+	src_file *src_tab;
 	src_container *container = static_cast<src_container *>(sender());
 
-	index_r = this->get_root_src_container_file_index(container->get_src_file(index)->get_mutable_content());
-	
-	if (index_r < 0) {
-		cout << "file not found in root source container" << endl;
+	src_tab = container->get_src_file(index);
+	if (!src_tab) {
+		debug(ERR, VIEW_MANAGER, "File not found");
 		return;
 	}
 	
-	src_file *src_tab;
+	QString file_name(src_tab->get_src_file_full_name());
+	id = src_tab->get_id();
 
-    if ((src_tab = static_cast<src_file *>(root_container_->widget(index))) == 0)
-		return;	/* index out of range */
+	// check if file needs to be saved
+	#if 0
+	if (src_tab->is_modified(index)) {
+		
+        this->build_close_file_msg(index, msg);
+        
+        ret = QMessageBox::warning(this, APPLICATION, msg,
+			  QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 	
-	cout << "Found file in the root source container!!" << endl;
+		if (ret == QMessageBox::Save) { /* save file */
+            
+            if (file_name.isEmpty()) {
+                cout << "file name empty" << endl;
+                if (!saveAs(index))
+                    return; /* could not save, just return */
+            } else {
+                if (!saveFile(file_name, index))
+                    return; /* could not save, just return */
+            }
+            
+        } else if (ret == QMessageBox::Cancel)
+			return;     /* if dialog is canceled, do nothing */
+	}
+	#endif
+
+	list<view *>::iterator v_it;
 	
-	QString file_name(src_tab->get_src_file_full_name());	// get file name
+	// remove the file from all views
+	for (v_it = view_list_.begin(); v_it != view_list_.end(); v_it++) {
+		src_tab = (*v_it)->get_src_container()->get_src_file(id);
+		
+		if (src_tab)
+			delete src_tab;
+	}
+
+	// remove the file from root container
+	src_tab = root_container_->get_src_file(id);
+	if (!src_tab) {
+		debug(ERR, VIEW_MANAGER, "File not found in root container");
+		return;
+	}
+
+	delete src_tab;
 	
-	root_view_->destroy_src_file(src_tab->get_id());
-	
-	cout << "destroyed!!!" << endl;
-	
-	set<QString>::iterator it = open_files_.find(file_name);    /* pull out from open files list */
+	// remove the file from open files list
+	set<QString>::iterator it = open_files_.find(file_name);
     if (it != open_files_.end())
         open_files_.erase(*it);
-	
-	//root_container_->destroy_src_tab(index_r);
-	// move Ui_MainWindow::close_file to here
 }
 
 /**

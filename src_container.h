@@ -63,6 +63,7 @@ class src_container : public QTabWidget
 	int get_current_tab_index();
 	src_file *get_current_src_file();
 	src_file *get_src_file(int index);
+	src_file *get_src_file(unsigned int id);
 	
 	bool get_curr_font(int index, QFont &font);
 	

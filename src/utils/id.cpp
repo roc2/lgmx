@@ -19,7 +19,7 @@ Id::~Id()
 }
 
 /**
- * Generates an unique source file ID.
+ * Generates an unique source file ID (unsigned integer).
  * @return unique file ID.
  */
 
@@ -37,7 +37,7 @@ unsigned int Id::generate_id()
 }
 
 /**
- * Returns the ID to the available IDs pool.
+ * Returns a no longer used ID to the available IDs pool.
  * @param id -> released ID.
  */
 
