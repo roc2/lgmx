@@ -72,6 +72,8 @@ class src_container : public QTabWidget
     
     int get_file_index(const QString &file_name);
     //void setFont(QFont &font);
+    void set_line_wrap(bool wrap);
+    bool get_line_wrap() const;
     
     void focusInEvent(QFocusEvent *event);
 

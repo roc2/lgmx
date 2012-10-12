@@ -135,7 +135,6 @@ private:
 
     bool saveFile(const QString &fileName, int index);
     bool checkUnsavedFiles();
-    void build_close_file_msg(int index, QString &msg);
     int get_file_index(const QString &file_name);
     void set_current_index(int index);
     void load_parameter_files(list<QString> *files);
@@ -151,7 +150,6 @@ private slots:
     ///////////////////////////
 	
 	//void save_file();
-	void close_file(int index);
 	void quit();
 	
 	void show_side_bar(bool show);

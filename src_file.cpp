@@ -1,31 +1,28 @@
-#include <iostream>
 #include <QTextStream>
 #include <QPalette>
 #include <QMessageBox>
 #include <QString>
-#include "src_file.h"
-#include "src_container.h"
+#include <QFileInfo>
 
-using namespace std;
+#include <src_file.h>
+#include <src_container.h>
+#include <exception.h>
+#include <debug.h>
+
 
 /**
- * Constructor.
+ * [throw] Constructor.
  */
 
 src_file::src_file(const QString &file_name, unsigned int id)
 {
 	clone_ = false;
-
 	id_ = id;
 
-	//this->setContentsMargins(0, 0, 0, 0);
-    //this->setFocusPolicy(Qt::StrongFocus);
-
+	this->setContentsMargins(0, 0, 0, 0);
     this->setObjectName(QString::fromUtf8("src_editor"));
-    //editor->setTabStopWidth(num_spaces * font_size_in_pixels);
     this->setTabStopWidth(4 * 8);
     this->setLineWrapMode(QPlainTextEdit::NoWrap);
-    //this->document()->setModified(false);   // false by default
     this->installEventFilter(this);
     
     // set default font
@@ -38,12 +35,6 @@ src_file::src_file(const QString &file_name, unsigned int id)
     p.setColor(QPalette::Text, Qt::cyan);
     this->setPalette(p);
     
-    //scroll_area_ = new QScrollArea(this);
-	//scroll_area->setBackgroundRole(QPalette::Dark);
-	//scroll_area_->setWidget(this);
-    
-    //cursor = new QTextCursor(this->textCursor());
-    
     /* file properties */
 	if (file_name.isEmpty())
 		file_info_ = new QFileInfo();
@@ -51,40 +42,30 @@ src_file::src_file(const QString &file_name, unsigned int id)
 		file_info_ = new QFileInfo(file_name);
 		if (!load_file(file_name)) {      /* reads file from disk */
 			delete file_info_;
-			throw 0;
+			lgmx::exception excp("At src_file::src_file(): Unable to read file.");
+			throw excp;
 		}
 	}
 
 	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
-
-	//this->setFocus(Qt::OtherFocusReason);
-	//this->setFocus();
-    /* syntax highlighting */ // modificar para aplicar somente no que aparece na tela
-    //highlighter = new Highlighter(this->document());
-    //this->print_visible_blocks();
-    //ht = new hilight_thread(this->document());
-    //ht->start();
 }
 
 /**
- * Constructor for clone files. The file is created with the same 
- * QTextDocument from base_file.
+ * Constructor for clone files. This is not a copy constructor, since some 
+ * structures from the original file are shared. The file is created with 
+ * the same QTextDocument and QFileInfo from base_file.
  */
 
 src_file::src_file(src_file *base_file)
 {
 	clone_ = true;
-
 	id_ = base_file->get_id();
 	
-	//this->setContentsMargins(0, 0, 0, 0);
-    //this->setFocusPolicy(Qt::StrongFocus);
-
+	this->setContentsMargins(0, 0, 0, 0);
     this->setObjectName(QString::fromUtf8("src_editor"));
     //editor->setTabStopWidth(num_spaces * font_size_in_pixels);
     this->setTabStopWidth(4 * 8);
     this->setLineWrapMode(QPlainTextEdit::NoWrap);
-    //this->document()->setModified(false);   // false by default
     this->installEventFilter(this);
     
     // set default font
@@ -97,24 +78,11 @@ src_file::src_file(src_file *base_file)
     p.setColor(QPalette::Text, Qt::blue);
     this->setPalette(p);
     
-    //scroll_area_ = new QScrollArea(this);
-	//scroll_area->setBackgroundRole(QPalette::Dark);
-	//scroll_area_->setWidget(this);
-    
-    //cursor = new QTextCursor(this->textCursor());
-    
     /* file properties */
 	file_info_ = base_file->get_file_info();
 	set_content(base_file->get_mutable_content());
 
-
 	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
-
-	//this->setFocus(Qt::OtherFocusReason);
-	//this->setFocus();
-    /* syntax highlighting */ // modificar para aplicar somente no que aparece na tela
-    //highlighter = new Highlighter(this->document());
-    //this->print_visible_blocks();
 }
 
 /**
@@ -123,14 +91,10 @@ src_file::src_file(src_file *base_file)
 
 src_file::~src_file()
 {
-	cout << "destroying file..." << endl;
-	
-	//delete scroll_area_;
-	//delete cursor;
+	debug(INFO, SRC_FILE, "Destroying file");
 	
 	if (!clone_)
 		delete file_info_;
-	//delete highlighter;
 }
 
 /**
@@ -151,28 +115,55 @@ src_file::~src_file()
 
 // teria q rodar alguma coisa tipo o codigo acima em uma thread separada
 
-
+/**
+ * Reads file from disk and loads it to QPlainTextEdit.
+ * @param fileName -> complete path of the file to be loaded.
+ * @return true, if file loaded ok, false otherwise.
+ */
 
 bool src_file::load_file(const QString &fileName)
 {
     QFile file(fileName);
     
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("Application"),
-                             tr("Cannot read file %1:\n%2.")
-                             .arg(fileName)
-                             .arg(file.errorString()));
+        QMessageBox::critical(this, "lgmx", tr("Cannot read file %1:\n%2.") .arg(fileName) .arg(file.errorString()));
+
         return false;
     }
 
     QTextStream in(&file);
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
-
     this->setPlainText(in.readAll());
-
     QApplication::restoreOverrideCursor();
 
+    return true;
+}
+
+/**
+ * Writes file content to disk.
+ * @param fileName -> complete path of the file to be written.
+ * @return true, if file written ok, false otherwise.
+ */
+
+bool src_file::write_file(const QString &fileName)
+{
+    QFile file(fileName);
+
+	if (!file.open(QFile::WriteOnly | QFile::Text)) {
+		QMessageBox::critical(this, "lgmx",
+				  tr("Cannot write file %1:\n%2.")
+				  .arg(fileName)
+				  .arg(file.errorString()));
+		return false;
+	}
+
+	QTextStream out(&file);
+	
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+	out << this->toPlainText();
+	QApplication::restoreOverrideCursor();
+    
     return true;
 }
 
@@ -199,26 +190,18 @@ void src_file::set_modified(bool modified)
 }
 
 /**
- * 
- */
-
-bool src_file::saved_on_disk()
-{
-	return !(file_info_->fileName().isEmpty());
-}
-
-/**
- * 
+ * Sets the file_info structure. This method applies for clone files only.
+ * @param file_info -> new file info structure.
  */
 
 void src_file::set_file_info(QFileInfo *file_info)
 {
-	if (file_info)
+	if (file_info && clone_)
 		file_info_ = file_info;
 }
 
 /**
- * 
+ * Returns the file info structure.
  */
 
 QFileInfo* src_file::get_file_info() const
@@ -227,18 +210,26 @@ QFileInfo* src_file::get_file_info() const
 }
 
 /**
- * 
+ * Returns a copy of the file's content.
  */
 
-QString src_file::get_content()
+QString src_file::get_content() const
 {
     return this->toPlainText();
 }
+
+/**
+ * Returns a pointer for the file's content.
+ */
 
 QTextDocument *src_file::get_mutable_content()
 {
 	return this->document();
 }
+
+/**
+ * 
+ */
 
 void src_file::set_content(QTextDocument *content)
 {
@@ -256,10 +247,18 @@ QTextCursor src_file::get_cursor()
 	return this->textCursor();
 }
 
+/**
+ * Returns the current position of the text cursor.
+ */
+
 int src_file::get_cursor_position()
 {
 	return this->textCursor().position();
 }
+
+/**
+ * 
+ */
 
 void src_file::set_cursor(const QTextCursor &cursor)
 {
@@ -267,32 +266,14 @@ void src_file::set_cursor(const QTextCursor &cursor)
 }
 
 /**
- * Writes file content to disk
+ * 
  */
 
-bool src_file::write_file(const QString &fileName)
+void src_file::set_src_file_name(const QString &fileName)
 {
-    QFile file(fileName);
-    QString error;
-
-	if (!file.open(QFile::WriteOnly | QFile::Text)) {
-		QMessageBox::critical(this, tr("Application"),
-				  tr("Cannot write file %1:\n%2.")
-				  .arg(fileName)
-				  .arg(file.errorString()));
-		error = file.errorString();
-		return false;
-	}
-
-	QTextStream out(&file);
-	
-	QApplication::setOverrideCursor(Qt::WaitCursor);
-	
-	out << this->toPlainText();
-	
-	QApplication::restoreOverrideCursor();
-    
-    return true;
+    file_info_->setFile(fileName);
+    //update_src_file_info();
+    emit modificationChanged(this->is_modified());
 }
 
 /**
@@ -317,14 +298,22 @@ QString src_file::get_src_file_path()
 }
 
 /**
- * 
+ * Returns the complete file name, path + name.
  */
 
-void src_file::set_src_file_name(const QString &fileName)
+QString src_file::get_src_file_full_name()
 {
-    file_info_->setFile(fileName);
-    //update_src_file_info();
-    emit modificationChanged(this->is_modified());
+    return file_info_->absoluteFilePath();
+}
+
+/**
+ * Returns the complete file name (path + name) on the reference parameter.
+ */
+
+bool src_file::get_src_file_full_name(QString &file_path)
+{
+    file_path = file_info_->absoluteFilePath();
+    return true;
 }
 
 /**
@@ -338,25 +327,6 @@ void src_file::update_src_file_info()
 }
 
 /**
- * Returns the complete file name, path + name.
- */
-
-QString src_file::get_src_file_full_name()
-{
-    return file_info_->absoluteFilePath();
-}
-
-/**
- * 
- */
-
-bool src_file::get_src_file_full_name(QString &file_path)
-{
-    file_path = file_info_->absoluteFilePath();
-    return true;
-}
-
-/**
  * 
  */
 
@@ -366,13 +336,18 @@ bool src_file::exists()
 }
 
 /**
- * 
+ * Returns the file font.
  */
 
 QFont src_file::get_font()
 {
     return this->font();
 }
+
+/**
+ * Sets file font.
+ * @param font -> font type.
+ */
 
 void src_file::set_font(QFont &font)
 {
@@ -385,14 +360,14 @@ void src_file::set_font(QFont &font)
 
 void src_file::set_default_font()
 {
-	QFont initial("monospace", 10);
-    initial.setFixedPitch(true);
+	QFont def("monospace", 10);
+    def.setFixedPitch(true);
     
-    this->setFont(initial);
+    this->setFont(def);
 }
 
 /**
- * Moves cursor to the beginning of the specified line.
+ * Moves the cursor to the beginning of the specified line.
  * @param line -> line number
  */
 

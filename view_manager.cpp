@@ -5,6 +5,7 @@
 
 #include <QDir>
 #include <QFileDialog>
+#include <QMessageBox>
 
 using namespace std;
 
@@ -136,8 +137,8 @@ void view_manager::close_file(int index)
 {
 	/*
 	 * The file to be closed is identified by its ID.
-	 * When a file is created the root file is created, if there are other views, 
-	 * the file is cloned in all other views. The clone files do not have their 
+	 * The original file is the root file, if there are other views, 
+	 * the root file is cloned in all other views. The clone files do not have their 
 	 * own content (QTextDocument *), they all point to the root file's content instead.
 	 * Therefore, if the close action was requested from a child view, we can identify 
 	 * the corresponding root file to be closed by the address of QTextDocument, which is 
@@ -146,8 +147,11 @@ void view_manager::close_file(int index)
 	
 	unsigned int id;
 	src_file *src_tab;
+
+	// get container
 	src_container *container = static_cast<src_container *>(sender());
 
+	// get sender file
 	src_tab = container->get_src_file(index);
 	if (!src_tab) {
 		debug(ERR, VIEW_MANAGER, "File not found");
@@ -158,29 +162,39 @@ void view_manager::close_file(int index)
 	id = src_tab->get_id();
 
 	// check if file needs to be saved
-	#if 0
-	if (src_tab->is_modified(index)) {
+	if (src_tab->is_modified()) {
+		QString msg;
+		bool exists = src_tab->exists();
 		
-        this->build_close_file_msg(index, msg);
-        
-        ret = QMessageBox::warning(this, APPLICATION, msg,
+        // build close file msg
+        if (!exists) {
+            msg = tr("The file 'untitled' has been modified.\nDo you want to save your changes?");
+        } else {
+			msg = tr("The file '") + src_tab->get_src_file_name() + 
+				  tr("' has been modified.\nDo you want to save your changes?");
+		}
+		
+		container->setCurrentIndex(index);
+
+        QMessageBox::StandardButton ret;
+        ret = QMessageBox::warning(this, "lgmx", msg,
 			  QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 	
 		if (ret == QMessageBox::Save) { /* save file */
             
-            if (file_name.isEmpty()) {
-                cout << "file name empty" << endl;
-                if (!saveAs(index))
+            if (!exists) {
+                if (save_file_as(container, index))
+					src_tab->get_src_file_full_name(file_name);	// saved ok, update file name
+                else
                     return; /* could not save, just return */
             } else {
-                if (!saveFile(file_name, index))
+                if (!save_file(container, file_name, index))
                     return; /* could not save, just return */
             }
             
         } else if (ret == QMessageBox::Cancel)
 			return;     /* if dialog is canceled, do nothing */
 	}
-	#endif
 
 	list<view *>::iterator v_it;
 	
@@ -282,12 +296,11 @@ void view_manager::open_file(const QString &file_name)
 {
 	// checks whether this file is already open
 	if (open_files_.find(file_name) == open_files_.end()) {
-		//if (root_view_->new_file(file_name, file_id_.generate_id()) < 0)
+
 		if (!new_file(file_name))
 			return;
 
 		open_files_.insert(file_name);
-		//f_watcher.add_path(file_name);
 		recent_files_->add_file(file_name);
 	} else {
 		// file already open, only set it as current file
@@ -353,6 +366,7 @@ bool view_manager::save()
 /**
  * Save file as. Saves a file which has not been written to the 
  * disk yet.
+ * @param src_c - the container that holds the file.
  * @param index - file index in the tab widget
  */
 
@@ -367,9 +381,7 @@ bool view_manager::save_file_as(src_container *src_c, int index)
 
     if (save_file(src_c, fileName, index)) {
         src_c->set_file_name(index, fileName);
-        //open_files_.insert(fileName);
-		//recent_files_->add_file(fileName);
-        //f_watcher.add_path(fileName);
+
         return true;
     }
     
@@ -385,15 +397,12 @@ bool view_manager::save_file_as(src_container *src_c, int index)
 
 bool view_manager::save_file(src_container *src_c, const QString &fileName, int index)
 {
-    QString error;
-    
-    cout << "file name -> " << fileName.toStdString() << endl;
-
     if (!src_c->src_tab_write_file(index, fileName))
         return false;
 
     open_files_.insert(fileName);
     recent_files_->add_file(fileName);
+    debug(INFO, VIEW_MANAGER, "File saved: " << fileName.toStdString());
 
     return true;
 }
@@ -534,7 +543,7 @@ void view_manager::set_current_view(view* curr_view)
 }
 
 /**
- * Splits current view horizontally. 
+ * Splits current view horizontally (up/down).
  */
 
 void view_manager::split_horizontally()
@@ -543,7 +552,7 @@ void view_manager::split_horizontally()
 }
 
 /**
- * Splits current view vertically.
+ * Splits current view vertically (left/right).
  */
 
 void view_manager::split_vertically()

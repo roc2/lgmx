@@ -5,18 +5,7 @@
 #include <QDesktopWidget>
 #include "src_container.h"
 #include "debug.h"
-
-/*
-class lgmx_exception : public std::exception
-{
-	public:
-	lgmx_exception();
-	~lgmx_exception() throw();
-
-	private:
-	std::string msg;
-
-};*/
+#include <exception.h>
 
 /*
  * criar a classe src_container q vai ter um qtabwidget.
@@ -101,9 +90,9 @@ int src_container::new_src_tab(const QString &file_name, unsigned int file_id)
 
 	try {
 		index = addTab(new src_file(file_name, file_id), "");
-		//cout << "added new tab at index " << index << endl;
-	} catch(...) {
-		
+		debug(INFO, SRC_CONTAINER, "New file created at index " << index);
+	} catch(lgmx::exception &excp) {
+		debug(ERR, SRC_CONTAINER, excp.get_message());
 		return -1;
 	}
 
@@ -502,6 +491,37 @@ int src_container::get_file_index(const QString &file_name)
     }
     
     return -1;
+}
+
+/**
+ * Sets line wrap mode for the files within the container.
+ * @param wrap -> true, line wraps according to the widget's width, 
+ * false, no wrap.
+ */
+
+void src_container::set_line_wrap(bool wrap)
+{
+	int c = this->count();
+	
+	for (int i = 0; i < c; i++) {
+		if (wrap)
+			static_cast<src_file *>(widget(i))->setLineWrapMode(QPlainTextEdit::WidgetWidth);
+		else
+			static_cast<src_file *>(widget(i))->setLineWrapMode(QPlainTextEdit::NoWrap);
+	}
+}
+
+/**
+ * Returns the line wrap mode for the files within the container.
+ * @return true, if the line wrap is on, false otherwise.
+ */
+
+bool src_container::get_line_wrap() const
+{
+	if (count() > 0 && static_cast<src_file *>(widget(0))->lineWrapMode() == QPlainTextEdit::WidgetWidth)
+		return true;
+
+	return false;
 }
 
 /**

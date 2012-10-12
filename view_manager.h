@@ -36,6 +36,7 @@ public:
 
 private:
 	void close_file(QTextDocument *content);
+	//void build_close_file_msg(int index, QString &msg);
 	
 	bool save_file_as(src_container *src_c, int index);
 	bool save_file(src_container *src_c, const QString &fileName, int index);

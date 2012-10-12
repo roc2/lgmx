@@ -246,52 +246,7 @@ bool Ui_MainWindow::is_active_window()
 {
 	return isActiveWindow();
 }
-/**
- * Closes a specific source file (tab).
- * @param index -> tab index in the tab widget
- */
 
-void Ui_MainWindow::close_file(int index)
-{
-    QString file_name, msg;
-	QMessageBox::StandardButton ret;
-	set<QString>::iterator it;
-    
-    cout << __FUNCTION__ << endl;
-    
-    //file_name = _src_container.get_src_tab_full_name(index);
-    _src_container.get_src_tab_full_name(index, file_name);
-    
-    /* check if file needs to be saved */
-	if (_src_container.is_modified(index)) {
-		
-        this->build_close_file_msg(index, msg);
-        
-        ret = QMessageBox::warning(this, APPLICATION, msg,
-			  QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-	
-		if (ret == QMessageBox::Save) { /* save file */
-            
-            if (file_name.isEmpty()) {
-                cout << "file name empty" << endl;
-                if (!saveAs(index))
-                    return; /* could not save, just return */
-            } else {
-                if (!saveFile(file_name, index))
-                    return; /* could not save, just return */
-            }
-            
-        } else if (ret == QMessageBox::Cancel)
-			return;     /* if dialog is canceled, do nothing */
-	}
-	
-	_src_container.destroy_src_tab(index);   /* closes the file */
-    f_watcher.remove_path(file_name);   /* removes from modification watcher list */
-    
-    it = open_files.find(file_name);    /* pop from open files list */
-    if (it != open_files.end())
-        open_files.erase(*it);
-}
 
 void Ui_MainWindow::reload_file(const QString path)
 {
@@ -563,25 +518,6 @@ void Ui_MainWindow::readSettings()
 }
 
 /**
- * Constructs the message to warn the user the file has non saved changes
- * @brief Constructs the message to warn the user the file has non saved changes
- * @param index -> tab index
- * @param msg -> string to hold the message
- */
-
-void Ui_MainWindow::build_close_file_msg(int index, QString &msg)
-{
-    QString file(_src_container.get_src_tab_short_name(index));
-            
-    if (file.isEmpty()) {
-        msg = tr("The file 'untitled' has been modified.\nDo you want to save your changes?");
-    } else {
-        msg = tr("The file '") + file + 
-              tr("' has been modified.\nDo you want to save your changes?");
-    }
-}
-
-/**
  * Checks if there are unsaved files before closing the application. The 
  * files are saved or discarded, according to the user's request.
  * @brief Checks if there are unsaved files before closing the application.
@@ -604,7 +540,7 @@ bool Ui_MainWindow::checkUnsavedFiles()
         if (_src_container.is_modified(index)) {
             _src_container.setCurrentIndex(index);
             
-            this->build_close_file_msg(index, msg);
+            //this->build_close_file_msg(index, msg);
             
             ret = QMessageBox::warning(this, APPLICATION, msg,
 			      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
