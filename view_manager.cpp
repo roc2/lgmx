@@ -130,7 +130,8 @@ bool view_manager::new_file(const QString &file_name)
 }
 
 /**
- * Slot to handle file close request.
+ * [Slot] Closes a file.
+ * @param index - file index in the container.
  */
 
 void view_manager::close_file(int index)

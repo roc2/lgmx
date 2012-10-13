@@ -53,6 +53,7 @@ public slots:
 	void split_vertically();
 	void split(Qt::Orientation orientation);
 	void unsplit();
+
 	void close_file(int index);
 	void new_file();
 	void open_file();

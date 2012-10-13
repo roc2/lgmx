@@ -25,16 +25,6 @@ src_file::src_file(const QString &file_name, unsigned int id)
     this->setLineWrapMode(QPlainTextEdit::NoWrap);
     this->installEventFilter(this);
     
-    // set default font
-    set_default_font();
-    
-    // change editor colors
-    QPalette p(this->palette());
-    //p.setColor(QPalette::Base, Qt::white);
-    p.setColor(QPalette::Base, Qt::black);
-    p.setColor(QPalette::Text, Qt::cyan);
-    this->setPalette(p);
-    
     /* file properties */
 	if (file_name.isEmpty())
 		file_info_ = new QFileInfo();
@@ -72,13 +62,10 @@ src_file::src_file(src_file *base_file)
     set_default_font();
     
     // change editor colors
-    QPalette p = this->palette();
-    p.setColor(QPalette::Base, Qt::white);
-    //p.setColor(QPalette::Base, Qt::black);
-    p.setColor(QPalette::Text, Qt::blue);
-    this->setPalette(p);
-    
-    /* file properties */
+    set_base_color(Qt::white);
+    set_text_color(Qt::blue);
+
+    /* get file info and content from the base file */
 	file_info_ = base_file->get_file_info();
 	set_content(base_file->get_mutable_content());
 
@@ -90,30 +77,10 @@ src_file::src_file(src_file *base_file)
  */
 
 src_file::~src_file()
-{
-	debug(INFO, SRC_FILE, "Destroying file");
-	
+{	
 	if (!clone_)
 		delete file_info_;
 }
-
-/**
- * 
- */
-
-/*
- QFile file("in.txt");
-     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-         return;
-
-     QTextStream in(&file);
-     while (!in.atEnd()) {
-         QString line = in.readLine();
-         process_line(line);
-     }
-*/
-
-// teria q rodar alguma coisa tipo o codigo acima em uma thread separada
 
 /**
  * Reads file from disk and loads it to QPlainTextEdit.
@@ -210,6 +177,30 @@ QFileInfo* src_file::get_file_info() const
 }
 
 /**
+ * Sets the source file background color.
+ * @param color - the color to be applied.
+ */
+
+void src_file::set_base_color(const QColor &color)
+{
+    QPalette p(this->palette());
+    p.setColor(QPalette::Base, color);
+    this->setPalette(p);
+}
+
+/**
+ * Sets the source file text color.
+ * @param color - the color to be applied.
+ */
+
+void src_file::set_text_color(const QColor &color)
+{
+    QPalette p(this->palette());
+    p.setColor(QPalette::Text, color);
+    this->setPalette(p);
+}
+
+/**
  * Returns a copy of the file's content.
  */
 
@@ -228,7 +219,8 @@ QTextDocument *src_file::get_mutable_content()
 }
 
 /**
- * 
+ * Sets the content of the file.
+ * @param content - pointer to the new file content.
  */
 
 void src_file::set_content(QTextDocument *content)
@@ -237,10 +229,18 @@ void src_file::set_content(QTextDocument *content)
 	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
 }
 
+/**
+ * Returns the file unique ID.
+ */
+
 unsigned int src_file::get_id() const
 {
 	return id_;
 }
+
+/**
+ * Gets a copy of the file cursor.
+ */
 
 QTextCursor src_file::get_cursor()
 {
@@ -257,7 +257,8 @@ int src_file::get_cursor_position()
 }
 
 /**
- * 
+ * Sets the file cursor.
+ * @param cursor - the cursor to be set.
  */
 
 void src_file::set_cursor(const QTextCursor &cursor)
@@ -266,7 +267,8 @@ void src_file::set_cursor(const QTextCursor &cursor)
 }
 
 /**
- * 
+ * Sets the file name.
+ * @param fileName - the new file name.
  */
 
 void src_file::set_src_file_name(const QString &fileName)
@@ -277,22 +279,20 @@ void src_file::set_src_file_name(const QString &fileName)
 }
 
 /**
- * Returns the name of the file (without the path)
- * @brief Returns the name of the file (without the path)
- * @return 
+ * Returns the name of the file (without the path).
+ * @return file name without the path.
  */
 
-QString src_file::get_src_file_name()
+QString src_file::get_src_file_name() const
 {
     return file_info_->fileName();
 }
 
 /**
  * Returns the file path. It does not include the file name
- * @brief Returns the file path. It does not include the file name
  */
 
-QString src_file::get_src_file_path()
+QString src_file::get_src_file_path() const
 {
     return file_info_->absolutePath();
 }
@@ -301,7 +301,7 @@ QString src_file::get_src_file_path()
  * Returns the complete file name, path + name.
  */
 
-QString src_file::get_src_file_full_name()
+QString src_file::get_src_file_full_name() const
 {
     return file_info_->absoluteFilePath();
 }
@@ -310,7 +310,7 @@ QString src_file::get_src_file_full_name()
  * Returns the complete file name (path + name) on the reference parameter.
  */
 
-bool src_file::get_src_file_full_name(QString &file_path)
+bool src_file::get_src_file_full_name(QString &file_path) const
 {
     file_path = file_info_->absoluteFilePath();
     return true;
@@ -327,10 +327,10 @@ void src_file::update_src_file_info()
 }
 
 /**
- * 
+ * Checks if the file exists on disk.
  */
 
-bool src_file::exists()
+bool src_file::exists() const
 {
     return file_info_->exists();
 }
@@ -339,13 +339,13 @@ bool src_file::exists()
  * Returns the file font.
  */
 
-QFont src_file::get_font()
+QFont src_file::get_font() const
 {
     return this->font();
 }
 
 /**
- * Sets file font.
+ * Sets the file font.
  * @param font -> font type.
  */
 
@@ -387,21 +387,12 @@ void src_file::go_to_line(int line)
 }
 
 /**
- * 
- */
-/*
-void src_file::set_clone(src_file *clone)
-{
-	_clone = clone;
-}
-*/
-/**
- * 
+ * Focus in event handler.
  */
 
 void src_file::focusInEvent(QFocusEvent *event)
 {
-	cout << "src_file widget has focus!!" << endl;
+	debug(DEBUG, SRC_FILE, "src_file widget has focus!!");
 }
 
 /**
@@ -422,13 +413,13 @@ bool src_file::eventFilter(QObject* pObject, QEvent* pEvent)
         if (PressedKey == Qt::Key_Escape) {
             
             vi_mode = true;
-            std::cout << "VI mode on!!!" << std::endl;
+            debug(DEBUG, SRC_FILE, "VI mode on!!!");
 
             return true;
         } else if (vi_mode && PressedKey == Qt::Key_I) {
             
             vi_mode = false;
-            std::cout << "Insert mode on!!!" << std::endl;
+            debug(DEBUG, SRC_FILE, "Insert mode on!!!");
             
             return true;
         }
@@ -437,15 +428,4 @@ bool src_file::eventFilter(QObject* pObject, QEvent* pEvent)
     // standard event processing
     return QObject::eventFilter(pObject, pEvent);
 }
-
-
-
-
-
-
-
-
-
-
-
 

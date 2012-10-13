@@ -26,17 +26,19 @@ public:
 	QTextDocument *get_mutable_content();
 	void set_content(QTextDocument *content);
 
-	void set_src_file_name(const QString &fileName);
-	QString get_src_file_name();
-    QString get_src_file_path();
-	QString get_src_file_full_name();
-	bool get_src_file_full_name(QString &file_path);
+	unsigned int get_id() const;
 
-	bool exists();
+	void set_src_file_name(const QString &fileName);
+	QString get_src_file_name() const;
+    QString get_src_file_path() const;
+	QString get_src_file_full_name() const;
+	bool get_src_file_full_name(QString &file_path) const;
+
+	bool exists() const;
 	
 	void focusInEvent(QFocusEvent *event);
 
-	QFont get_font();
+	QFont get_font() const;
 	void set_font(QFont &font);
 	void set_default_font();
 
@@ -50,7 +52,8 @@ public:
     void set_file_info(QFileInfo *file_info);
     QFileInfo *get_file_info() const;
     
-	unsigned int get_id() const;
+    void set_base_color(const QColor &color);
+    void set_text_color(const QColor &color);
     
     bool eventFilter(QObject* pObject, QEvent* pEvent);
 
