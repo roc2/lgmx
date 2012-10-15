@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QString>
 #include <QFileInfo>
+#include <QTextBlock>
 
 #include <src_file.h>
 #include <src_container.h>

@@ -175,6 +175,7 @@ signals:
 private:
 	void create_connections();
 	void create_shortcuts();
+	void load_plugins();
 };
 
 namespace Ui {

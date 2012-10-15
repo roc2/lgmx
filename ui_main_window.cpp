@@ -5,12 +5,14 @@
 #include <QDir>
 #include <QString>
 #include <QShortcut>
+#include <QPluginLoader>
 
 #include "ui_main_window.h"
 #include "code_editor.h"
 #include "config.h"
 #include "unsvFileDialog.h"
 #include "clipboard.h"
+#include <interfaces.h>
 
 #include "string"
 
@@ -146,6 +148,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_
 	//Config conf;
 	show_status_bar(false);
 	std::cout << "init time = " << boot_time.currentMSecsSinceEpoch() - start << std::endl;
+	load_plugins();
 }
 
 Ui_MainWindow::~Ui_MainWindow()
@@ -825,4 +828,44 @@ void Ui_MainWindow::retranslateUi(QMainWindow *main_window)
 	menuView->setTitle(QApplication::translate("main_window", "&View", 0, QApplication::UnicodeUTF8));
 	menu_Search->setTitle(QApplication::translate("main_window", "&Search", 0, QApplication::UnicodeUTF8));
 } // retranslateUi
+
+
+void Ui_MainWindow::load_plugins()
+{
+	QDir pluginsDir = QDir(QApplication::applicationDirPath());
+	pluginsDir.cd("plugins");
+	
+	foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+		QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
+
+		QObject *plugin = loader.instance();	// get plugin instance
+
+		if (plugin) {
+			cout << "plugin loaded: " << fileName.toStdString() << endl;
+			
+			Highlighter *hl = qobject_cast<Highlighter *>(plugin);
+			
+			if (hl) {
+				cout << "plugin Ok!!" << endl;
+				cout << hl->test_interface().toStdString() << endl;
+				
+				if (loader.unload()) {
+					cout << "plugin unloaded Ok!!" << endl;
+				} else {
+					cout << "could not unload plugin" << endl;
+				}
+			} else
+				cout << "plugin not ok" << endl;
+			
+		} else {
+			cout << "plugin not loaded: " << fileName.toStdString() << endl;
+		}
+     }
+}
+
+
+
+
+
+
 
