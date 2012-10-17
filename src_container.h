@@ -13,7 +13,6 @@
 #include <QFileSystemWatcher>
 
 #include "code_editor.h"
-//#include "highlight/cpp_hl.h"
 #include "src_file.h"
 #include "status_line.h"
 #include <iostream>

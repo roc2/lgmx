@@ -87,6 +87,8 @@ public:
     
     src_container _src_container;
     
+    file_type type_manager;
+    
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QMenu *menu_File;

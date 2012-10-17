@@ -855,7 +855,7 @@ void Ui_MainWindow::load_plugins()
 					cout << "could not unload plugin" << endl;
 				}
 			} else
-				cout << "plugin not ok" << endl;
+				cout << "plugin not ok" << endl; 
 			
 		} else {
 			cout << "plugin not loaded: " << fileName.toStdString() << endl;

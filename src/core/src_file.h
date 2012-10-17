@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <code_editor.h>
+#include <file_type.h>
 
 class QFileInfo;
 class src_container;
@@ -55,6 +56,9 @@ public:
     void set_base_color(const QColor &color);
     void set_text_color(const QColor &color);
     
+    file_type::type get_file_type() const;
+    void set_file_type(file_type::type type);
+    
     bool eventFilter(QObject* pObject, QEvent* pEvent);
 
 signals:
@@ -64,6 +68,7 @@ public slots:
     
 private:
 	QFileInfo *file_info_;
+	file_type::type type_;
 	//Highlighter *highlighter;
 	bool clone_;
 	unsigned int id_;

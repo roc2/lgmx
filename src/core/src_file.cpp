@@ -19,6 +19,7 @@ src_file::src_file(const QString &file_name, unsigned int id)
 {
 	clone_ = false;
 	id_ = id;
+	type_ = file_type::UNKNOWN;
 
 	this->setContentsMargins(0, 0, 0, 0);
     this->setObjectName(QString::fromUtf8("src_editor"));
@@ -27,9 +28,9 @@ src_file::src_file(const QString &file_name, unsigned int id)
     this->installEventFilter(this);
     
     /* file properties */
-	if (file_name.isEmpty())
+	if (file_name.isEmpty()) {
 		file_info_ = new QFileInfo();
-	else {
+	} else {
 		file_info_ = new QFileInfo(file_name);
 		if (!load_file(file_name)) {      /* reads file from disk */
 			delete file_info_;
@@ -51,6 +52,7 @@ src_file::src_file(src_file *base_file)
 {
 	clone_ = true;
 	id_ = base_file->get_id();
+	type_ = base_file->get_file_type();
 	
 	this->setContentsMargins(0, 0, 0, 0);
     this->setObjectName(QString::fromUtf8("src_editor"));
@@ -199,6 +201,24 @@ void src_file::set_text_color(const QColor &color)
     QPalette p(this->palette());
     p.setColor(QPalette::Text, color);
     this->setPalette(p);
+}
+
+/**
+ * Returns the file type.
+ */
+
+file_type::type src_file::get_file_type() const
+{
+	return type_;
+}
+
+/**
+ * Sets file type.
+ */
+
+void src_file::set_file_type(file_type::type type)
+{
+	type_ = type;
 }
 
 /**
