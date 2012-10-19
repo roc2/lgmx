@@ -87,8 +87,6 @@ public:
     
     src_container _src_container;
     
-    file_type type_manager;
-    
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QMenu *menu_File;
@@ -126,6 +124,8 @@ private:
 
 	src_container *_src_container_ptr;	// current active set of source files
 	src_container *_root_src_container;
+	
+	file_type type_manager;
 	view_manager view_manager_;
 
     set<QString> open_files; /**< current open files */

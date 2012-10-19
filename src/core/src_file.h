@@ -34,6 +34,7 @@ public:
     QString get_src_file_path() const;
 	QString get_src_file_full_name() const;
 	bool get_src_file_full_name(QString &file_path) const;
+	QString get_src_file_extension() const;
 
 	bool exists() const;
 	

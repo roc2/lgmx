@@ -4,9 +4,9 @@
 #include <QString>
 #include <QFileInfo>
 #include <QTextBlock>
+#include <QtGui/QApplication>
 
 #include <src_file.h>
-#include <src_container.h>
 #include <exception.h>
 #include <debug.h>
 
@@ -335,6 +335,15 @@ bool src_file::get_src_file_full_name(QString &file_path) const
 {
     file_path = file_info_->absoluteFilePath();
     return true;
+}
+
+/**
+ * Returns the file name extension. Ex: file.cpp - returns "cpp"
+ */
+
+QString src_file::get_src_file_extension() const
+{
+	return file_info_->suffix().toLower();
 }
 
 /**

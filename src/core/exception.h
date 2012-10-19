@@ -14,6 +14,9 @@ class exception : public std::exception
 	void set_message(const std::string &msg) {
 		msg_ = msg;
 	}
+	void append_message(const std::string &msg) {
+		msg_ += "\n" + msg;
+	}
 	std::string get_message() {
 		return msg_;
 	}

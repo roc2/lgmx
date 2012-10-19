@@ -15,7 +15,7 @@ class view_manager : public QWidget
 	Q_OBJECT
 	
 public:
-	view_manager(QWidget *parent = 0);
+	view_manager(QWidget *parent = 0, file_type *type_manager = 0);
 	~view_manager();
 
 	void add_to_view_list(view *v);
@@ -70,14 +70,16 @@ signals:
     //void open_recent_file(QString &);
 
 private:
-    list<view *> view_list_;	/**< list of pointers to all existent views. root view is always at the beginning */
-    list<QSplitter*> view_splitters_;
+    std::list<view *> view_list_;	/**< list of pointers to all existent views. root view is always at the beginning */
+    std::list<QSplitter*> view_splitters_;
     
     view *root_view_;
     view *current_view_;
     src_container *root_container_;
     
-    set<QString> open_files_; /**< current open files */
+    file_type *type_manager_;
+    
+    std::set<QString> open_files_; /**< current open files */
     recent_files *recent_files_;
     
     QVBoxLayout *layout_;

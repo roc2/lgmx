@@ -1,35 +1,25 @@
-#ifndef SRC_AREA_H
-#define SRC_AREA_H
+#ifndef SRC_CONTAINER_H
+#define SRC_CONTAINER_H
 
 
 #include <QtGui/QTabWidget>
 #include <QTabBar>
-#include <QtGui/QApplication>
-#include <QtGui/QWidget>
-#include <QtGui/QHBoxLayout>
-#include <QFileInfo>
-#include <QTextCursor>
 #include <QFont>
-#include <QFileSystemWatcher>
 
-#include "code_editor.h"
-#include "src_file.h"
-#include "status_line.h"
-#include <iostream>
+#include <src_file.h>
 
-using namespace std;
 
 #define NEW_FILE_NAME	"untitled"
 
+class QVBoxLayout;
 
 class src_container : public QTabWidget
 {
 	Q_OBJECT
 	
-	public:
+public:
 	
 	src_container(QWidget *parent = 0);
-	src_container(const src_container &copy);
 	~src_container();
 	
 	int new_src_tab(const QString &file_name, unsigned int file_id);
@@ -39,12 +29,9 @@ class src_container : public QTabWidget
 	void destroy_src_tab(unsigned int id);
 
 	bool is_modified(int index);
-	bool exists(int index);
-    bool saved_on_disk(int index);
     bool set_modified(int index, bool modified);
     bool set_file_name(int index, const QString &fileName);
 	
-	QWidget* get_parent() const;
 	
 	//string get_src_tab_name(int index);
     QString get_src_tab_path(int index);
@@ -61,6 +48,7 @@ class src_container : public QTabWidget
 
 	int get_current_tab_index();
 	src_file *get_current_src_file();
+	void set_current_src_file(unsigned int id);
 	src_file *get_src_file(int index);
 	src_file *get_src_file(unsigned int id);
 	
@@ -84,8 +72,6 @@ private:
     QVBoxLayout *main_layout_;
     QFont font;
 };
-
-
 
 #endif
 

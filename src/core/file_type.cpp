@@ -25,7 +25,9 @@ file_type::~file_type()
 }
 
 /**
- * 
+ * Returns the file type according to the file name extension.
+ * @param suffix -> file name extension.
+ * @return file type, or UNKNOWN if the extension is unknown.
  */
 
 file_type::type file_type::get_file_type(const QString &suffix) const
@@ -39,7 +41,10 @@ file_type::type file_type::get_file_type(const QString &suffix) const
 }
 
 /**
- * 
+ * Sets the file type for the specified extension. Different extensions can refer 
+ * to the same file type.
+ * @param suffix -> file name extension.
+ * @param tp -> file type.
  */
 
 void file_type::set_file_type(const QString &suffix, file_type::type tp)

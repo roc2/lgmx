@@ -2,7 +2,8 @@
 #include "view_manager.h"
 #include "stdlib.h"
 #include "debug.h"
-
+#include <exception.h>
+#include <status_line.h>
 
 view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
 {
@@ -99,13 +100,13 @@ void view::clone_file(src_file *file, int index)
 	
 	try {
 		new_file = src_container_->new_clone_tab(file);
-	} catch (...) {
+	} catch (lgmx::exception &excp) {
+		debug(ERR, VIEW, excp.get_message());
 		return;
 	}
 	
 	new_file->setTextCursor(file->textCursor());
 	new_file->set_modified(file->is_modified());
-	//file->set_child_src_file(new_file, index);
 }
 
 /**

@@ -28,7 +28,7 @@ using namespace std;
 
 qint64 start;
 
-Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_manager_(this)
+Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_manager_(this, &type_manager)
 {
 	QDateTime boot_time;
 	start =	boot_time.currentMSecsSinceEpoch();
@@ -148,7 +148,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_
 	//Config conf;
 	show_status_bar(false);
 	std::cout << "init time = " << boot_time.currentMSecsSinceEpoch() - start << std::endl;
-	load_plugins();
+	//load_plugins();
 }
 
 Ui_MainWindow::~Ui_MainWindow()

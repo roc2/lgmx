@@ -1,19 +1,12 @@
-#include <iostream>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QApplication>
 #include <QDesktopWidget>
-#include "src_container.h"
-#include "debug.h"
-#include <exception.h>
+#include <QVBoxLayout>
 
-/*
- * criar a classe src_container q vai ter um qtabwidget.
- * Criar uma classe que vai ter o CodeEditor, e file properties.
- * O construtor dessa classe cria um CodeEditor e um file properties, e
- * adiciona o CodeEditor no layout.
- * A classe src_container vai ter um metodo "new_tab" que vai addTab("classe criada");
- */
+#include <src_container.h>
+#include <debug.h>
+#include <exception.h>
 
 
 /**
@@ -40,28 +33,6 @@ src_container::src_container(QWidget *parent) : QTabWidget(parent)
 }
 
 /**
- * Copy constructor.
- */
-
-/**
- * @todo fix this copy constructor
- */
-
-src_container::src_container(const src_container &copy) : QTabWidget(copy.parentWidget())
-{
-	setObjectName(QString::fromUtf8("src_tab_widget"));
-	setTabsClosable(true);
-	setMovable(true);
-
-    tab_bar = tabBar();
-    
-    tab_bar->setStyleSheet("border-width: 0px;");
-    
-    setStyleSheet("border-width: 0px;");
-    setStyleSheet("QTabBar::tab { height: 25px; }");
-}
-
-/**
  * Destructor.
  */
 
@@ -73,13 +44,19 @@ src_container::~src_container()
 		destroy_src_tab(i);
 }
 
+/**
+ * Focus in event handler.
+ */
+
 void src_container::focusInEvent(QFocusEvent *event)
 {
-	cout << "Tab widget has focus!!" << endl;
+	debug(DEBUG, SRC_CONTAINER, "Tab widget has focus!!");
 }
 
 /**
  * Create new source tab.
+ * @param file_name -> the new file name.
+ * @param file_id -> the file unique ID.
  */
 
 int src_container::new_src_tab(const QString &file_name, unsigned int file_id)
@@ -108,14 +85,12 @@ int src_container::new_src_tab(const QString &file_name, unsigned int file_id)
     
     // slot to add an asterisk to the end of file name in case of unsaved modifications
 	QObject::connect(src_tab, SIGNAL(modificationChanged(bool)), this, SLOT(file_changed(bool)));
-    
-	setCurrentIndex(index);
 
 	return index;
 }
 
 /**
- * Create new source tab.
+ * [throw] Create new source tab.
  * @return address of the new file.
  */
 
@@ -127,23 +102,21 @@ src_file* src_container::new_clone_tab(src_file *base_file)
 
 	try {
 		index = addTab(new src_file(base_file), "");
-		//cout << "added new tab at index " << index << endl;
-	} catch(...) {
-		throw;
-		//return -1;
+	} catch(lgmx::exception &excp) {
+		lgmx::exception excp("At src_container::new_clone_tab: Unable to create file.");
+		throw excp;
 	}
 
-	if ((src_tab = static_cast<src_file *>(this->widget(index))) == 0)
-    	throw;
-    	//return -1;	/* index out of range */
+	if ((src_tab = static_cast<src_file *>(this->widget(index))) == 0) {
+    	lgmx::exception excp("At src_container::new_clone_tab: index out of range.");
+		throw excp;
+	}
 
     setTabText(index, QApplication::translate("main_window", base_file->get_src_file_name().toStdString().c_str(), 0, QApplication::UnicodeUTF8));
     
     // slot to add an asterisk to the end of file name in case of unsaved modifications
 	QObject::connect(src_tab, SIGNAL(modificationChanged(bool)), this, SLOT(file_changed(bool)));
     
-	setCurrentIndex(index);
-
 	return src_tab;
 }
 
@@ -165,6 +138,19 @@ int src_container::get_current_tab_index()
 src_file *src_container::get_current_src_file()
 {
 	return static_cast<src_file *>(currentWidget());
+}
+
+/**
+ * 
+ */
+
+void src_container::set_current_src_file(unsigned int id)
+{
+	src_file *file = get_src_file(id);
+	
+	if (file) {
+		setCurrentIndex(indexOf(file));
+	}
 }
 
 /**
@@ -213,7 +199,7 @@ void src_container::destroy_src_tab(int index)
 	
 	delete src_tab;
 	src_tab = 0;
-	cout << "destroyed tab at index " << index << endl;
+	debug(INFO, SRC_CONTAINER, "destroyed tab at index " << index);
 }
 
 void src_container::destroy_src_tab(src_file *file)
@@ -221,7 +207,7 @@ void src_container::destroy_src_tab(src_file *file)
 	int index = indexOf(file);
 	
 	if (index < 0) {
-		cout << "file not found!!" << endl;
+		debug(ERR, SRC_CONTAINER, "file not found!!");
 		return;
 	}
 
@@ -230,7 +216,7 @@ void src_container::destroy_src_tab(src_file *file)
 	removeTab(index);
 	
 	delete file;
-	cout << "destroyed tab at index " << index << endl;
+	debug(INFO, SRC_CONTAINER, "destroyed tab at index " << index);
 }
 
 void src_container::destroy_src_tab(unsigned int id)
@@ -244,7 +230,7 @@ void src_container::destroy_src_tab(unsigned int id)
 		if (file && file->get_id() == id) {
 			removeTab(i);
 			delete file;
-			cout << "destroyed tab at index " << i << endl;
+			debug(INFO, SRC_CONTAINER, "destroyed tab at index " << i);
 			break;
 		}
 	}
@@ -346,36 +332,12 @@ bool src_container::is_modified(int index)
     if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
-    cout << "is modified index " << index << endl;
 	return src_tab->is_modified();
 }
 
 /**
  * 
  */
-#if 0
-bool src_container::exists(int index)
-{
-	src_file *src_tab;
-
-	if ((src_tab = (src_file *) widget(index)) == 0)
-		return false;	/* index out of range */
-
-	return src_tab->exists();
-}
-
-
-bool src_container::saved_on_disk(int index)
-{
-    src_file *src_tab;
-
-    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
-		return false;	/* index out of range */
-
-	return src_tab->saved_on_disk();
-
-}
-#endif
 
 bool src_container::set_modified(int index, bool modified)
 {
@@ -444,7 +406,9 @@ bool src_container::get_curr_font(int index, QFont &font)
 }
 
 /**
- * 
+ * Moves cursor to specific file line.
+ * @param index -> file index within the container.
+ * @param line -> line to go to.
  */
 
 void src_container::go_to_line(int index, int line)
@@ -453,8 +417,6 @@ void src_container::go_to_line(int index, int line)
 
     if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return;		/* index out of range */
-
-	cout << index << " " << line << endl;
 
 	src_tab->go_to_line(line);
 
@@ -484,7 +446,6 @@ int src_container::get_file_index(const QString &file_name)
     QString file;
     
     for (index = 0; index < count; index++) {
-        //if (file_name == this->get_src_tab_full_name(index))
         this->get_src_tab_full_name(index, file);
         if (file_name == file)
             return index;

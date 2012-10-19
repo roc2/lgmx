@@ -13,10 +13,12 @@ using namespace std;
  * Constructor.
  */
 
-view_manager::view_manager(QWidget *parent) : QWidget(parent)
+view_manager::view_manager(QWidget *parent, file_type *type_manager) : QWidget(parent)
 {
 	root_container_ = new src_container(this);
 	root_container_->hide();
+	
+	type_manager_ = type_manager;
 	
 	view *new_view = new view(this, this);
 
@@ -92,38 +94,53 @@ void view_manager::remove_from_splitter_list(QSplitter *s)
 void view_manager::new_file()
 {
 	int index;
+	unsigned int id = file_id_.generate_id();
 
-	index = root_container_->new_src_tab("", file_id_.generate_id());
+	index = root_container_->new_src_tab("", id);
 
 	if (index < 0) {
 		return;
 	}
 	
 	src_file *file = root_container_->get_src_file(index);
-	
+
 	list<view *>::iterator it;
+	view *curr_view = get_current_view();
 	
 	for (it = view_list_.begin(); it != view_list_.end(); it++) {
 		(*it)->clone_file(file, 0);
+		
+		if (*it == curr_view)
+			curr_view->get_src_container()->set_current_src_file(id);
 	}
 }
 
 bool view_manager::new_file(const QString &file_name)
 {
 	int index;
+	unsigned int id = file_id_.generate_id();
 
-	index = root_container_->new_src_tab(file_name, file_id_.generate_id());
+	index = root_container_->new_src_tab(file_name, id);
 
 	if (index < 0) {
 		return false;
 	}
 	
 	src_file *file = root_container_->get_src_file(index);
+
+	// set file type
+	file_type::type ft;
+	ft = type_manager_->get_file_type(file->get_src_file_extension());
+	debug(DEBUG, VIEW_MANAGER, "File type: " << ft);
 	
 	list<view *>::iterator it;
+	view *curr_view = get_current_view();
 	
 	for (it = view_list_.begin(); it != view_list_.end(); it++) {
 		(*it)->clone_file(file, 0);
+		
+		if (*it == curr_view)
+			curr_view->get_src_container()->set_current_src_file(id);
 	}
 	
 	return true;
@@ -382,6 +399,16 @@ bool view_manager::save_file_as(src_container *src_c, int index)
 
     if (save_file(src_c, fileName, index)) {
         src_c->set_file_name(index, fileName);
+        
+        // set file type
+        src_file *file = src_c->get_src_file(index);
+		
+		if (file) {
+			file_type::type ft;
+			ft = type_manager_->get_file_type(file->get_src_file_extension());
+			file->set_file_type(ft);
+			debug(DEBUG, VIEW_MANAGER, "File type: " << ft);
+		}
 
         return true;
     }
@@ -478,7 +505,7 @@ view* view_manager::get_root_view() const
 }
 
 /**
- * 
+ * @todo - review this method
  */
 
 view* view_manager::get_current_view() const
@@ -524,7 +551,7 @@ src_container* view_manager::get_current_src_container() const
 	if (current)
 		return current_view_->get_src_container();
 
-	return 0;
+	return NULL;
 }
 
 /**

@@ -11,6 +11,7 @@
 
 class view_manager;
 class view;
+class status_line;
 
 
 class view : public QWidget
