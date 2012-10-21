@@ -1,3 +1,5 @@
+#include <QVBoxLayout>
+#include <QSplitter>
 #include "view_manager.h"
 #include <iostream>
 #include <algorithm>

@@ -2,16 +2,13 @@
 #define VIEW_H
 
 #include <QWidget>
-#include <QSplitter>
-#include <QStackedLayout>
 
-#include "src_container.h"
-
-#define nullptr	NULL
+#include <src_container.h>
 
 class view_manager;
 class view;
 class status_line;
+class QVBoxLayout;
 
 
 class view : public QWidget
@@ -22,12 +19,9 @@ public:
 	view(view_manager *manager, QWidget *parent = NULL);
 	~view();
 	
-	void set_src_container(src_container *container);
-	
 	src_container* get_src_container() const;
 	
 	int new_file(const QString &file_name, unsigned int file_id);
-	QVBoxLayout *get_main_layout();
 	
 	void clone_file(src_file *file, int index);
 	

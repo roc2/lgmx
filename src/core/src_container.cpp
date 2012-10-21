@@ -29,7 +29,9 @@ src_container::src_container(QWidget *parent) : QTabWidget(parent)
     tab_bar->setStyleSheet("border-width: 0px;");
     
     setStyleSheet("border-width: 0px;");
+    setStyleSheet("QTabWidget::pane {border-top: 0px;}");
     setStyleSheet("QTabBar::tab { height: 25px; }");
+    //setStyleSheet("QTabBar::tab { background-color: rgb(60, 60, 60); }");
 }
 
 /**
@@ -90,7 +92,8 @@ int src_container::new_src_tab(const QString &file_name, unsigned int file_id)
 }
 
 /**
- * [throw] Create new source tab.
+ * [throw] Create new source tab with a clone file.
+ * @param base_file -> the file to be cloned.
  * @return address of the new file.
  */
 
@@ -99,6 +102,11 @@ src_file* src_container::new_clone_tab(src_file *base_file)
 	int index;
 	src_file *src_tab;
 	QString show_name;
+
+	if (!base_file) {
+		lgmx::exception excp("At src_container::new_clone_tab: Invalid base file.");
+		throw excp;
+	}
 
 	try {
 		index = addTab(new src_file(base_file), "");
@@ -141,20 +149,22 @@ src_file *src_container::get_current_src_file()
 }
 
 /**
- * 
+ * Sets the current file on the container, i.e. the file to be shown.
+ * @param id -> the file unique ID.
  */
 
 void src_container::set_current_src_file(unsigned int id)
 {
 	src_file *file = get_src_file(id);
 	
-	if (file) {
+	if (file)
 		setCurrentIndex(indexOf(file));
-	}
 }
 
 /**
- * 
+ * Returns the source file through its index.
+ * @param index - source file index within the container.
+ * @return pointer to the file, NULL pointer if the index is invalid.
  */
 
 src_file *src_container::get_src_file(int index)
@@ -162,10 +172,16 @@ src_file *src_container::get_src_file(int index)
 	src_file *src_tab;
 
     if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
-		return 0;	/* index out of range */
+		return NULL;	/* index out of range */
 		
 	return src_tab;
 }
+
+/**
+ * Returns the source file through its ID.
+ * @param id - source file unique ID.
+ * @return pointer to the file, NULL pointer if the ID is invalid.
+ */
 
 src_file *src_container::get_src_file(unsigned int id)
 {
@@ -193,14 +209,17 @@ void src_container::destroy_src_tab(int index)
     if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return;	/* index out of range */
 	
-	// removeTab nao destroi o widget!!!
-	// precisa pegar o endereço do widget, remover e depois destruir!!
-	removeTab(index);
-	
-	delete src_tab;
-	src_tab = 0;
+	removeTab(index);	// remove from container
+	delete src_tab;	// destroy the file
+	src_tab = NULL;
+
 	debug(INFO, SRC_CONTAINER, "destroyed tab at index " << index);
 }
+
+/**
+ * Removes the specified tab from the tab widget.
+ * @param file -> pointer to file.
+ */
 
 void src_container::destroy_src_tab(src_file *file)
 {
@@ -211,13 +230,17 @@ void src_container::destroy_src_tab(src_file *file)
 		return;
 	}
 
-	// removeTab nao destroi o widget!!!
-	// precisa pegar o endereço do widget, remover e depois destruir!!
-	removeTab(index);
-	
-	delete file;
+	removeTab(index);	// remove from container
+	delete file;		// destroy the file
+	file = NULL;
+
 	debug(INFO, SRC_CONTAINER, "destroyed tab at index " << index);
 }
+
+/**
+ * Removes the specified tab from the tab widget.
+ * @param id - source file unique ID.
+ */
 
 void src_container::destroy_src_tab(unsigned int id)
 {
@@ -234,17 +257,13 @@ void src_container::destroy_src_tab(unsigned int id)
 			break;
 		}
 	}
-
-
-	// removeTab nao destroi o widget!!!
-	// precisa pegar o endereço do widget, remover e depois destruir!!
-	//removeTab(index);
-	
-	//delete file;
 }
 
 /**
- *
+ * Retrieves the complete file name, path + name.
+ * @param index - file index.
+ * @param file_name - string to hold the result.
+ * @return true, if success, false otherwise.
  */
 
 bool src_container::get_src_tab_full_name(int index, QString &file_name)
@@ -254,13 +273,13 @@ bool src_container::get_src_tab_full_name(int index, QString &file_name)
     if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
-	//file_name = src_tab->get_src_file_full_name();
 	src_tab->get_src_file_full_name(file_name);
 	return true;
 }
 
 /**
- * 
+ * Returns the name of the file (without the path).
+ * @return file name without the path.
  */
 
 QString src_container::get_src_tab_short_name(int index)
@@ -274,7 +293,7 @@ QString src_container::get_src_tab_short_name(int index)
 }
 
 /**
- * 
+ * Returns the file path. It does not include the file name
  */
 
 QString src_container::get_src_tab_path(int index)
@@ -288,7 +307,9 @@ QString src_container::get_src_tab_path(int index)
 }
 
 /**
- * Retrieves the content of the entire file
+ * Retrieves the content of the entire file.
+ * @param index - file index.
+ * @param content - string to hold the result.
  */
 
 bool src_container::get_src_tab_content(int index, QString &content)
@@ -304,8 +325,9 @@ bool src_container::get_src_tab_content(int index, QString &content)
 }
 
 /**
- * 
- * 
+ * Writes file content to disk.
+ * @param fileName -> complete path of the file to be written.
+ * @return true, if file written ok, false otherwise.
  */
 
 bool src_container::src_tab_write_file(int index, const QString &fileName)
@@ -319,7 +341,7 @@ bool src_container::src_tab_write_file(int index, const QString &fileName)
 }
 
 /**
- * Check if file content was modified
+ * Check if file content was modified.
  * @brief Check if file content was modified
  * @param index -> tab index
  * @return true -> file modified, false -> not modified or invalid index
@@ -398,7 +420,6 @@ bool src_container::get_curr_font(int index, QFont &font)
 	src_file *src_tab;
 
     if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
-  //  if ((src_tab = (src_file *) widget(index)) == 0)
 		return false;	/* index out of range */
 
 	font = src_tab->get_font();
@@ -436,7 +457,9 @@ void src_container::show_tabs(bool show)
 }
 
 /**
- * 
+ * Returns the file index within the container.
+ * @param file_name - complete file name.
+ * @return file index, or -1 if the file was not found.
  */
 
 int src_container::get_file_index(const QString &file_name)

@@ -1,9 +1,15 @@
+#include <QVBoxLayout>
+
 #include "view.h"
 #include "view_manager.h"
 #include "stdlib.h"
 #include "debug.h"
 #include <exception.h>
 #include <status_line.h>
+
+/**
+ * Constructor.
+ */
 
 view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
 {
@@ -55,11 +61,7 @@ view::~view()
 
 int view::new_file(const QString &file_name, unsigned int file_id)
 {
-	int index;
-	
-	index = src_container_->new_src_tab(file_name, file_id);
-	
-	return index;
+	return src_container_->new_src_tab(file_name, file_id);
 }
 
 /**
@@ -116,7 +118,7 @@ void view::clone_file(src_file *file, int index)
 
 void view::clone_src_container(src_container *base_src_ctr, int index)
 {
-	src_file *file = nullptr;
+	src_file *file = NULL;
 	int count = base_src_ctr->count();
 	
 	for (int i = 0; i < count; i++) {
@@ -160,21 +162,12 @@ void view::destroy_src_file(unsigned int id)
 }
 
 /**
- * 
+ * Returns the view unique ID.
  */
 
 unsigned int view::get_id() const
 {
 	return id_;
-}
-
-/**
- * 
- */
-
-void view::set_src_container(src_container *container)
-{
-	this->src_container_ = container;
 }
 
 /**
@@ -189,11 +182,6 @@ src_container* view::get_src_container() const
 view_manager* view::get_view_manager() const
 {
 	return manager_;
-}
-
-QVBoxLayout* view::get_main_layout()
-{
-	return main_layout_;
 }
 
 /**

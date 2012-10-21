@@ -18,7 +18,6 @@ class src_container : public QTabWidget
 	Q_OBJECT
 	
 public:
-	
 	src_container(QWidget *parent = 0);
 	~src_container();
 	
@@ -30,14 +29,11 @@ public:
 
 	bool is_modified(int index);
     bool set_modified(int index, bool modified);
-    bool set_file_name(int index, const QString &fileName);
-	
-	
-	//string get_src_tab_name(int index);
-    QString get_src_tab_path(int index);
-	//QString get_src_tab_full_name(int index);
-	bool get_src_tab_full_name(int index, QString &file_name);
+   
+	bool set_file_name(int index, const QString &fileName);
     QString get_src_tab_short_name(int index);
+    QString get_src_tab_path(int index);
+	bool get_src_tab_full_name(int index, QString &file_name);
 	
     bool update_file_info(int index);
 	

@@ -10,6 +10,8 @@
 #include "recent_files.h"
 #include "id.h"
 
+class QSplitter;
+
 class view_manager : public QWidget
 {
 	Q_OBJECT
