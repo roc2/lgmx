@@ -51,6 +51,7 @@ public:
 	bool get_curr_font(int index, QFont &font);
 	
     void show_tabs(bool show);
+    bool tabs_visible();
 	void go_to_line(int index, int line);
     
     int get_file_index(const QString &file_name);

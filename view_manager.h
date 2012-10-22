@@ -49,6 +49,8 @@ private:
 	void remove_from_splitter_list(QSplitter *s);
 
 	bool new_file(const QString &file_name);
+	
+	void set_view_properties(view &old_view, view &new_view);
 
 public slots:
 	void split_horizontally();

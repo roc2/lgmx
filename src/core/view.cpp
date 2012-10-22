@@ -56,7 +56,10 @@ view::~view()
 }
 
 /**
- * 
+ * Creates a new file.
+ * @param file_name - the new file name.
+ * @param file_id - the unique file ID.
+ * @return file index within the container, or -1 in case of error.
  */
 
 int view::new_file(const QString &file_name, unsigned int file_id)
@@ -94,9 +97,10 @@ int view::close_file(int index)
  * Clone a source file. Creates a new file structure using a reference to 
  * the original file content, therefore the changes in the clone file are
  * reflected in the original file as well as in the other clone files.
+ * @param file - the file to be cloned.
  */
 
-void view::clone_file(src_file *file, int index)
+void view::clone_file(src_file *file)
 {
 	src_file *new_file;
 	
@@ -112,11 +116,12 @@ void view::clone_file(src_file *file, int index)
 }
 
 /**
+ * Clones a source container. Creates a clone file for each file from 
+ * the original container.
  * @param base_src_ctr -> the source container to be cloned.
- * @param index -> index of the view that owns this source container.
  */
 
-void view::clone_src_container(src_container *base_src_ctr, int index)
+void view::clone_src_container(src_container *base_src_ctr)
 {
 	src_file *file = NULL;
 	int count = base_src_ctr->count();
@@ -124,9 +129,8 @@ void view::clone_src_container(src_container *base_src_ctr, int index)
 	for (int i = 0; i < count; i++) {
 		file = base_src_ctr->get_src_file(i);
 		
-		if (file) {
-			this->clone_file(file, index);
-		}
+		if (file)
+			this->clone_file(file);
 	}
 	
 	this->src_container_->setCurrentIndex(base_src_ctr->currentIndex());
@@ -152,7 +156,8 @@ void view::mousePressEvent(QMouseEvent *event)
 }*/
 
 /**
- * 
+ * Destroys a source file.
+ * @param id - source file unique ID.
  */
 
 void view::destroy_src_file(unsigned int id)
@@ -171,7 +176,7 @@ unsigned int view::get_id() const
 }
 
 /**
- * 
+ * Returns the address of the source container from this view.
  */
 
 src_container* view::get_src_container() const
@@ -179,22 +184,32 @@ src_container* view::get_src_container() const
 	return src_container_;
 }
 
+/**
+ * Returns the view manager's address.
+ */
+
 view_manager* view::get_view_manager() const
 {
 	return manager_;
 }
 
 /**
- * 
+ * Show or hide the source files tab bar.
+ * @param show -> true, show tabs; false, hide tabs
  */
-	
+
 void view::show_src_tab_bar(bool show)
 {
 	src_container_->show_tabs(show);
 }
-	
-	
-	
-	
-	
+
+/**
+ * Checks whether the tab bar is visible or not.
+ * @return true, if tab bar is visible, false otherwise.
+ */
+
+bool view::src_tab_bar_visible()
+{
+	return src_container_->tabs_visible();
+}	
 	

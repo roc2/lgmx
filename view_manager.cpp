@@ -110,7 +110,7 @@ void view_manager::new_file()
 	view *curr_view = get_current_view();
 	
 	for (it = view_list_.begin(); it != view_list_.end(); it++) {
-		(*it)->clone_file(file, 0);
+		(*it)->clone_file(file);
 		
 		if (*it == curr_view)
 			curr_view->get_src_container()->set_current_src_file(id);
@@ -139,7 +139,7 @@ bool view_manager::new_file(const QString &file_name)
 	view *curr_view = get_current_view();
 	
 	for (it = view_list_.begin(); it != view_list_.end(); it++) {
-		(*it)->clone_file(file, 0);
+		(*it)->clone_file(file);
 		
 		if (*it == curr_view)
 			curr_view->get_src_container()->set_current_src_file(id);
@@ -614,7 +614,8 @@ void view_manager::split(Qt::Orientation orientation)
 		
 		// create new view
 		new_view = new view(this, new_splitter);
-		new_view->clone_src_container(curr_view->get_src_container(), 0);
+		new_view->clone_src_container(curr_view->get_src_container());
+		set_view_properties(*curr_view, *new_view);
 		
 		if (orientation == Qt::Vertical)
 			size = curr_view->height() / 2;
@@ -659,7 +660,8 @@ void view_manager::split(Qt::Orientation orientation)
 		
 		// create new view
 		new_view = new view(this, new_splitter);
-		new_view->clone_src_container(curr_view->get_src_container(), 0);
+		new_view->clone_src_container(curr_view->get_src_container());
+		set_view_properties(*curr_view, *new_view);
 		
 		parent->insertWidget(index, new_splitter);
 		
@@ -741,6 +743,15 @@ void view_manager::unsplit()
 	}
 	
 	m_num_splits--;
+}
+
+/**
+ * 
+ */
+
+void view_manager::set_view_properties(view &old_view, view &new_view)
+{
+	new_view.show_src_tab_bar(old_view.src_tab_bar_visible());
 }
 
 /**

@@ -21,6 +21,7 @@ src_container::src_container(QWidget *parent) : QTabWidget(parent)
 	setTabsClosable(true);
 	setMovable(true);
 	setContentsMargins(0, 0, 0, 0);
+	//setTabShape(QTabWidget::Triangular);
 
     tab_bar = tabBar();
     tab_bar->setContentsMargins(0, 0, 0, 0);
@@ -59,6 +60,7 @@ void src_container::focusInEvent(QFocusEvent *event)
  * Create new source tab.
  * @param file_name -> the new file name.
  * @param file_id -> the file unique ID.
+ * @return file index within the container, or -1 in case of error.
  */
 
 int src_container::new_src_tab(const QString &file_name, unsigned int file_id)
@@ -454,6 +456,16 @@ void src_container::show_tabs(bool show)
         tab_bar->show();
 	else
         tab_bar->hide();
+}
+
+/**
+ * Checks whether the tab bar is visible or not.
+ * @return true, if tab bar is visible, false otherwise.
+ */
+
+bool src_container::tabs_visible()
+{
+	return !tab_bar->isHidden();
 }
 
 /**
