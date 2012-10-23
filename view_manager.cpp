@@ -145,6 +145,8 @@ bool view_manager::new_file(const QString &file_name)
 			curr_view->get_src_container()->set_current_src_file(id);
 	}
 	
+	plugin_manager_.load_plugins(ft);
+	
 	return true;
 }
 
@@ -635,23 +637,35 @@ void view_manager::split(Qt::Orientation orientation)
 		
 	} else {
 		int index = -1;
-
-		if (orientation == Qt::Vertical) {
-			size = curr_view->height() / 2;
-		} else {
-			size = curr_view->width() / 2;
-		}
-
-		QList<int> sizes;
-		sizes.push_back(size);
-		sizes.push_back(size);
+		QList<int> sizes, p_split_sizes;
 
 		// get parent splitter
 		QSplitter *parent = static_cast<QSplitter*>(curr_view->parentWidget());
 		
 		// get current view index in the splitter
 		index = parent->indexOf(curr_view);
-		
+
+		// get new splitter sizes
+		if (orientation == Qt::Vertical) {
+			size = curr_view->height() / 2;
+		} else {
+			size = curr_view->width() / 2;
+		}
+
+		sizes.push_back(size);
+		sizes.push_back(size);
+
+		// get parent splitter sizes
+		QWidget *widget = parent->widget(index == 1 ? 0 : 1);
+
+		if (parent->orientation() == Qt::Vertical) {
+			p_split_sizes.push_back(widget->height());
+			p_split_sizes.push_back(curr_view->height());
+		} else {
+			p_split_sizes.push_back(widget->width());
+			p_split_sizes.push_back(curr_view->width());
+		}
+
 		// create new splitter
 		new_splitter = new QSplitter(orientation, parent);
 		new_splitter->setHandleWidth(1);
@@ -663,11 +677,16 @@ void view_manager::split(Qt::Orientation orientation)
 		new_view->clone_src_container(curr_view->get_src_container());
 		set_view_properties(*curr_view, *new_view);
 		
+		// add new splitter to parent splitter
 		parent->insertWidget(index, new_splitter);
 		
+		// add views to new splitter
 		new_splitter->addWidget(curr_view);
 		new_splitter->addWidget(new_view);
+
+		// set splitter sizes
 		new_splitter->setSizes(sizes);
+		parent->setSizes(p_split_sizes);
 		
 		debug(INFO, VIEW_MANAGER, "splitter count -> " << parent->count());
 		debug(INFO, VIEW_MANAGER, "new splitter count -> " << new_splitter->count());

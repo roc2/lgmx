@@ -9,6 +9,7 @@
 #include "view.h"
 #include "recent_files.h"
 #include "id.h"
+#include <plugin_manager.h>
 
 class QSplitter;
 
@@ -82,6 +83,7 @@ private:
     src_container *root_container_;
     
     file_type *type_manager_;
+    plugin_manager plugin_manager_;
     
     std::set<QString> open_files_; /**< current open files */
     recent_files *recent_files_;
