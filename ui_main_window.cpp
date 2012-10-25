@@ -173,7 +173,7 @@ void Ui_MainWindow::create_connections()
 	/* side bar */
 	QObject::connect(actionSide_Bar, SIGNAL(toggled(bool)), this, SLOT(show_side_bar(bool)));
 	/* status bar */
-	QObject::connect(actionStatus_Bar, SIGNAL(toggled(bool)), this, SLOT(show_status_bar(bool)));
+	QObject::connect(actionStatus_Bar, SIGNAL(toggled(bool)), &view_manager_, SLOT(show_status_bar(bool)));
 	/* menu bar */
 	QObject::connect(actionMenuBar, SIGNAL(toggled(bool)), this, SLOT(show_menu_bar(bool)));
 	/* full screen */

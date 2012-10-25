@@ -211,5 +211,29 @@ void view::show_src_tab_bar(bool show)
 bool view::src_tab_bar_visible()
 {
 	return src_container_->tabs_visible();
-}	
-	
+}
+
+/**
+ * Show or hide the status bar.
+ * @param show -> true, show status bar; false, hide status bar
+ */
+
+void view::show_status_bar(bool show)
+{
+	if (show)
+		status_line_->show();
+	else
+		status_line_->hide();
+}
+
+/**
+ * Checks whether the status bar is visible or not.
+ * @return true, if status bar is visible, false otherwise.
+ */
+
+bool view::status_bar_visible()
+{
+	return !status_line_->isHidden();
+}
+
+

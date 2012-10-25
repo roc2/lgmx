@@ -11,9 +11,11 @@ HEADERS += debug.h ./src/core/code_editor.h ui_main_window.h ./src/core/src_cont
            ./src/core/plugin_manager.h
 
 INCLUDEPATH += ./src/utils ./src/core
+INCLUDEPATH += /usr/local/include
            
 TARGET = editor       
 
 LIBS = -L./plugins -llgmx_cpp_highlighter
+LIBS += -L/usr/local/lib -lsource-highlight-qt4
 
 QT += xml

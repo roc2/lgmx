@@ -67,6 +67,7 @@ public slots:
 	bool save();
 	
 	void show_src_tab_bar(bool show);
+	void show_status_bar(bool show);
 
 private slots:
 	//void open_recent_file();

@@ -4,6 +4,7 @@
 #include <QString>
 #include <code_editor.h>
 #include <file_type.h>
+#include <srchiliteqt/Qt4SyntaxHighlighter.h>
 
 class QFileInfo;
 class src_container;
@@ -70,7 +71,7 @@ public slots:
 private:
 	QFileInfo *file_info_;
 	file_type::type type_;
-	//Highlighter *highlighter;
+	srchiliteqt::Qt4SyntaxHighlighter *highlighter_;
 	bool clone_;
 	unsigned int id_;
 };

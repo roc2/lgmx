@@ -39,6 +39,9 @@ src_file::src_file(const QString &file_name, unsigned int id)
 		}
 	}
 
+	highlighter_ = new srchiliteqt::Qt4SyntaxHighlighter(this->document());
+	highlighter_->init("cpp.lang");
+
 	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
 }
 
@@ -81,8 +84,10 @@ src_file::src_file(src_file *base_file)
 
 src_file::~src_file()
 {	
-	if (!clone_)
+	if (!clone_) {
+		delete highlighter_;
 		delete file_info_;
+	}
 }
 
 /**

@@ -238,7 +238,7 @@ void view_manager::close_file(int index)
 	delete src_tab;
 	
 	// remove the file from open files list
-	set<QString>::iterator it = open_files_.find(file_name);
+	set<QString>::iterator it(open_files_.find(file_name));
     if (it != open_files_.end())
         open_files_.erase(*it);
 }
@@ -771,6 +771,7 @@ void view_manager::unsplit()
 void view_manager::set_view_properties(view &old_view, view &new_view)
 {
 	new_view.show_src_tab_bar(old_view.src_tab_bar_visible());
+	new_view.show_status_bar(old_view.status_bar_visible());
 }
 
 /**
@@ -792,7 +793,17 @@ void view_manager::show_src_tab_bar(bool show)
 		(*it)->show_src_tab_bar(show);
 }
 
+/**
+ * 
+ */
 
+void view_manager::show_status_bar(bool show)
+{
+	list<view *>::iterator it;
+	
+	for (it = view_list_.begin(); it != view_list_.end(); it++)
+		(*it)->show_status_bar(show);
+}
 
 
 
