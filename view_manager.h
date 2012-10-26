@@ -36,10 +36,11 @@ public:
 
 	unsigned int generate_view_id();
 	void release_view_id(unsigned int id);
+	
+	bool check_unsaved_files();
 
 private:
 	void close_file(QTextDocument *content);
-	//void build_close_file_msg(int index, QString &msg);
 	
 	bool save_file_as(src_container *src_c, int index);
 	bool save_file(src_container *src_c, const QString &fileName, int index);

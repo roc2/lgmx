@@ -136,7 +136,6 @@ private:
     void destroy_menus();
 
     bool saveFile(const QString &fileName, int index);
-    bool checkUnsavedFiles();
     int get_file_index(const QString &file_name);
     void set_current_index(int index);
     void load_parameter_files(list<QString> *files);

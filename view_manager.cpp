@@ -187,11 +187,11 @@ void view_manager::close_file(int index)
 	if (src_tab->is_modified()) {
 		QString msg;
 		bool exists = src_tab->exists();
-		
-        // build close file msg
-        if (!exists) {
-            msg = tr("The file 'untitled' has been modified.\nDo you want to save your changes?");
-        } else {
+
+		// build close file message
+		if (!exists) {
+			msg = tr("The file 'untitled' has been modified.\nDo you want to save your changes?");
+		} else {
 			msg = tr("The file '") + src_tab->get_src_file_name() + 
 				  tr("' has been modified.\nDo you want to save your changes?");
 		}
@@ -440,6 +440,68 @@ bool view_manager::save_file(src_container *src_c, const QString &fileName, int 
 }
 
 /**
+ * Checks if there are unsaved files before closing the application. The 
+ * files are either saved or discarded, according to the user's request.
+ * @brief Checks if there are unsaved files before closing the application.
+ * @return true -> files saved or discarded, Ok to close the application. 
+ * false -> The close operation was canceled.
+ */
+
+bool view_manager::check_unsaved_files()
+{
+	int index, tabs;
+    QMessageBox::StandardButton ret;
+    QString msg;
+    src_container *curr = get_current_src_container();
+    
+    tabs = curr->count();
+    
+    /* check for unsaved files and save them if requested */
+    for (index = 0; index < tabs; index++) {
+
+		src_file *src_tab = curr->get_src_file(index);
+		if (!src_tab) {
+			debug(ERR, VIEW_MANAGER, "File not found");
+			continue;
+		}
+
+        if (src_tab->is_modified()) {
+            curr->setCurrentIndex(index);
+            bool exists = src_tab->exists();
+
+            // build close file message
+			if (!exists) {
+				msg = tr("The file 'untitled' has been modified.\nDo you want to save your changes?");
+			} else {
+				msg = tr("The file '") + src_tab->get_src_file_name() + 
+					  tr("' has been modified.\nDo you want to save your changes?");
+			}
+            
+            ret = QMessageBox::warning(this, "lgmx", msg,
+			      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+            
+            if (ret == QMessageBox::Save) { /* save file */
+            
+				if (!exists) {
+                    if (!save_file_as(curr, index))
+                        return false; /* could not save, just return */
+                    
+                } else {
+					QString file_name(src_tab->get_src_file_full_name());
+					
+                    if (!save_file(curr, file_name, index))
+                        return false; /* could not save, just return */
+                    
+                }
+            } else if (ret == QMessageBox::Cancel)
+                return false;     /* if dialog is canceled, do nothing */
+        }
+    }
+    
+    return true;
+}
+
+/**
  * 
  */
 
@@ -543,19 +605,21 @@ src_container* view_manager::get_root_src_container() const
 }
 
 /**
- * Returns the current source container.
- * @return Address of the current source container, or NULL in case
- * there is no source container.
+ * Returns the current source container. This method always return a valid 
+ * source container.
+ * @return Address of the current source container.
  */
 
 src_container* view_manager::get_current_src_container() const
 {
+	return get_current_view()->get_src_container();
+	/*
 	view *current = get_current_view();
 	
 	if (current)
 		return current_view_->get_src_container();
 
-	return NULL;
+	return NULL;*/
 }
 
 /**

@@ -521,56 +521,6 @@ void Ui_MainWindow::readSettings()
 }
 
 /**
- * Checks if there are unsaved files before closing the application. The 
- * files are saved or discarded, according to the user's request.
- * @brief Checks if there are unsaved files before closing the application.
- * @return true -> files saved or discarded, Ok to close the application. 
- * false -> The closing was canceled.
- */
-
-bool Ui_MainWindow::checkUnsavedFiles()
-{
-    int index, tabs;
-    QMessageBox::StandardButton ret;
-    QString file_name;
-    QString msg;
-    
-    tabs = _src_container.count();
-    
-    /* check for unsaved files and save them if requested */
-    for (index = 0; index < tabs; index++) {
-
-        if (_src_container.is_modified(index)) {
-            _src_container.setCurrentIndex(index);
-            
-            //this->build_close_file_msg(index, msg);
-            
-            ret = QMessageBox::warning(this, APPLICATION, msg,
-			      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-            
-            if (ret == QMessageBox::Save) { /* save file */
-            
-                //file_name = _src_container.get_src_tab_full_name(index);
-                _src_container.get_src_tab_full_name(index, file_name);
-                
-                if (file_name.isEmpty()) {
-                    if (!saveAs(index))
-                        return false; /* could not save, just return */
-                    
-                } else {
-                    if (!saveFile(file_name, index))
-                        return false; /* could not save, just return */
-                    
-                }
-            } else if (ret == QMessageBox::Cancel)
-                return false;     /* if dialog is canceled, do nothing */
-        }
-    }
-    
-    return true;
-}
-
-/**
  * Closes the editor. Checks if there are unsaved changes and saves 
  * configuration before quiting.
  * @brief Closes the editor
@@ -579,7 +529,7 @@ bool Ui_MainWindow::checkUnsavedFiles()
 
 void Ui_MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (!checkUnsavedFiles()) {
+    if (!view_manager_.check_unsaved_files()) {
         event->ignore();
         return;
     }
