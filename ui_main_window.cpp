@@ -28,7 +28,7 @@ using namespace std;
 
 qint64 start;
 
-Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(this), view_manager_(this, &type_manager)
+Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(&view_manager_, this), view_manager_(this, &type_manager)
 {
 	QDateTime boot_time;
 	start =	boot_time.currentMSecsSinceEpoch();

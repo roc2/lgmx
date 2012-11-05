@@ -7,15 +7,17 @@
 #include <src_container.h>
 #include <debug.h>
 #include <exception.h>
-
+#include <view_manager.h>
 
 /**
  * Constructor.
  * @param parent -> parent widget.
  */
 
-src_container::src_container(QWidget *parent) : QTabWidget(parent)
+src_container::src_container(view_manager *manager, QWidget *parent) : QTabWidget(parent)
 {
+	manager_ = manager;
+	
 	this->installEventFilter(this);
     setObjectName(QString::fromUtf8("src_tab_widget"));
 	setTabsClosable(true);
@@ -70,9 +72,12 @@ int src_container::new_src_tab(const QString &file_name, unsigned int file_id)
 	QString show_name;
 
 	try {
-		index = addTab(new src_file(file_name, file_id), "");
+		QApplication::setOverrideCursor(Qt::WaitCursor);
+		index = addTab(new src_file(file_name, file_id, manager_->get_highlight_manager()), "");
+		QApplication::restoreOverrideCursor();
 		debug(INFO, SRC_CONTAINER, "New file created at index " << index);
 	} catch(lgmx::exception &excp) {
+		QApplication::restoreOverrideCursor();
 		debug(ERR, SRC_CONTAINER, excp.get_message());
 		return -1;
 	}

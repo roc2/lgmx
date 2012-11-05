@@ -12,6 +12,7 @@
 #include <plugin_manager.h>
 
 class QSplitter;
+class highlight_manager;
 
 class view_manager : public QWidget
 {
@@ -38,6 +39,7 @@ public:
 	void release_view_id(unsigned int id);
 	
 	bool check_unsaved_files();
+	highlight_manager* get_highlight_manager();
 
 private:
 	void close_file(QTextDocument *content);
@@ -51,6 +53,10 @@ private:
 	void remove_from_splitter_list(QSplitter *s);
 
 	bool new_file(const QString &file_name);
+	
+	view* create_view(QWidget *parent);
+	void destroy_view(view* v);
+	void clear_view_list();
 	
 	void set_view_properties(view &old_view, view &new_view);
 
@@ -86,6 +92,7 @@ private:
     
     file_type *type_manager_;
     plugin_manager plugin_manager_;
+    highlight_manager *highlight_manager_;
     
     std::set<QString> open_files_; /**< current open files */
     recent_files *recent_files_;

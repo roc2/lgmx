@@ -16,7 +16,7 @@ view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
     manager_ = manager;		// view manager    
     id_ = manager_->generate_view_id();	// ask manager for ID
 
-	src_container_ = new src_container(this);
+	src_container_ = new src_container(manager_, this);
 	status_line_ = new status_line();
 	main_layout_ = new QVBoxLayout(this);
 	
@@ -37,7 +37,7 @@ view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
  
     this->setFocusPolicy(Qt::StrongFocus);
     
-    manager_->add_to_view_list(this);
+    //manager_->add_to_view_list(this);
 }
 
 /**
@@ -47,7 +47,7 @@ view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
 view::~view()
 {
 	debug(DEBUG, VIEW, "~view()");
-	manager_->remove_from_view_list(this);
+	//manager_->remove_from_view_list(this);
 	manager_->release_view_id(id_);	// release my ID
 
 	delete status_line_;

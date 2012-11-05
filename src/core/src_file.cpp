@@ -9,13 +9,14 @@
 #include <src_file.h>
 #include <exception.h>
 #include <debug.h>
+#include <highlight_manager.h>
 
 
 /**
  * [throw] Constructor.
  */
 
-src_file::src_file(const QString &file_name, unsigned int id)
+src_file::src_file(const QString &file_name, unsigned int id, highlight_manager *hl_manager)
 {
 	clone_ = false;
 	id_ = id;
@@ -39,8 +40,13 @@ src_file::src_file(const QString &file_name, unsigned int id)
 		}
 	}
 
-	highlighter_ = new srchiliteqt::Qt4SyntaxHighlighter(this->document());
-	highlighter_->init("cpp.lang");
+	if (hl_manager) {
+		highlight_manager_ = hl_manager;
+		highlighter_ = highlight_manager_->build_highlighter(*this);
+	} else {
+		highlight_manager_ = NULL;
+		highlighter_ = NULL;
+	}
 
 	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
 }
@@ -63,13 +69,16 @@ src_file::src_file(src_file *base_file)
     this->setTabStopWidth(4 * 8);
     this->setLineWrapMode(QPlainTextEdit::NoWrap);
     this->installEventFilter(this);
+
+    highlight_manager_ = NULL;
+	highlighter_ = NULL;
     
     // set default font
     set_default_font();
     
     // change editor colors
     set_base_color(Qt::white);
-    set_text_color(Qt::blue);
+    set_text_color(Qt::black);
 
     /* get file info and content from the base file */
 	file_info_ = base_file->get_file_info();
@@ -83,9 +92,11 @@ src_file::src_file(src_file *base_file)
  */
 
 src_file::~src_file()
-{	
+{
 	if (!clone_) {
-		delete highlighter_;
+		if (highlighter_)
+			delete highlighter_;
+
 		delete file_info_;
 	}
 }
@@ -107,10 +118,7 @@ bool src_file::load_file(const QString &fileName)
     }
 
     QTextStream in(&file);
-
-    QApplication::setOverrideCursor(Qt::WaitCursor);
     this->setPlainText(in.readAll());
-    QApplication::restoreOverrideCursor();
 
     return true;
 }

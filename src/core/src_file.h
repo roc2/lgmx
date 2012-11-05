@@ -4,17 +4,20 @@
 #include <QString>
 #include <code_editor.h>
 #include <file_type.h>
-#include <srchiliteqt/Qt4SyntaxHighlighter.h>
+//#include <srchiliteqt/Qt4SyntaxHighlighter.h>
+
 
 class QFileInfo;
 class src_container;
+class highlight_manager;
+class QSyntaxHighlighter;
 
 class src_file : public CodeEditor
 {
 	Q_OBJECT
 
 public:
-    src_file(const QString &file_name, unsigned int id);
+    src_file(const QString &file_name, unsigned int id, highlight_manager *hl_manager = NULL);
     src_file(src_file *base_file);
     ~src_file();
     
@@ -71,7 +74,10 @@ public slots:
 private:
 	QFileInfo *file_info_;
 	file_type::type type_;
-	srchiliteqt::Qt4SyntaxHighlighter *highlighter_;
+	//srchiliteqt::Qt4SyntaxHighlighter *highlighter_;
+	
+	highlight_manager *highlight_manager_;
+	QSyntaxHighlighter *highlighter_;
 	bool clone_;
 	unsigned int id_;
 };

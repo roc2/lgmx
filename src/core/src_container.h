@@ -12,13 +12,14 @@
 #define NEW_FILE_NAME	"untitled"
 
 class QVBoxLayout;
+class view_manager;
 
 class src_container : public QTabWidget
 {
 	Q_OBJECT
 	
 public:
-	src_container(QWidget *parent = 0);
+	src_container(view_manager *manager, QWidget *parent = 0);
 	~src_container();
 	
 	int new_src_tab(const QString &file_name, unsigned int file_id);
@@ -68,6 +69,8 @@ private:
     QTabBar *tab_bar;
     QVBoxLayout *main_layout_;
     QFont font;
+    
+    view_manager *manager_;
 };
 
 #endif

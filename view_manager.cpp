@@ -9,6 +9,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include <highlight_manager.h>
+
 using namespace std;
 
 /**
@@ -21,14 +23,14 @@ view_manager::view_manager(QWidget *parent, file_type *type_manager) : QWidget(p
 	root_container_->hide();
 	
 	type_manager_ = type_manager;
-	
-	view *new_view = new view(this, this);
 
-	current_view_ = new_view;
+	current_view_ = create_view(this);
 	m_num_splits = 0;
 
+	highlight_manager_ = new highlight_manager(type_manager_);
+
 	layout_ = new QVBoxLayout(this);
-	layout_->addWidget(new_view);
+	layout_->addWidget(current_view_);
 	layout_->setContentsMargins (0, 0, 0, 0);
 	layout_->setSpacing(0);
     setLayout(layout_);
@@ -41,7 +43,49 @@ view_manager::view_manager(QWidget *parent, file_type *type_manager) : QWidget(p
 view_manager::~view_manager()
 {
 	delete layout_;
-	delete root_view_;
+	delete highlight_manager_;
+	clear_view_list();
+	delete root_container_;
+}
+
+/**
+ * Creates a new view.
+ * @param parent - the parent widget.
+ * @return pointer to the new view.
+ */
+
+view* view_manager::create_view(QWidget *parent)
+{
+	view *new_view = new view(this, parent);
+	add_to_view_list(new_view);
+	
+	return new_view;
+}
+
+/**
+ * Destroys the view.
+ * @param v - the address of the view to be destroyed.
+ */
+
+void view_manager::destroy_view(view* v)
+{
+	remove_from_view_list(v);
+	delete v;
+}
+
+/**
+ * Destroys all views. This method should be called only when the application 
+ * finishes.
+ */
+
+void view_manager::clear_view_list()
+{
+	std::list<view *>::iterator it(view_list_.begin());
+
+	for (; it != view_list_.end(); it++)
+		delete *it;
+		
+	view_list_.clear();
 }
 
 /**
@@ -127,7 +171,7 @@ bool view_manager::new_file(const QString &file_name)
 	if (index < 0) {
 		return false;
 	}
-	
+
 	src_file *file = root_container_->get_src_file(index);
 
 	// set file type
@@ -145,7 +189,7 @@ bool view_manager::new_file(const QString &file_name)
 			curr_view->get_src_container()->set_current_src_file(id);
 	}
 	
-	plugin_manager_.load_plugins(ft);
+	//plugin_manager_.load_plugins(ft);
 	
 	return true;
 }
@@ -505,6 +549,15 @@ bool view_manager::check_unsaved_files()
  * 
  */
 
+highlight_manager* view_manager::get_highlight_manager()
+{
+	return highlight_manager_;
+}
+
+/**
+ * 
+ */
+
 void view_manager::set_current_file_index(int index)
 {
 	current_view_ = get_current_view();
@@ -679,7 +732,8 @@ void view_manager::split(Qt::Orientation orientation)
 		new_splitter->setProperty("minisplitter", true);
 		
 		// create new view
-		new_view = new view(this, new_splitter);
+		//new_view = new view(this, new_splitter);
+		new_view = create_view(new_splitter);
 		new_view->clone_src_container(curr_view->get_src_container());
 		set_view_properties(*curr_view, *new_view);
 		
@@ -737,7 +791,7 @@ void view_manager::split(Qt::Orientation orientation)
 		new_splitter->setProperty("minisplitter", true);
 		
 		// create new view
-		new_view = new view(this, new_splitter);
+		new_view = create_view(new_splitter);
 		new_view->clone_src_container(curr_view->get_src_container());
 		set_view_properties(*curr_view, *new_view);
 		
@@ -795,7 +849,7 @@ void view_manager::unsplit()
 	
 		remove_from_splitter_list(parent);
 		
-		delete curr_view;
+		destroy_view(curr_view);
 		delete parent;
 
 	} else if ((grand_parent = dynamic_cast<QSplitter*>(parent->parentWidget()))) {
@@ -818,7 +872,7 @@ void view_manager::unsplit()
 		// destroy current
 		debug(DEBUG, VIEW_MANAGER, "splitter count: " << parent->count());
 		
-		delete curr_view;
+		destroy_view(curr_view);
 		delete parent;
 	} else {
 		debug(CRIT, VIEW_MANAGER, "Unknown parent splitter");
