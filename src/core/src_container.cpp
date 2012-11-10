@@ -205,6 +205,24 @@ src_file *src_container::get_src_file(unsigned int id)
 }
 
 /**
+ * [throw] Returns the file unique ID.
+ * @param index - file index within the container. If the index is invalid 
+ * this function throws an exception.
+ * @return file unique ID.
+ */
+
+unsigned int src_container::get_src_file_id(int index)
+{
+	src_file *src_tab = get_src_file(index);
+	
+	if (src_tab)
+		return src_tab->get_id();
+
+	lgmx::exception excp("At src_container::get_src_file_id: Invalid index.");
+	throw excp;
+}
+
+/**
  * Removes the specified tab from the tab widget.
  * @param index -> tab index
  */

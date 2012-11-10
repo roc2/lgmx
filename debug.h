@@ -39,6 +39,7 @@
 #define SRC_CONTAINER	1
 #define VIEW_MANAGER	1
 #define CODE_EDITOR		1
+#define STATUS_BAR		1
 
 /**
  * Debug macro.

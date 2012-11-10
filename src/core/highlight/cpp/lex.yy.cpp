@@ -3396,13 +3396,14 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "snazzle.l"
-#line 2 "snazzle.l"
+#line 1 "cpp_lex.l"
+#line 2 "cpp_lex.l"
 #include <iostream>
 #include <string>
 
 using namespace std;
 #define YY_DECL extern "C" int yylex()
+#define YY_BUF_SIZE 1024
 
 string buff;
 
@@ -3412,7 +3413,7 @@ int cpp_start = 0;
 bool comment = false;
 
 
-#line 3416 "lex.yy.c"
+#line 3417 "lex.yy.c"
 
 #define INITIAL 0
 #define IN_COMMENT 1
@@ -3584,10 +3585,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 27 "snazzle.l"
+#line 28 "cpp_lex.l"
 
 
-#line 3591 "lex.yy.c"
+#line 3592 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -3660,101 +3661,101 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 29 "snazzle.l"
+#line 30 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; return 278;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 30 "snazzle.l"
+#line 31 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; return 278;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 31 "snazzle.l"
+#line 32 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; return 278;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 33 "snazzle.l"
+#line 34 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; return 278;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 34 "snazzle.l"
+#line 35 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; return 278;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 36 "snazzle.l"
+#line 37 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; return 279;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 38 "snazzle.l"
+#line 39 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; return 282;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 40 "snazzle.l"
+#line 41 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; return 278;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 42 "snazzle.l"
+#line 43 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; return 1;}
 	YY_BREAK
 case 10:
 /* rule 10 can match eol */
 YY_RULE_SETUP
-#line 44 "snazzle.l"
+#line 45 "cpp_lex.l"
 {pos += yyleng; return 1;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 45 "snazzle.l"
+#line 46 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; return 280;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 46 "snazzle.l"
+#line 47 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; return 278;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 50 "snazzle.l"
+#line 51 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; return 281;}
 	YY_BREAK
 
 case 14:
 YY_RULE_SETUP
-#line 53 "snazzle.l"
+#line 54 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; BEGIN(IN_COMMENT); comment = true; return 281;}
 	YY_BREAK
 
 
 case 15:
 YY_RULE_SETUP
-#line 57 "snazzle.l"
+#line 58 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; BEGIN(INITIAL); comment = false; return 281; }
 	YY_BREAK
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 58 "snazzle.l"
+#line 59 "cpp_lex.l"
 {cpp_start = pos; pos += yyleng; return 281;}
 	YY_BREAK
 
 case 17:
 YY_RULE_SETUP
-#line 62 "snazzle.l"
+#line 63 "cpp_lex.l"
 {pos++; /*cout << "pos++" << endl;*/ return 1;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 65 "snazzle.l"
+#line 66 "cpp_lex.l"
 ECHO;
 	YY_BREAK
-#line 3758 "lex.yy.c"
+#line 3759 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(IN_COMMENT):
 	yyterminate();
@@ -4748,7 +4749,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 65 "snazzle.l"
+#line 66 "cpp_lex.l"
 
 
 
@@ -4758,7 +4759,7 @@ void init(const char *input, int size)
 	pos = cpp_start = 0;
 	
 	yy_scan_string (input);
-	//yy_scan_buffer(input,10);
+	//yy_scan_buffer(input,size);
 }
 
 void destroy()

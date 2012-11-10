@@ -10,6 +10,7 @@
 #include "recent_files.h"
 #include "id.h"
 #include <plugin_manager.h>
+#include <settings.h>
 
 class QSplitter;
 class highlight_manager;
@@ -59,6 +60,7 @@ private:
 	void clear_view_list();
 	
 	void set_view_properties(view &old_view, view &new_view);
+	void update_status_bar(const QString &fileName, unsigned int id);
 
 public slots:
 	void split_horizontally();
@@ -83,16 +85,16 @@ signals:
     //void open_recent_file(QString &);
 
 private:
-    std::list<view *> view_list_;	/**< list of pointers to all existent views. root view is always at the beginning */
+    std::list<view *> view_list_;	/**< list of pointers to all existent views */
     std::list<QSplitter*> view_splitters_;
     
-    view *root_view_;
     view *current_view_;
     src_container *root_container_;
     
     file_type *type_manager_;
     plugin_manager plugin_manager_;
     highlight_manager *highlight_manager_;
+    Settings settings_;
     
     std::set<QString> open_files_; /**< current open files */
     recent_files *recent_files_;

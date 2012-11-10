@@ -33,11 +33,13 @@ C_highlighter::~C_highlighter()
 {
 }
 
+
 void C_highlighter::highlightBlock(const QString &text)
 {
 	int ret;
-	
-	init (text.toStdString().c_str(), 0);
+	int size;
+
+	init ((char*)(text.toStdString().c_str()), 0);
 	
 	while (ret = parse()) {
 			

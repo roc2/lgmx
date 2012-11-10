@@ -27,6 +27,7 @@ public:
 	bool src_tab_bar_visible();
 	void show_status_bar(bool show);
 	bool status_bar_visible();
+	void update_status_bar(const QString &fileName, unsigned int id);
 	
 	view_manager* get_view_manager() const;
 	src_container* get_src_container() const;

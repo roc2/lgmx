@@ -17,7 +17,7 @@ view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
     id_ = manager_->generate_view_id();	// ask manager for ID
 
 	src_container_ = new src_container(manager_, this);
-	status_line_ = new status_line();
+	status_line_ = new status_line(src_container_);
 	main_layout_ = new QVBoxLayout(this);
 	
 	status_line_->set_src_container(src_container_);
@@ -31,7 +31,7 @@ view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
     
 	/* close file signal */
 	QObject::connect(src_container_, SIGNAL(tabCloseRequested(int)), manager, SLOT(close_file(int)));
- 
+
 	/* update status line signal */
 	QObject::connect(src_container_, SIGNAL(currentChanged(int)), status_line_, SLOT(update_file_name(int)));
  
@@ -113,6 +113,8 @@ void view::clone_file(src_file *file)
 	
 	new_file->setTextCursor(file->textCursor());
 	new_file->set_modified(file->is_modified());
+	
+	status_line_->add_file(file->get_src_file_full_name(), file->get_id());
 }
 
 /**
@@ -161,9 +163,10 @@ void view::mousePressEvent(QMouseEvent *event)
  */
 
 void view::destroy_src_file(unsigned int id)
-{	
-	debug(DEBUG, VIEW, "Destroying file - " << this);
+{
+	debug(DEBUG, VIEW, "Destroying file - " << id);
 	src_container_->destroy_src_tab(id);
+	status_line_->remove_file(id);
 }
 
 /**
@@ -235,5 +238,28 @@ bool view::status_bar_visible()
 {
 	return !status_line_->isHidden();
 }
+
+/**
+ * Updates the status bar file name for the specified file ID.
+ * @param fileName - the new file name.
+ * @param id - the unique file ID.
+ */
+
+void view::update_status_bar(const QString &fileName, unsigned int id)
+{
+	status_line_->update_file_name(fileName, id);
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 

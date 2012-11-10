@@ -4,6 +4,7 @@
 
 using namespace std;
 #define YY_DECL extern "C" int yylex()
+#define YY_BUF_SIZE 1024
 
 string buff;
 
@@ -70,7 +71,7 @@ void init(const char *input, int size)
 	pos = cpp_start = 0;
 	
 	yy_scan_string (input);
-	//yy_scan_buffer(input, 10);
+	//yy_scan_buffer(input, size);
 }
 
 void destroy()

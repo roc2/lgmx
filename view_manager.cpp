@@ -96,7 +96,7 @@ void view_manager::clear_view_list()
 void view_manager::add_to_view_list(view *v)
 {
 	view_list_.insert(view_list_.end(), v);
-	cout << "added to view list size: " << view_list_.size() << endl;
+	debug(DEBUG, VIEW_MANAGER, "view list size: " << view_list_.size());
 }
 
 /**
@@ -107,7 +107,7 @@ void view_manager::add_to_view_list(view *v)
 void view_manager::remove_from_view_list(view *v)
 {
 	view_list_.remove(v);
-	cout << "removed from view list size: " << view_list_.size() << endl;
+	debug(DEBUG, VIEW_MANAGER, "view list size: " << view_list_.size());
 }
 
 /**
@@ -265,12 +265,8 @@ void view_manager::close_file(int index)
 	list<view *>::iterator v_it;
 	
 	// remove the file from all views
-	for (v_it = view_list_.begin(); v_it != view_list_.end(); v_it++) {
-		src_tab = (*v_it)->get_src_container()->get_src_file(id);
-		
-		if (src_tab)
-			delete src_tab;
-	}
+	for (v_it = view_list_.begin(); v_it != view_list_.end(); v_it++)
+		(*v_it)->destroy_src_file(id);
 
 	// remove the file from root container
 	src_tab = root_container_->get_src_file(id);
@@ -396,7 +392,7 @@ void view_manager::reload_current_file()
 }
 
 /**
- * Save file to disk [slot].
+ * [slot] Save file to disk.
  */
 
 bool view_manager::save()
@@ -446,7 +442,16 @@ bool view_manager::save_file_as(src_container *src_c, int index)
         return false;   /* no file specified */
 
     if (save_file(src_c, fileName, index)) {
+		unsigned int id;
+		
+		try {
+			id = src_c->get_src_file_id(index);
+		} catch (...) {}
+		
+		open_files_.insert(fileName);
+		recent_files_->add_file(fileName);
         src_c->set_file_name(index, fileName);
+        update_status_bar(fileName, id);
         
         // set file type
         src_file *file = src_c->get_src_file(index);
@@ -476,8 +481,6 @@ bool view_manager::save_file(src_container *src_c, const QString &fileName, int 
     if (!src_c->src_tab_write_file(index, fileName))
         return false;
 
-    open_files_.insert(fileName);
-    recent_files_->add_file(fileName);
     debug(INFO, VIEW_MANAGER, "File saved: " << fileName.toStdString());
 
     return true;
@@ -614,16 +617,6 @@ void view_manager::release_view_id(unsigned int id)
 }
 
 /**
- * Returns the root view.
- * @return Address of the root view.
- */
-
-view* view_manager::get_root_view() const
-{
-	return root_view_;
-}
-
-/**
  * @todo - review this method
  */
 
@@ -732,7 +725,6 @@ void view_manager::split(Qt::Orientation orientation)
 		new_splitter->setProperty("minisplitter", true);
 		
 		// create new view
-		//new_view = new view(this, new_splitter);
 		new_view = create_view(new_splitter);
 		new_view->clone_src_container(curr_view->get_src_container());
 		set_view_properties(*curr_view, *new_view);
@@ -923,9 +915,17 @@ void view_manager::show_status_bar(bool show)
 		(*it)->show_status_bar(show);
 }
 
+/**
+ * Updates the status bar for all views.
+ */
 
-
-
-
+void view_manager::update_status_bar(const QString &fileName, unsigned int id)
+{
+	list<view *>::iterator v_it;
+	
+	// update status bar in all views
+	for (v_it = view_list_.begin(); v_it != view_list_.end(); v_it++)
+		(*v_it)->update_status_bar(fileName, id);
+}
 
 
