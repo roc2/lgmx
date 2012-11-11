@@ -90,15 +90,22 @@ void view_manager::clear_view_list()
 }
 
 /**
- * Destroys all view splitters. This method should be called only when the application 
- * finishes.
+ * Destroys all view splitters.
  */
 
 void view_manager::clear_splitter_list()
 {
-	std::list<QSplitter *>::iterator it(view_splitters_.begin());
+	std::list<QSplitter *>::iterator it;
 
-	for (; it != view_splitters_.end(); it++)
+	// It is possible that a splitter is the parent of another splitter and
+	// a splitter automatically deletes its children on destruction, therefore 
+	// we need to reparent all splitters before destroying them, in order to 
+	// avoid double deletion.
+
+	for (it = view_splitters_.begin(); it != view_splitters_.end(); it++)
+		(*it)->setParent(NULL);
+
+	for (it = view_splitters_.begin(); it != view_splitters_.end(); it++)
 		delete *it;
 		
 	view_splitters_.clear();
@@ -893,7 +900,7 @@ void view_manager::unsplit()
 }
 
 /**
- * Removes all splits.
+ * Removes all splits keeping only the current view.
  */
 
 void view_manager::remove_all_splits()
@@ -909,7 +916,7 @@ void view_manager::remove_all_splits()
 
 	for (; it != view_list_.end();) {
 		if (*it != curr_view) {
-			(*it)->setParent(NULL);
+			(*it)->setParent(NULL);	// take the view from splitter
 			delete *it;
 			it = view_list_.erase(it);
 		} else {
@@ -917,8 +924,7 @@ void view_manager::remove_all_splits()
 		}
 	}
 	
-	/** @todo this call is breaking, fix this */
-	//clear_splitter_list();
+	clear_splitter_list();	// removes all splitters
 	m_num_splits = 0;
 }
 
