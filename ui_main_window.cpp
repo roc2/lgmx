@@ -113,6 +113,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(&view_manage
 	addAction(action_split_horizontally);
 	addAction(action_split_vertically);
 	addAction(action_unsplit);
+	addAction(action_remove_all_splits);
 	
 	/* view actions */
 	addAction(actionSide_Bar);
@@ -186,6 +187,8 @@ void Ui_MainWindow::create_connections()
 	QObject::connect(action_split_vertically, SIGNAL(triggered()), &view_manager_, SLOT(split_vertically()));
 	/* unsplit */
 	QObject::connect(action_unsplit, SIGNAL(triggered()), &view_manager_, SLOT(unsplit()));
+	/* remove all splits */
+	QObject::connect(action_remove_all_splits, SIGNAL(triggered()), &view_manager_, SLOT(remove_all_splits()));
 	
 	/* go to line */
 	QObject::connect(actionGo_to_line, SIGNAL(triggered()), this, SLOT(go_to_ln()));
@@ -620,6 +623,10 @@ void Ui_MainWindow::createActions()
     action_unsplit = new QAction(this);
     action_unsplit->setObjectName(QString::fromUtf8("unsplit"));
     
+    /* remove all splits */
+    action_remove_all_splits = new QAction(this);
+    action_remove_all_splits->setObjectName(QString::fromUtf8("removeAllSplits"));
+    
     /* go to line */
     actionGo_to_line = new QAction(this);
     actionGo_to_line->setObjectName(QString::fromUtf8("actionGo_to_line"));
@@ -642,6 +649,7 @@ void Ui_MainWindow::destroy_actions()
     delete action_split_horizontally;
     delete action_split_vertically;
     delete action_unsplit;
+    delete action_remove_all_splits;
     delete actionMenuBar;
     delete actionStatus_Bar;
     delete actionSide_Bar;
@@ -709,6 +717,7 @@ void Ui_MainWindow::create_menus()
 	menuView->addAction(action_split_horizontally);
 	menuView->addAction(action_split_vertically);
 	menuView->addAction(action_unsplit);
+	menuView->addAction(action_remove_all_splits);
 }
 
 void Ui_MainWindow::destroy_menus()
@@ -760,6 +769,10 @@ void Ui_MainWindow::retranslateUi(QMainWindow *main_window)
 	action_unsplit->setText(QApplication::translate("main_window", "Unsplit", 0, QApplication::UnicodeUTF8));
 	action_unsplit->setShortcut(QApplication::translate("main_window", "Ctrl+E, 0", 0, QApplication::UnicodeUTF8));
 	action_unsplit->setShortcutContext(Qt::ApplicationShortcut);
+	
+	action_remove_all_splits->setText(QApplication::translate("main_window", "Remove all splits", 0, QApplication::UnicodeUTF8));
+	action_remove_all_splits->setShortcut(QApplication::translate("main_window", "Ctrl+E, 1", 0, QApplication::UnicodeUTF8));
+	action_remove_all_splits->setShortcutContext(Qt::ApplicationShortcut);
 	
 	actionSrcTabBar->setText(QApplication::translate("main_window", "Source Tab Bar", 0, QApplication::UnicodeUTF8));
 	actionSrcTabBar->setShortcut(QApplication::translate("main_window", "Alt+3", 0, QApplication::UnicodeUTF8));

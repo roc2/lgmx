@@ -36,8 +36,6 @@ view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
 	QObject::connect(src_container_, SIGNAL(currentChanged(int)), status_line_, SLOT(update_file_name(int)));
  
     this->setFocusPolicy(Qt::StrongFocus);
-    
-    //manager_->add_to_view_list(this);
 }
 
 /**
@@ -47,7 +45,6 @@ view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
 view::~view()
 {
 	debug(DEBUG, VIEW, "~view()");
-	//manager_->remove_from_view_list(this);
 	manager_->release_view_id(id_);	// release my ID
 
 	delete status_line_;

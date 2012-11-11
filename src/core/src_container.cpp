@@ -31,9 +31,9 @@ src_container::src_container(view_manager *manager, QWidget *parent) : QTabWidge
     //this->setFocusPolicy(Qt::StrongFocus);
     tab_bar->setStyleSheet("border-width: 0px;");
     
-    setStyleSheet("border-width: 0px;");
-    setStyleSheet("QTabWidget::pane {border-top: 0px;}");
-    setStyleSheet("QTabBar::tab { height: 25px; }");
+    //setStyleSheet("border-width: 0px;");
+    setStyleSheet("QTabWidget::pane {border-top: 0px;} QTabBar::tab { height: 25px; }");
+    //setStyleSheet("QTabBar::tab { height: 25px; }");
     //setStyleSheet("QTabBar::tab { background-color: rgb(60, 60, 60); }");
 }
 

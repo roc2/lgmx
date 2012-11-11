@@ -74,6 +74,7 @@ public:
     QAction *action_split_horizontally;
     QAction *action_split_vertically;
     QAction *action_unsplit;
+    QAction *action_remove_all_splits;
 
 	QAction *actionGo_to_line;
 	QAction *action_find;

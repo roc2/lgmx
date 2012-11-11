@@ -45,6 +45,7 @@ view_manager::~view_manager()
 	delete layout_;
 	delete highlight_manager_;
 	clear_view_list();
+	clear_splitter_list();
 	delete root_container_;
 }
 
@@ -86,6 +87,21 @@ void view_manager::clear_view_list()
 		delete *it;
 		
 	view_list_.clear();
+}
+
+/**
+ * Destroys all view splitters. This method should be called only when the application 
+ * finishes.
+ */
+
+void view_manager::clear_splitter_list()
+{
+	std::list<QSplitter *>::iterator it(view_splitters_.begin());
+
+	for (; it != view_splitters_.end(); it++)
+		delete *it;
+		
+	view_splitters_.clear();
 }
 
 /**
@@ -145,6 +161,7 @@ void view_manager::new_file()
 	index = root_container_->new_src_tab("", id);
 
 	if (index < 0) {
+		file_id_.release_id(id);
 		return;
 	}
 	
@@ -598,18 +615,24 @@ int view_manager::get_current_file_index(const QString &file_name)
 
 src_file* view_manager::get_current_src_file() const
 {
-	src_container *curr_ctr = this->get_current_src_container();
-	
-	if (!curr_ctr)
-		return NULL;
-
-	return curr_ctr->get_current_src_file();
+	return get_current_src_container()->get_current_src_file();
 }
+
+/**
+ * Creates a unique view ID.
+ * @return new unique ID.
+ */
 
 unsigned int view_manager::generate_view_id()
 {
 	return view_id_.generate_id();	
 }
+
+/**
+ * Releases a no longer used view ID. Every destroyed view must 
+ * release its ID.
+ * @param id - The ID to be released.
+ */
 
 void view_manager::release_view_id(unsigned int id)
 {
@@ -651,7 +674,7 @@ src_container* view_manager::get_root_src_container() const
 }
 
 /**
- * Returns the current source container. This method always return a valid 
+ * Returns the current source container. This method always returns a valid 
  * source container.
  * @return Address of the current source container.
  */
@@ -659,13 +682,6 @@ src_container* view_manager::get_root_src_container() const
 src_container* view_manager::get_current_src_container() const
 {
 	return get_current_view()->get_src_container();
-	/*
-	view *current = get_current_view();
-	
-	if (current)
-		return current_view_->get_src_container();
-
-	return NULL;*/
 }
 
 /**
@@ -703,7 +719,9 @@ void view_manager::split_vertically()
 }
 
 /**
- * 
+ * Splits the screen creating a new view.
+ * @param orientation - split Qt::orientation. Vertical (up/down) or 
+ * horizontal (left/right).
  */
 
 void view_manager::split(Qt::Orientation orientation)
@@ -872,6 +890,36 @@ void view_manager::unsplit()
 	}
 	
 	m_num_splits--;
+}
+
+/**
+ * Removes all splits.
+ */
+
+void view_manager::remove_all_splits()
+{
+	if (m_num_splits == 0)
+		return;
+
+	view *curr_view = get_current_view();
+	curr_view->setParent(this);
+	layout_->addWidget(curr_view);
+	
+	std::list<view *>::iterator it(view_list_.begin());
+
+	for (; it != view_list_.end();) {
+		if (*it != curr_view) {
+			(*it)->setParent(NULL);
+			delete *it;
+			it = view_list_.erase(it);
+		} else {
+			it++;
+		}
+	}
+	
+	/** @todo this call is breaking, fix this */
+	//clear_splitter_list();
+	m_num_splits = 0;
 }
 
 /**

@@ -58,6 +58,7 @@ private:
 	view* create_view(QWidget *parent);
 	void destroy_view(view* v);
 	void clear_view_list();
+	void clear_splitter_list();
 	
 	void set_view_properties(view &old_view, view &new_view);
 	void update_status_bar(const QString &fileName, unsigned int id);
@@ -67,6 +68,7 @@ public slots:
 	void split_vertically();
 	void split(Qt::Orientation orientation);
 	void unsplit();
+	void remove_all_splits();
 
 	void close_file(int index);
 	void new_file();

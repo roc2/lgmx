@@ -9,13 +9,15 @@
 
 using namespace std;
 
+#define DEF_NAME	tr("Untitled")
+
 status_line::status_line(src_container *container)
 {
 	src_container_ = container;
 	
 	layout_ = new QHBoxLayout;
 	file_list_ = new QComboBox(this);
-	file_list_->setStyleSheet("QComboBox::drop-down {border-width: 0px;} QComboBox::down-arrow {image: url(noimg); border-width: 0px;}");
+	file_list_->setStyleSheet("QComboBox {border: 0px solid gray;border-radius: 0px; color: black; background-color: gray} QComboBox:on { padding-top: 0px; padding-left: 0px;} QComboBox::drop-down {border-width: 0px;} QComboBox::down-arrow {image: url(noimg); border-width: 0px;}");
 
 	connect(file_list_, SIGNAL(currentIndexChanged(int)), this, SLOT(current_file_changed(int)));
 
@@ -39,17 +41,17 @@ status_line::~status_line()
  */
 
 void status_line::add_file(const QString &file_name, unsigned int id)
-{	
+{
 	int count = file_list_->count();
+	bool def_name = file_name.isEmpty();
+	int i;
 	
-	for (int i = 0; i <= count; i++) {
-		if (i == count) {
-			file_list_->insertItem(count, file_name, id);
-		} else if (file_name <= file_list_->itemText(i)) {
-			file_list_->insertItem(i, file_name, id);
+	for (i = 0; i <= count; i++) {
+		if (file_name <= file_list_->itemText(i))
 			break;
-		}
 	}
+	
+	file_list_->insertItem(i, def_name ? DEF_NAME : file_name, id);
 }
 
 /**
