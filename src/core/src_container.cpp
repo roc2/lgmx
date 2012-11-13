@@ -465,7 +465,6 @@ void src_container::go_to_line(int index, int line)
 		return;		/* index out of range */
 
 	src_tab->go_to_line(line);
-
 }
 
 /**

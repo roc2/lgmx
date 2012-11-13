@@ -298,6 +298,7 @@ int src_file::get_cursor_position()
 void src_file::set_cursor(const QTextCursor &cursor)
 {
 	this->setTextCursor(cursor);
+	this->centerCursor();
 }
 
 /**
@@ -410,7 +411,7 @@ void src_file::set_default_font()
 }
 
 /**
- * Moves the cursor to the beginning of the specified line.
+ * [slot] Moves the cursor to the beginning of the specified line.
  * @param line -> line number
  */
 

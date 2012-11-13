@@ -16,6 +16,7 @@ public:
     ~go_to_line();
     int get_line();
     void regular_size();
+    void set_focus();
 
 private slots:
     void input_changed(int val);

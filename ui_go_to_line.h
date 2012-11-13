@@ -28,8 +28,6 @@ class Ui_go_to_line
 {
 public:
     QVBoxLayout *verticalLayout;
-    QHBoxLayout *horizontalLayout;
-    QLabel *label;
     QSpinBox *spinBox;
     QHBoxLayout *horizontalLayout_2;
     QPushButton *ok_button;
@@ -46,31 +44,20 @@ public:
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        horizontalLayout = new QHBoxLayout();
-        horizontalLayout->setSpacing(6);
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        label = new QLabel(go_to_line);
-        label->setObjectName(QString::fromUtf8("label"));
-
-        horizontalLayout->addWidget(label);
 
         spinBox = new QSpinBox(go_to_line);
         spinBox->setObjectName(QString::fromUtf8("spinBox"));
-        spinBox->setRange(0, 100000000);
+        spinBox->setRange(1, 100000000);
         spinBox->setValue(1);
-        //spinBox->setSpecialValueText ("");
-
-        horizontalLayout->addWidget(spinBox);
-
-
-        verticalLayout->addLayout(horizontalLayout);
+        spinBox->setFocus();
+        
+        verticalLayout->addWidget(spinBox);
 
         horizontalLayout_2 = new QHBoxLayout();
         horizontalLayout_2->setSpacing(6);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         ok_button = new QPushButton(go_to_line);
         ok_button->setObjectName(QString::fromUtf8("ok_button"));
-        //ok_button->setEnabled(false);
         ok_button->setDefault(true);
 
         horizontalLayout_2->addWidget(ok_button);
@@ -83,9 +70,6 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_2);
 
-#ifndef QT_NO_SHORTCUT
-        label->setBuddy(spinBox);
-#endif // QT_NO_SHORTCUT
         QWidget::setTabOrder(spinBox, ok_button);
         QWidget::setTabOrder(ok_button, cancel_button);
 
@@ -97,7 +81,6 @@ public:
     void retranslateUi(QDialog *go_to_line)
     {
         go_to_line->setWindowTitle(QApplication::translate("go_to_line", "Go to line", 0, QApplication::UnicodeUTF8));
-        label->setText(QApplication::translate("go_to_line", "Line you want to go to:", 0, QApplication::UnicodeUTF8));
         ok_button->setText(QApplication::translate("go_to_line", "OK", 0, QApplication::UnicodeUTF8));
         cancel_button->setText(QApplication::translate("go_to_line", "Cancel", 0, QApplication::UnicodeUTF8));
     } // retranslateUi

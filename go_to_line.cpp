@@ -46,6 +46,11 @@ void go_to_line::regular_size()
     resize(252, 100);
 }
 
+void go_to_line::set_focus()
+{
+    spinBox->setFocus();
+}
+
 void go_to_line::input_changed(int val)
 {
     cout << "value changed: " << val << endl;

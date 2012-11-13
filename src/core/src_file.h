@@ -48,7 +48,6 @@ public:
 	void set_font(QFont &font);
 	void set_default_font();
 
-	void go_to_line(int line);
     void update_src_file_info();
     
     void set_cursor(const QTextCursor &cursor);
@@ -70,6 +69,7 @@ signals:
 	void modificationChanged(bool);
 
 public slots:
+    void go_to_line(int line);
     
 private:
 	QFileInfo *file_info_;

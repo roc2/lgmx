@@ -157,6 +157,9 @@ Ui_MainWindow::~Ui_MainWindow()
 	delete c_board;
 	delete search_dialog;
 
+	if (gt_ln_dialog)
+		delete gt_ln_dialog;
+
     destroy_actions();
 }
 
@@ -452,24 +455,18 @@ void Ui_MainWindow::show_full_screen(bool fullscreen)
 }
 
 /**
- * Go to specified line
- * @brief Go to specified line
+ * Creates go to line dialog and jumps to specified line.
  */
 
 void Ui_MainWindow::go_to_ln()
 {
-	int line = 0;
-	int index;
 	view *curr_view;
-	
+	src_file *src_tab;
+
 	curr_view = view_manager_.get_current_view();
-	
-	if (!curr_view)
-		return;
-	
-	index = curr_view->get_src_container()->get_current_tab_index();
-	
-	if (index < 0)
+	src_tab = curr_view->get_src_container()->get_current_src_file();
+
+    if (!src_tab)
 		return;
 	
 	if (!gt_ln_dialog) {
@@ -477,16 +474,21 @@ void Ui_MainWindow::go_to_ln()
 		gt_ln_dialog = new go_to_line(this);
 	}
 	
+	// get current cursor position
+	QTextCursor curr(src_tab->get_cursor());
+	
 	gt_ln_dialog->regular_size();
-	if (gt_ln_dialog->exec() == 1) {
-		line = gt_ln_dialog->get_line();
+	gt_ln_dialog->set_focus();
+	
+	QObject::connect(gt_ln_dialog->spinBox, SIGNAL(valueChanged(int)), src_tab, SLOT(go_to_line(int)));
+	
+	// run modal dialog
+	if (gt_ln_dialog->exec() == 1)
+		src_tab->go_to_line(gt_ln_dialog->get_line());
+	else
+		src_tab->set_cursor(curr);	// canceled, restore cursor
 		
-		if (line <= 0)
-			return;
-		
-		//_src_container.go_to_line(index, line);
-		curr_view->get_src_container()->go_to_line(index, line);
-	}
+	QObject::disconnect(gt_ln_dialog->spinBox, SIGNAL(valueChanged(int)), src_tab, SLOT(go_to_line(int)));
 }
 
 /**
