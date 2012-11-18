@@ -28,6 +28,9 @@ src_container::src_container(view_manager *manager, QWidget *parent) : QTabWidge
     tab_bar = tabBar();
     tab_bar->setContentsMargins(0, 0, 0, 0);
     
+    /* Update current tab focus */
+	QObject::connect(this, SIGNAL(currentChanged(int)), this, SLOT(set_focus_to_current_tab(int)));
+    
     //this->setFocusPolicy(Qt::StrongFocus);
     tab_bar->setStyleSheet("border-width: 0px;");
     
@@ -567,5 +570,18 @@ void src_container::file_changed(bool changed)
 		file_name += "*";
 		
 	setTabText(index, QApplication::translate("main_window", file_name.toStdString().c_str(), 0, QApplication::UnicodeUTF8));
+}
+
+/**
+ * [slot] Updates the current tab focus. Whenever the current tab changes 
+ * the focus is set to it.
+ */
+
+void src_container::set_focus_to_current_tab(int index)
+{
+	QWidget *curr =	widget(index);
+	
+	if (curr)
+		curr->setFocus();
 }
 

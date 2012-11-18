@@ -440,6 +440,15 @@ void src_file::focusInEvent(QFocusEvent *event)
 }
 
 /**
+ * Focus out event handler.
+ */
+
+void src_file::focusOutEvent(QFocusEvent *event)
+{
+	debug(DEBUG, SRC_FILE, "Focus out!!");
+}
+
+/**
  * Events filter. For VI mode and shortcuts
  * 
  */

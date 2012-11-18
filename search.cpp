@@ -1,6 +1,5 @@
 #include "search.h"
 #include <QLayout>
-#include <QPointer>
 
 #include <iostream>
 #include <view_manager.h>
@@ -30,18 +29,32 @@ lgmx::search::~search()
 	save_settings();
 }
 
+/**
+ * [slot] Updates the pointer to the current file.
+ */
+
+void lgmx::search::update_current_file(int)
+{
+	src_ctr = manager_.get_current_view()->get_src_container();
+	
+	/* Update current tab focus */
+	QObject::connect(src_ctr, SIGNAL(currentChanged(int)), this, SLOT(update_current_file(int)));
+
+	curr_file_ = src_ctr->get_current_src_file();
+}
+
+/**
+ * 
+ */
+
 void lgmx::search::show_search_dialog()
 {
-	QPointer<view> curr_view;
-
-	curr_view = manager_.get_current_view();
+	update_current_file(0);
 	
-	if (!curr_view)
-		return;
-	
-	src_ctr = curr_view->get_src_container();
-	
-	this->show();
+	if (curr_file_)
+		this->show();
+		
+	cout << "show" << endl;
 }
 
 void lgmx::search::save_settings()
@@ -157,26 +170,36 @@ void lgmx::search::highlight_all_matches(QString &pattern)
 	//this->cursor.setCharFormat(match_format);
 }
 
+/**
+ * 
+ */
+
 void lgmx::search::search_string(QString &pattern)
 {
 	src_file *curr_file;
 
+	if (!curr_file_) {
+		cout << "nop" << endl;
+		// update current file!!!
+		return;
+	}
+
 	if (!(curr_file = src_ctr->get_current_src_file()))
 		return;
 	
-	this->cursor = curr_file->get_cursor();
+	this->cursor = curr_file_->get_cursor();
 	
 	if (regex) {
 		regex_pattern.setPattern(pattern);
-		this->cursor = curr_file->get_mutable_content()->find(regex_pattern, this->cursor, flags);
+		this->cursor = curr_file_->get_mutable_content()->find(regex_pattern, this->cursor, flags);
 	} else
-		this->cursor = curr_file->get_mutable_content()->find(pattern, this->cursor, flags);
+		this->cursor = curr_file_->get_mutable_content()->find(pattern, this->cursor, flags);
 
 
 	if (!this->cursor.isNull()) {
 		
-		curr_file->set_cursor(this->cursor);
-		curr_file->centerCursor();
+		curr_file_->set_cursor(this->cursor);
+		curr_file_->centerCursor();
 		
 		if (highlight_all)
 			highlight_all_matches(pattern);
@@ -184,7 +207,7 @@ void lgmx::search::search_string(QString &pattern)
 		
 	} else if (wrap) {
 		// get cursor position again, since we cannot move a null cursor
-		this->cursor = curr_file->get_cursor();
+		this->cursor = curr_file_->get_cursor();
 		
 		// if search is forward move to the beginning of file, otherwise move to the end
 		if ((flags & QTextDocument::FindBackward) == QTextDocument::FindBackward)
@@ -194,13 +217,13 @@ void lgmx::search::search_string(QString &pattern)
 		
 		// search again
 		if (regex) {
-			this->cursor = curr_file->get_mutable_content()->find(regex_pattern, this->cursor, flags);
+			this->cursor = curr_file_->get_mutable_content()->find(regex_pattern, this->cursor, flags);
 		} else
-			this->cursor = curr_file->get_mutable_content()->find(pattern, this->cursor, flags);
+			this->cursor = curr_file_->get_mutable_content()->find(pattern, this->cursor, flags);
 			
 		if (!this->cursor.isNull()) {
-			curr_file->set_cursor(this->cursor);
-			curr_file->centerCursor();
+			curr_file_->set_cursor(this->cursor);
+			curr_file_->centerCursor();
 		}
 	}
 }

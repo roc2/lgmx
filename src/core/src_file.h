@@ -43,6 +43,7 @@ public:
 	bool exists() const;
 	
 	void focusInEvent(QFocusEvent *event);
+	void focusOutEvent(QFocusEvent *event);
 
 	QFont get_font() const;
 	void set_font(QFont &font);

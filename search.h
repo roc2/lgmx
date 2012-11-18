@@ -9,6 +9,7 @@
 #include <QTextCharFormat>
 #include <QBitArray>
 #include <QSettings>
+#include <QPointer>
 
 //////////////////////////////////////////////////////////////////////////////////////
 #include <QtCore/QVariant>
@@ -45,7 +46,7 @@ class search : public QDialog
 {
 	Q_OBJECT
 
-	public:
+public:
 	search(src_container *src_files, QWidget *parent = 0);
 	search(view_manager &manager, QWidget *parent = 0);
 	~search();
@@ -56,13 +57,14 @@ class search : public QDialog
 	
 	void search_string(QString &pattern);
 
-	private slots:
+private slots:
 	//void browse();
 	//void find();
 	//void openFileOfItem(int row, int column);
 	void hide_search_dialog();
 
-	private slots:
+private slots:
+	void update_current_file(int);
 	void show_search_dialog();
 	void find_next();
 	void find_previous();
@@ -79,7 +81,7 @@ class search : public QDialog
 	//void replace_text(QString &search_pattern, QString &replace_pattern);
 	void replace();
 
-	private:
+private:
 	
 	//enum flag_val {regex, wrap_v};
 	
@@ -99,6 +101,8 @@ class search : public QDialog
 	void highlight_all_matches(QString &pattern);
 	
 	void add_to_search_history(const QString &text);
+	
+	QPointer<src_file> curr_file_;
 
 //////////////////////////////////////////////////////////////////////////////////////
 	QHBoxLayout *horizontalLayout_6;

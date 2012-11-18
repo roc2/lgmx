@@ -66,6 +66,9 @@ public:
 public slots:
 	void file_changed(bool changed);
 
+private slots:
+	void set_focus_to_current_tab(int index);
+
 private:
     QTabBar *tab_bar;
     QVBoxLayout *main_layout_;
