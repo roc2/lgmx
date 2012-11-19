@@ -52,6 +52,7 @@ using namespace std;
 
 class QShortcut;
 class clipboard;
+class text_manip;
 
 QT_BEGIN_NAMESPACE
 
@@ -99,6 +100,7 @@ public:
 	go_to_line *gt_ln_dialog;
 	
 	clipboard *c_board;
+	text_manip *text_manip_;
 
 	QString get_text();
     

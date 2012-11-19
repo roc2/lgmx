@@ -1,7 +1,6 @@
 #ifndef CLIPBOARD_H
 #define CLIPBOARD_H
 
-#include "src_container.h"
 #include <QShortcut>
 #include <QSignalMapper>
 #include <view_manager.h>
@@ -28,14 +27,13 @@ public slots:
 private slots:
 
 private:
-	src_container **src_ctr;
 	view_manager &manager_;
 	
 	QSignalMapper copy_signal_map;
 	QSignalMapper cut_signal_map;
 	QSignalMapper paste_signal_map;
 	
-    QString buffers[26];
+    QString buffers[MAX_BUFFS];
     
     QShortcut *copy_s[NUM_SHORTCUTS];
     QShortcut *cut_s[NUM_SHORTCUTS];

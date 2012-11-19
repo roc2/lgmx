@@ -12,6 +12,7 @@
 #include "config.h"
 #include "unsvFileDialog.h"
 #include "clipboard.h"
+#include <text_manip.h>
 #include <interfaces.h>
 
 #include "string"
@@ -62,6 +63,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(&view_manage
 	search_dialog = new lgmx::search(view_manager_, this);
 	
 	c_board = new clipboard(view_manager_, this);
+	text_manip_ = new text_manip(view_manager_, this);
 	
 	createActions();
 	

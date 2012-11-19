@@ -12,6 +12,7 @@
 #include <plugin_manager.h>
 #include <settings.h>
 
+
 class QSplitter;
 class highlight_manager;
 
@@ -105,7 +106,7 @@ private:
     int m_num_splits;
 
     Id file_id_;	/**< source file ID generator */
-    Id view_id_;	/**< view ID generator */ 
+    Id view_id_;	/**< view ID generator */
 };
 
 #endif
