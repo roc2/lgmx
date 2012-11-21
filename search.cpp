@@ -11,8 +11,6 @@ using namespace std;
 lgmx::search::search(view_manager &manager, QWidget *parent) : QDialog(parent), 
 		       flags(QTextDocument::FindCaseSensitively | QTextDocument::FindWholeWords), manager_(manager)
 {
-	//src_ctr = src_files;
-	
 	wrap = false;
 	highlight_all = true;
 	cout << "flags: " << int(flags) << endl;
@@ -22,6 +20,10 @@ lgmx::search::search(view_manager &manager, QWidget *parent) : QDialog(parent),
 	setup_ui(this);
 	load_settings();
 }
+
+/**
+ * Destructor.
+ */
 
 lgmx::search::~search()
 {
@@ -57,6 +59,10 @@ void lgmx::search::show_search_dialog()
 	cout << "show" << endl;
 }
 
+/**
+ * Saves current settings.
+ */
+
 void lgmx::search::save_settings()
 {
 	QSettings settings;
@@ -80,6 +86,10 @@ void lgmx::search::save_settings()
 	QVariant v(p_flags);	
 	settings.setValue(SEARCH_SAVE_KEY, v);
 }
+
+/**
+ * Loads saved settings.
+ */
 
 void lgmx::search::load_settings()
 {
@@ -139,6 +149,10 @@ void lgmx::search::load_settings()
 		set_default_settings();
 	}
 }
+
+/**
+ * Sets default settings.
+ */
 
 void lgmx::search::set_default_settings()
 {
@@ -263,18 +277,6 @@ void lgmx::search::find_previous()
 	add_to_search_history(pattern);
 }
 
-/*
-void lgmx::search::replace_text(QString &search_pattern, QString &replace_pattern)
-{
-	src_file *curr_file;
-	
-	if (!(curr_file = src_ctr->get_current_src_file()))
-		return;
-
-	this->cursor.insertText(replace_pattern);
-}
-*/
-
 /**
  * Replaces current pattern match.
  */
@@ -316,6 +318,43 @@ void lgmx::search::replace_and_previous()
 	find_previous();
 }
 
+/**
+ * Replaces all matches.
+ */
+
+void lgmx::search::replace_all()
+{
+	if (!curr_file_) {
+		cout << "nop" << endl;
+		// update current file!!!
+		return;
+	}
+
+	QString pattern(search_cbox->currentText());
+	QString replace_pattern(comboBox->currentText());
+
+	cursor = curr_file_->get_cursor();
+	// set cursor to the beginning of file
+	cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+
+	do {
+		if (regex) {
+			regex_pattern.setPattern(pattern);
+			cursor = curr_file_->get_mutable_content()->find(regex_pattern, this->cursor, flags);
+		} else {
+			cursor = curr_file_->get_mutable_content()->find(pattern, this->cursor, flags);
+		}
+
+		if (!cursor.isNull())	// replace
+			cursor.insertText(replace_pattern);
+
+	} while (!cursor.isNull());
+}
+
+/**
+ * 
+ */
+
 void lgmx::search::match_whole_words(bool checked)
 {
 	if (checked)
@@ -323,6 +362,10 @@ void lgmx::search::match_whole_words(bool checked)
 	else if ((flags & QTextDocument::FindWholeWords) == QTextDocument::FindWholeWords)
 		flags ^= QTextDocument::FindWholeWords;
 }
+
+/**
+ * 
+ */
 
 void lgmx::search::case_sensitive(bool checked)
 {
@@ -373,6 +416,10 @@ void lgmx::search::add_to_search_history(const QString &text)
 	} else
 		search_cbox->insertItem(0, text);
 }
+
+/**
+ * Creates search dialog UI.
+ */
 
 void lgmx::search::setup_ui(QDialog *Find)
 {
@@ -503,10 +550,6 @@ void lgmx::search::setup_ui(QDialog *Find)
 
 	horizontalLayout_5 = new QHBoxLayout();
 	horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
-	pushButton_8 = new QPushButton(Find);
-	pushButton_8->setObjectName(QString::fromUtf8("pushButton_8"));
-
-	horizontalLayout_5->addWidget(pushButton_8);
 
 	horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -542,8 +585,7 @@ void lgmx::search::setup_ui(QDialog *Find)
 	QWidget::setTabOrder(pushButton_4, pushButton_6);
 	QWidget::setTabOrder(pushButton_6, pushButton_7);
 	QWidget::setTabOrder(pushButton_7, pushButton_5);
-	QWidget::setTabOrder(pushButton_5, pushButton_8);
-	QWidget::setTabOrder(pushButton_8, cancel_button);
+	QWidget::setTabOrder(pushButton_5, cancel_button);
 	QWidget::setTabOrder(cancel_button, previous_button);
 	QWidget::setTabOrder(previous_button, next_button);
 	
@@ -568,7 +610,6 @@ void lgmx::search::retranslate_ui(QDialog *Find)
 	pushButton_6->setText(QApplication::translate("Find", "Replace", 0, QApplication::UnicodeUTF8));
 	pushButton_7->setText(QApplication::translate("Find", "Replace and previous", 0, QApplication::UnicodeUTF8));
 	pushButton_5->setText(QApplication::translate("Find", "Replace and next", 0, QApplication::UnicodeUTF8));
-	pushButton_8->setText(QApplication::translate("Find", "Advanced...", 0, QApplication::UnicodeUTF8));
 	cancel_button->setText(QApplication::translate("Find", "Cancel", 0, QApplication::UnicodeUTF8));
 	previous_button->setText(QApplication::translate("Find", "Previous", 0, QApplication::UnicodeUTF8));
 	next_button->setText(QApplication::translate("Find", "Next", 0, QApplication::UnicodeUTF8));
@@ -583,6 +624,12 @@ void lgmx::search::connect_slots()
 	
 	connect(pushButton_5, SIGNAL(clicked()), this, SLOT(replace_and_next()));
 	connect(pushButton_7, SIGNAL(clicked()), this, SLOT(replace_and_previous()));
+	
+	// replace all
+	connect(pushButton_4, SIGNAL(clicked()), this, SLOT(replace_all()));
+	
+	// replace
+	connect(pushButton_6, SIGNAL(clicked()), this, SLOT(replace()));	
 	
 	connect(checkBox_3, SIGNAL(toggled(bool)), this, SLOT(match_whole_words(bool)));
 	connect(checkBox_2, SIGNAL(toggled(bool)), this, SLOT(case_sensitive(bool)));

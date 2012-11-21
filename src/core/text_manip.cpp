@@ -91,3 +91,51 @@ void text_manip::duplicate_down()
 	curr_file->set_cursor(cursor);
 }
 
+/*
+void FakeVimPluginPrivate::moveToMatchingParenthesis(bool *moved, bool *forward,
+        QTextCursor *cursor)
+{
+    *moved = false;
+
+    bool undoFakeEOL = false;
+    if (cursor->atBlockEnd() && cursor->block().length() > 1) {
+        cursor->movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 1);
+        undoFakeEOL = true;
+    }
+    TextBlockUserData::MatchType match
+        = TextBlockUserData::matchCursorForward(cursor);
+    if (match == TextBlockUserData::Match) {
+        *moved = true;
+        *forward = true;
+    } else {
+        if (undoFakeEOL)
+            cursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
+        if (match == TextBlockUserData::NoMatch) {
+            // Backward matching is according to the character before the cursor.
+            bool undoMove = false;
+            if (!cursor->atBlockEnd()) {
+                cursor->movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, 1);
+                undoMove = true;
+            }
+            match = TextBlockUserData::matchCursorBackward(cursor);
+            if (match == TextBlockUserData::Match) {
+                *moved = true;
+                *forward = false;
+            } else if (undoMove) {
+                cursor->movePosition(QTextCursor::Left, QTextCursor::KeepAnchor, 1);
+            }
+        }
+    }
+}
+
+
+void FakeVimHandler::Private::updateCursorShape()
+{
+    bool thinCursor = m_mode == ExMode
+            || m_subsubmode == SearchSubSubMode
+            || m_mode == InsertMode
+            || isVisualMode()
+            || cursor().hasSelection();
+    EDITOR(setOverwriteMode(!thinCursor));
+}
+*/

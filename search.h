@@ -32,11 +32,17 @@ class view_manager;
 #define NUM_FLAGS	5
 
 // persistent flags masks
-#define REGEX			0X01
+/*#define REGEX			0X01
 #define CASE_SENSITIVE	0X02
 #define WHOLE_WORDS		0X04
 #define HIGHLIGHT_ALL	0X08
 #define WRAP_AROUND		0X10
+*/
+#define REGEX			(1 << 0)
+#define CASE_SENSITIVE	(1 << 1)
+#define WHOLE_WORDS		(1 << 2)
+#define HIGHLIGHT_ALL	(1 << 3)
+#define WRAP_AROUND		(1 << 4)
 
 #define MAX_ITEMS		10
 
@@ -80,19 +86,10 @@ private slots:
 	//void replace(QString &pattern);
 	//void replace_text(QString &search_pattern, QString &replace_pattern);
 	void replace();
+	void replace_all();
 
 private:
-	
-	//enum flag_val {regex, wrap_v};
-	
 	QComboBox *create_combo_box(const QString &text);
-
-	private:
-	//QStringList findFiles(const QStringList &files, const QString &text);
-	//void showFiles(const QStringList &files);
-	//QPushButton *createButton(const QString &text, const char *member);
-	//QComboBox *createComboBox(const QString &text = QString());
-//	void createFilesTable();
 
 	void setup_ui(QDialog *Find);
 	void retranslate_ui(QDialog *Find);
@@ -129,7 +126,6 @@ private:
     QPushButton *pushButton_7;
     QPushButton *pushButton_5;
     QHBoxLayout *horizontalLayout_5;
-    QPushButton *pushButton_8;
     QSpacerItem *horizontalSpacer;
     QPushButton *cancel_button;
     QPushButton *previous_button;
@@ -142,11 +138,7 @@ private:
 	src_container *src_ctr;
 	view_manager &manager_;
 	
-	//QBitArray p_flags;	// persistent flags
-	//uint p_flags;
-	
 	bool regex;
-	//bool case_sensitive;
 	bool wrap;
 	bool highlight_all;
 	
@@ -158,12 +150,8 @@ private:
 
 	QString search_pattern;
 	QString replace_pattern;
-
-	//QPushButton *next_button;
-	//QPushButton *previous_button;
-	//QPushButton *close_button;
 };
 
-}
+} //namespace lgmx
 
 #endif

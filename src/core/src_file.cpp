@@ -28,6 +28,8 @@ src_file::src_file(const QString &file_name, unsigned int id, highlight_manager 
     this->setLineWrapMode(QPlainTextEdit::NoWrap);
     this->installEventFilter(this);
     
+    //this->setOverwriteMode(true);
+    
     /* file properties */
 	if (file_name.isEmpty()) {
 		file_info_ = new QFileInfo();

@@ -169,13 +169,6 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_5">
        <item>
-        <widget class="QPushButton" name="pushButton_8">
-         <property name="text">
-          <string>Advanced...</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -228,7 +221,6 @@
   <tabstop>pushButton_6</tabstop>
   <tabstop>pushButton_7</tabstop>
   <tabstop>pushButton_5</tabstop>
-  <tabstop>pushButton_8</tabstop>
   <tabstop>pushButton</tabstop>
   <tabstop>pushButton_2</tabstop>
   <tabstop>pushButton_3</tabstop>
