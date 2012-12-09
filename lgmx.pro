@@ -1,5 +1,5 @@
 CONFIG += qt
-#CONFIG += debug
+CONFIG += debug
 
 SOURCES += ./src/core/main.cpp ui_main_window.cpp ./src/core/code_editor.cpp ./src/core/src_container.cpp \
            ./src/core/highlight/cpp/cpp_hl.cpp go_to_line.cpp ./src/core/src_file.cpp \

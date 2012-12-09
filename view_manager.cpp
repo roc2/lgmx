@@ -25,7 +25,8 @@ view_manager::view_manager(QWidget *parent, file_type *type_manager) : QWidget(p
 	type_manager_ = type_manager;
 
 	current_view_ = create_view(this);
-	m_num_splits = 0;
+	curr_view_ = current_view_;
+	num_splits_ = 0;
 
 	highlight_manager_ = new highlight_manager(type_manager_);
 
@@ -97,8 +98,8 @@ void view_manager::clear_splitter_list()
 {
 	std::list<QSplitter *>::iterator it;
 
-	// It is possible that a splitter is the parent of another splitter and
-	// a splitter automatically deletes its children on destruction, therefore 
+	// It is possible that a splitter is the parent of another splitter, and
+	// a splitter automatically deletes its children on destruction. Therefore 
 	// we need to reparent all splitters before destroying them, in order to 
 	// avoid double deletion.
 
@@ -114,28 +115,35 @@ void view_manager::clear_splitter_list()
 /**
  * Adds view to list. Whenever a view is created it must be added to 
  * this list.
+ * @param v - the address of the view to be added.
  */
 
 void view_manager::add_to_view_list(view *v)
 {
-	view_list_.insert(view_list_.end(), v);
+	if (v)
+		view_list_.insert(view_list_.end(), v);
+
 	debug(DEBUG, VIEW_MANAGER, "view list size: " << view_list_.size());
 }
 
 /**
  * Removes view from list. Whenever a view is destroyed it must be pulled out from 
  * this list.
+ * @param v - the address of the view to be removed.
  */
 
 void view_manager::remove_from_view_list(view *v)
 {
-	view_list_.remove(v);
+	if (v)
+		view_list_.remove(v);
+
 	debug(DEBUG, VIEW_MANAGER, "view list size: " << view_list_.size());
 }
 
 /**
  * Adds splitter to list. Whenever a splitter is created it must be added to 
  * this list.
+ * @param s - the address of the splitter to be added.
  */
 
 void view_manager::add_to_splitter_list(QSplitter *s)
@@ -147,6 +155,7 @@ void view_manager::add_to_splitter_list(QSplitter *s)
 /**
  * Removes splitter from list. Whenever a splitter is destroyed it must be pulled out from 
  * this list.
+ * @param s - the address of the splitter to be removed.
  */
 
 void view_manager::remove_from_splitter_list(QSplitter *s)
@@ -163,12 +172,13 @@ void view_manager::remove_from_splitter_list(QSplitter *s)
 void view_manager::new_file()
 {
 	int index;
-	unsigned int id = file_id_.generate_id();
+	unsigned int id = file_id_.generate_id();	// new file unique ID
 
 	index = root_container_->new_src_tab("", id);
 
 	if (index < 0) {
 		file_id_.release_id(id);
+		debug(ERR, VIEW_MANAGER, "Could not create a new file");
 		return;
 	}
 	
@@ -176,7 +186,8 @@ void view_manager::new_file()
 
 	list<view *>::iterator it;
 	view *curr_view = get_current_view();
-	
+
+	// clone the new file in all views
 	for (it = view_list_.begin(); it != view_list_.end(); it++) {
 		(*it)->clone_file(file);
 		
@@ -184,6 +195,12 @@ void view_manager::new_file()
 			curr_view->get_src_container()->set_current_src_file(id);
 	}
 }
+
+/**
+ * Creates a new file in memory from a file saved on the hard disk.
+ * @param file_name - complete file name.
+ * @return true, if file created successfully, false otherwise.
+ */
 
 bool view_manager::new_file(const QString &file_name)
 {
@@ -193,6 +210,8 @@ bool view_manager::new_file(const QString &file_name)
 	index = root_container_->new_src_tab(file_name, id);
 
 	if (index < 0) {
+		file_id_.release_id(id);
+		debug(ERR, VIEW_MANAGER, "Could not create a new file");
 		return false;
 	}
 
@@ -647,13 +666,22 @@ void view_manager::release_view_id(unsigned int id)
 }
 
 /**
+ * Returns the current view. This method always returns a valid view.
+ * @return Address of the current view.
  * @todo - review this method
  */
 
 view* view_manager::get_current_view() const
 {
-	if (m_num_splits == 0)
+	if (num_splits_ == 0)
 		return *(view_list_.begin());
+	
+	if (curr_view_) {
+		debug(INFO, VIEW_MANAGER, "from QPointer!!");
+		return curr_view_.data();
+	} else {
+		debug(INFO, VIEW_MANAGER, "Invalid QPointer!!");
+	}
 	
 	list<view *>::const_iterator it;
 	int i;
@@ -705,6 +733,7 @@ void view_manager::set_current_view(view* curr_view)
 	}
 
 	current_view_ = curr_view;
+	curr_view_ = curr_view;
 }
 
 /**
@@ -743,7 +772,7 @@ void view_manager::split(Qt::Orientation orientation)
 		return;
 	}
 	
-	if (m_num_splits == 0) {
+	if (num_splits_ == 0) {
 		new_splitter = new QSplitter(orientation, this);
 		new_splitter->setHandleWidth(1);
 		new_splitter->setChildrenCollapsible(false);
@@ -829,7 +858,7 @@ void view_manager::split(Qt::Orientation orientation)
 		view_splitters_.push_back(new_splitter);
 	}
 	
-	m_num_splits++;
+	num_splits_++;
 }
 
 /**
@@ -838,7 +867,7 @@ void view_manager::split(Qt::Orientation orientation)
 
 void view_manager::unsplit()
 {
-	if (m_num_splits == 0)
+	if (num_splits_ == 0)
 		return;
 
 	view *curr_view = get_current_view();
@@ -896,7 +925,7 @@ void view_manager::unsplit()
 		return;
 	}
 	
-	m_num_splits--;
+	num_splits_--;
 }
 
 /**
@@ -905,7 +934,7 @@ void view_manager::unsplit()
 
 void view_manager::remove_all_splits()
 {
-	if (m_num_splits == 0)
+	if (num_splits_ == 0)
 		return;
 
 	view *curr_view = get_current_view();
@@ -925,7 +954,7 @@ void view_manager::remove_all_splits()
 	}
 	
 	clear_splitter_list();	// removes all splitters
-	m_num_splits = 0;
+	num_splits_ = 0;
 }
 
 /**
@@ -947,7 +976,9 @@ void view_manager::set_recent_files_widget(recent_files *recent_files_widget)
 	recent_files_ = recent_files_widget;
 }
 
-
+/**
+ * @param show: true, show tab bar, or false, hide tab bar.
+ */
 
 void view_manager::show_src_tab_bar(bool show)
 {

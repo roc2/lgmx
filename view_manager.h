@@ -2,6 +2,8 @@
 #define VIEW_MANAGER_H
 
 #include <QWidget>
+#include <QPointer>
+
 #include <list>
 #include <stack>
 #include <set>
@@ -92,6 +94,7 @@ private:
     std::list<QSplitter*> view_splitters_;
     
     view *current_view_;
+    QPointer<view> curr_view_;
     src_container *root_container_;
     
     file_type *type_manager_;
@@ -103,7 +106,7 @@ private:
     recent_files *recent_files_;
     
     QVBoxLayout *layout_;
-    int m_num_splits;
+    int num_splits_;
 
     Id file_id_;	/**< source file ID generator */
     Id view_id_;	/**< view ID generator */

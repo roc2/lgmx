@@ -18,6 +18,7 @@ signals:
 public slots:
 	void duplicate_up();
 	void duplicate_down();
+	void delete_current_line();
 
 private slots:
 
@@ -26,6 +27,7 @@ private:
     
     QShortcut *dup_up;
     QShortcut *dup_down;
+    QShortcut *delete_line;
 };
 
 #endif

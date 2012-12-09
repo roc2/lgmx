@@ -200,11 +200,6 @@ void Ui_MainWindow::create_connections()
 	/* find */
 	QObject::connect(action_find, SIGNAL(triggered()), search_dialog, SLOT(show_search_dialog()));
 
-	/* close file signal */
-	QObject::connect(&_src_container, SIGNAL(tabCloseRequested ( int )), this, SLOT(close_file(int)));
-
-	//Object::connect(this, SIGNAL(windowActivated()), this, SLOT(go_to_ln()));
-
 	QMetaObject::connectSlotsByName(this);
 	
 	// file watcher signals

@@ -19,6 +19,9 @@ text_manip::text_manip(view_manager &manager, QWidget *parent) : manager_(manage
 	
 	dup_down = new QShortcut(Qt::CTRL+ Qt::ALT + Qt::Key_Down, parent);
 	connect(dup_down, SIGNAL(activated()), this, SLOT(duplicate_down()));
+	
+	delete_line = new QShortcut(Qt::CTRL+ Qt::Key_K, parent);
+	connect(delete_line, SIGNAL(activated()), this, SLOT(delete_current_line()));
 }
 
 /**
@@ -89,6 +92,30 @@ void text_manip::duplicate_down()
 	
 	cursor.insertText(buff);
 	curr_file->set_cursor(cursor);
+}
+
+/**
+ * Removes the line where the cursor is positioned in.
+ */
+ 
+void text_manip::delete_current_line()
+{
+	src_file *curr_file;
+	QTextCursor cursor;
+	
+	if (!(curr_file = manager_.get_current_src_file()))
+		return;
+
+	cursor = curr_file->get_cursor();
+	cursor.select(QTextCursor::BlockUnderCursor);
+	
+	if (cursor.hasSelection()) {
+		cursor.removeSelectedText();
+		cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor);
+		curr_file->set_cursor(cursor);
+	} else {
+		cursor.deleteChar();
+	}
 }
 
 /*

@@ -1,9 +1,8 @@
 #include <QVBoxLayout>
 
-#include "view.h"
-#include "view_manager.h"
-#include "stdlib.h"
-#include "debug.h"
+#include <view.h>
+#include <view_manager.h>
+#include <debug.h>
 #include <exception.h>
 #include <status_line.h>
 

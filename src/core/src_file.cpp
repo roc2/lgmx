@@ -10,16 +10,18 @@
 #include <exception.h>
 #include <debug.h>
 #include <highlight_manager.h>
+#include <src_container.h>
 
 
 /**
  * [throw] Constructor.
  */
 
-src_file::src_file(const QString &file_name, unsigned int id, highlight_manager *hl_manager)
+src_file::src_file(const QString &file_name, unsigned int id, src_container *parent, highlight_manager *hl_manager)
 {
 	clone_ = false;
 	id_ = id;
+	parent_ = parent;
 	type_ = file_type::UNKNOWN;
 
 	this->setContentsMargins(0, 0, 0, 0);
@@ -59,10 +61,11 @@ src_file::src_file(const QString &file_name, unsigned int id, highlight_manager 
  * the same QTextDocument and QFileInfo from base_file.
  */
 
-src_file::src_file(src_file *base_file)
+src_file::src_file(src_file *base_file, src_container *parent)
 {
 	clone_ = true;
 	id_ = base_file->get_id();
+	parent_ = parent;
 	type_ = base_file->get_file_type();
 	
 	this->setContentsMargins(0, 0, 0, 0);
@@ -300,7 +303,6 @@ int src_file::get_cursor_position()
 void src_file::set_cursor(const QTextCursor &cursor)
 {
 	this->setTextCursor(cursor);
-	this->centerCursor();
 }
 
 /**
@@ -438,7 +440,8 @@ void src_file::go_to_line(int line)
 
 void src_file::focusInEvent(QFocusEvent *event)
 {
-	debug(DEBUG, SRC_FILE, "src_file widget has focus!!");
+	// updates the view_manager current view.
+	parent_->update_current_view();
 }
 
 /**
@@ -447,7 +450,7 @@ void src_file::focusInEvent(QFocusEvent *event)
 
 void src_file::focusOutEvent(QFocusEvent *event)
 {
-	debug(DEBUG, SRC_FILE, "Focus out!!");
+	//debug(DEBUG, SRC_FILE, "Focus out!!");
 }
 
 /**

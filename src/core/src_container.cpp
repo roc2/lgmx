@@ -62,6 +62,16 @@ void src_container::focusInEvent(QFocusEvent *event)
 }
 
 /**
+ * Updates the current view. If the focus widget has changed the 
+ * view_manager current view needs to be updated.
+ */
+
+void src_container::update_current_view()
+{
+	manager_->set_current_view(static_cast<view *>(this->parent()));
+}
+
+/**
  * Create new source tab.
  * @param file_name -> the new file name.
  * @param file_id -> the file unique ID.
@@ -76,7 +86,7 @@ int src_container::new_src_tab(const QString &file_name, unsigned int file_id)
 
 	try {
 		QApplication::setOverrideCursor(Qt::WaitCursor);
-		index = addTab(new src_file(file_name, file_id, manager_->get_highlight_manager()), "");
+		index = addTab(new src_file(file_name, file_id, this, manager_->get_highlight_manager()), "");
 		QApplication::restoreOverrideCursor();
 		debug(INFO, SRC_CONTAINER, "New file created at index " << index);
 	} catch(lgmx::exception &excp) {
@@ -119,7 +129,7 @@ src_file* src_container::new_clone_tab(src_file *base_file)
 	}
 
 	try {
-		index = addTab(new src_file(base_file), "");
+		index = addTab(new src_file(base_file, this), "");
 	} catch(lgmx::exception &excp) {
 		lgmx::exception excp("At src_container::new_clone_tab: Unable to create file.");
 		throw excp;

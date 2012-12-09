@@ -62,6 +62,7 @@ public:
     bool get_line_wrap() const;
     
     void focusInEvent(QFocusEvent *event);
+    void update_current_view();
 
 public slots:
 	void file_changed(bool changed);

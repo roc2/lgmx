@@ -48,7 +48,7 @@
 #define debug(level, module, msg) \
 do { \
 if (module && (level <= DEF_LEVEL)) { \
-	std::cout << __FUNCTION__ << " " << __LINE__ << " - " << msg << std::endl; }\
+	std::cout << __FILE__ << " - " << __FUNCTION__ << " " << __LINE__ << " - " << msg << std::endl; }\
 } while (0)
 
 #else

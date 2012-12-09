@@ -17,8 +17,8 @@ class src_file : public CodeEditor
 	Q_OBJECT
 
 public:
-    src_file(const QString &file_name, unsigned int id, highlight_manager *hl_manager = NULL);
-    src_file(src_file *base_file);
+    src_file(const QString &file_name, unsigned int id, src_container *parent, highlight_manager *hl_manager = NULL);
+    src_file(src_file *base_file, src_container *parent);
     ~src_file();
     
     bool load_file(const QString &fileName);
@@ -75,6 +75,7 @@ public slots:
 private:
 	QFileInfo *file_info_;
 	file_type::type type_;
+	src_container *parent_;
 	//srchiliteqt::Qt4SyntaxHighlighter *highlighter_;
 	
 	highlight_manager *highlight_manager_;
