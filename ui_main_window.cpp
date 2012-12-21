@@ -54,7 +54,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(&view_manage
 	_root_src_container = view_manager_.get_root_src_container();
 
 	gt_ln_dialog = NULL;
-	
+
 	QCoreApplication::setOrganizationName(COMPANY);
     //QCoreApplication::setOrganizationDomain("mysoft.com");
     QCoreApplication::setApplicationName(APPLICATION);

@@ -10,6 +10,7 @@
 #include <QMessageBox>
 
 #include <highlight_manager.h>
+#include <exception.h>
 
 using namespace std;
 
@@ -245,13 +246,13 @@ bool view_manager::new_file(const QString &file_name)
 void view_manager::close_file(int index)
 {
 	/*
-	 * The file to be closed is identified by its ID.
+	 * The file to be closed is identified by its unique ID.
 	 * The original file is the root file, if there are other views, 
 	 * the root file is cloned in all other views. The clone files do not have their 
 	 * own content (QTextDocument *), they all point to the root file's content instead.
 	 * Therefore, if the close action was requested from a child view, we can identify 
-	 * the corresponding root file to be closed by the address of QTextDocument, which is 
-	 * the same in the root file and in their clones.
+	 * the corresponding root file to be closed by its ID, which is 
+	 * the same in the root file and its clones.
 	 */
 	
 	unsigned int id;
@@ -327,36 +328,6 @@ void view_manager::close_file(int index)
 }
 
 /**
- * Returns the index in the root source container of the file to be closed.
- * @param content -> pointer to file content.
- * @return file index within the root source container, -1 if not found.
- */
-
-int view_manager::get_root_src_container_file_index(QTextDocument *content)
-{
-	if (!content)
-		return -1;
-	
-	int count = root_container_->count();
-	
-	src_file *src_tab;
-
-	for (int i = 0; i < count; i++) {
-		if ((src_tab = static_cast<src_file *>(root_container_->widget(i))) == 0)
-			continue;
-		
-		// search for the same content address
-		if (content == src_tab->get_mutable_content()) {
-			cout << "requested close: " << src_tab->get_src_file_full_name().toStdString() << endl;
-			
-			return i;
-		}
-	}
-	
-	return -1;
-}
-
-/**
  * Creates an open file dialog and opens the selected files.
  */
 
@@ -418,7 +389,7 @@ void view_manager::open_file(const QString &file_name)
 }
 
 /**
- * 
+ * Reloads current file from disk.
  */
 
 void view_manager::reload_current_file()
@@ -489,7 +460,9 @@ bool view_manager::save_file_as(src_container *src_c, int index)
 		
 		try {
 			id = src_c->get_src_file_id(index);
-		} catch (...) {}
+		} catch (lgmx::exception &excp) {
+			debug(ERR, VIEW_MANAGER, excp.get_message());
+		}
 		
 		open_files_.insert(fileName);
 		recent_files_->add_file(fileName);
@@ -872,11 +845,6 @@ void view_manager::unsplit()
 
 	view *curr_view = get_current_view();
 
-	if (!curr_view) {
-		debug(ERR, VIEW_MANAGER, "No current view");
-		return;
-	}
-
 	QSplitter *grand_parent;
 	list<QSplitter *>::iterator s_it;
 	list<view *>::iterator v_it;
@@ -912,7 +880,8 @@ void view_manager::unsplit()
 			grand_parent->insertWidget(index, parent->widget(1));
 		else
 			grand_parent->insertWidget(index, parent->widget(0));
-		
+			
+		set_current_view(static_cast<view *>(grand_parent->widget(index)));
 		remove_from_splitter_list(parent);
 
 		// destroy current

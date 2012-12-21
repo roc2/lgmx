@@ -23,7 +23,7 @@ class view_manager : public QWidget
 	Q_OBJECT
 	
 public:
-	view_manager(QWidget *parent = 0, file_type *type_manager = 0);
+	view_manager(QWidget *parent, file_type *type_manager);
 	~view_manager();
 
 	void add_to_view_list(view *v);
@@ -46,12 +46,13 @@ public:
 	highlight_manager* get_highlight_manager();
 
 private:
+	view_manager(const view_manager&);
+	view_manager& operator=(const view_manager&);
+
 	void close_file(QTextDocument *content);
 	
 	bool save_file_as(src_container *src_c, int index);
 	bool save_file(src_container *src_c, const QString &fileName, int index);
-	
-	int get_root_src_container_file_index(QTextDocument *content);
 	
 	void add_to_splitter_list(QSplitter *s);
 	void remove_from_splitter_list(QSplitter *s);

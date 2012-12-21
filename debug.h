@@ -37,7 +37,7 @@
 #define VIEW			1
 #define SRC_FILE		1
 #define SRC_CONTAINER	1
-#define VIEW_MANAGER	1
+#define VIEW_MANAGER		1
 #define CODE_EDITOR		1
 #define STATUS_BAR		1
 
@@ -55,4 +55,4 @@ if (module && (level <= DEF_LEVEL)) { \
 #define	debug(level, module, msg)
 #endif	// _DEBUG_
 
-#endif // DEBUG
+#endif // DEBUG__
