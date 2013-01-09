@@ -1,50 +1,72 @@
-
+#include <QStringList>
 #include <list>
 
 #include <cli.h>
+#include <command.h>
 #include <exception.h>
+#include <view_manager.h>
 
-command::command(cli *parent)
+
+lgmx::cli::cli(view_manager *manager)
 {
-	parent->add_command(this);	
+	manager_ = manager;
+	add_command(new tab_width_cmd("tabwidth", manager));
 }
 
 
+lgmx::cli::~cli()
+{
+	// delete all commands from map
+}
 
-
-
-bool cli::add_command(command *cmd)
+bool lgmx::cli::add_command(command *cmd)
 {
 	cmd_map_[cmd->get_name()] = cmd;
 	return true;
 };
 
 
+/**
+ * [throw]
+ */
 
-
-void cli::execute(QString &cmd_str)
+bool lgmx::cli::execute(QString &cmd_str, QString &result, QString &error)
 {
-	QString cmd_name;
 	std::map<QString, command *>::iterator it;
 
-	it = cmd_map_.find(cmd_name);
+	// split command into tokens
+	QStringList cmd(cmd_str.split(' ', QString::SkipEmptyParts));
+
+	it = cmd_map_.find(cmd.at(0));
 	
 	if (it == cmd_map_.end()) {
-		lgmx::exception excp("Unknown command: " + cmd_name.toStdString());
-		throw excp;
+		error = "Unknown command: " + cmd.at(0);
+		return false;
+	}
+
+	//QString result;
+
+	if (it->second->execute(cmd, result) < 0) {
+		error = "Error: " + result;
+		return false;
 	}
 	
+	return true;
+}
+
+void lgmx::cli::parse(QString &cmd_str)
+{
+	
+
+
 }
 
 
-class tab_width_cmd : public command
-{
-	
 
 
 
 
-};
+
 
 
 

@@ -39,6 +39,9 @@ public:
 	int get_current_file_index(const QString &file_name);
 	src_file* get_current_src_file() const;
 
+	void set_tab_width(int size);
+	int get_tab_width() const;
+
 	unsigned int generate_view_id();
 	void release_view_id(unsigned int id);
 	

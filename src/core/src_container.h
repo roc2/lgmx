@@ -61,6 +61,9 @@ public:
     void set_line_wrap(bool wrap);
     bool get_line_wrap() const;
     
+    void set_tab_width(int size);
+	int get_tab_width() const;
+    
     void focusInEvent(QFocusEvent *event);
     void update_current_view();
 

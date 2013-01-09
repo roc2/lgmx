@@ -32,7 +32,7 @@ int tab_width_cmd::execute(QStringList &params, QString &result)
 {
 	switch (params.size()) {
 	case 1:
-		
+		result = "tab width = 4";
 		return 0;
 		
 	case 2: {

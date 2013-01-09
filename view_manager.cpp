@@ -618,6 +618,28 @@ src_file* view_manager::get_current_src_file() const
 }
 
 /**
+ * Sets the tab width for all files.
+ * @param size - number of spaces for the tab width.
+ */
+
+void view_manager::set_tab_width(int size)
+{
+	std::list<view *>::iterator it(view_list_.begin());
+
+	for (; it != view_list_.end(); it++)
+		(*it)->get_src_container()->set_tab_width(size);
+}
+
+/**
+ * 
+ */
+
+int view_manager::get_tab_width() const
+{
+	return 0;
+}
+
+/**
  * Creates a unique view ID.
  * @return new unique ID.
  */
@@ -927,7 +949,9 @@ void view_manager::remove_all_splits()
 }
 
 /**
- * 
+ * Copies all properties from one view to the other.
+ * @param old_view - the view where the properties are copied from.
+ * @param new_view - 
  */
 
 void view_manager::set_view_properties(view &old_view, view &new_view)

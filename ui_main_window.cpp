@@ -6,6 +6,7 @@
 #include <QString>
 #include <QShortcut>
 #include <QPluginLoader>
+#include <QLineEdit>
 
 #include "ui_main_window.h"
 #include "code_editor.h"
@@ -103,7 +104,18 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(&view_manage
 	splitter->setSizes(splitter_size);
 	//splitter_size = splitter->sizes();	/* this returns the current splitter sizes */
 
-	setCentralWidget(splitter);		// main splitter is the central widget
+	main_layout_ = new QVBoxLayout(this);
+	cli_ = new cli_iface(&view_manager_);
+	
+	main_layout_->addWidget(splitter);
+	main_layout_->addWidget(cli_);
+	main_layout_->setContentsMargins (0, 0, 0, 0);
+	main_layout_->setSpacing(0);
+	
+	widget_ = new QWidget(this);
+	widget_->setLayout(main_layout_);
+
+	setCentralWidget(widget_);		// main splitter is the central widget
 
 	create_menus();
 

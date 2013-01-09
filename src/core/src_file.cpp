@@ -222,6 +222,28 @@ void src_file::set_text_color(const QColor &color)
 }
 
 /**
+ * 
+ */
+
+bool src_file::set_tab_width(int size)
+{
+	if (size < 0)
+		return false;
+
+	setTabStopWidth(size * 8);
+	return true;
+}
+
+/**
+ * 
+ */
+
+int src_file::get_tab_width() const
+{
+	return tabStopWidth() / 8;
+}
+
+/**
  * Returns the file type.
  */
 

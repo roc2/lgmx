@@ -4,50 +4,33 @@
 #include <map>
 #include <QString>
 
-class cli;
+class command;
+class view_manager;
 
-class command
-{
-protected:
-
-	command(cli *parent);
-
-	virtual void param_parser(std::list<QString> &params) = 0;
-
-	virtual int execute() = 0;
-
-public:
-	QString& get_name() {return name;};
-
-protected:
-	QString name;
-	int multiplicity;
-	bool write;
-};
-
-
-
+namespace lgmx {
 
 class cli
 {
-	//enum cmd_ = {TAB_WIDTH, FONT_COLOR};
 public:
+	cli(view_manager *manager);
+	~cli();
+
 	bool add_command(command *cmd);
 
-	void execute(QString &cmd_str);
+	bool execute(QString &cmd_str, QString &result, QString &error);
 
-	void parse(QString &cmd_str) {
+	void parse(QString &cmd_str);
 		// faz o match do nome do comando no map e chama o respectivo 
 		// cmd_obj passando os parametros em uma lista de strings (tokens)
 		
-	}
 
 
 private:
+	view_manager *manager_;
 	std::map<QString, command *> cmd_map_;
 };
 
-
+}
 
 
 #endif

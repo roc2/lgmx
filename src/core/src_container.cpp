@@ -556,6 +556,29 @@ bool src_container::get_line_wrap() const
 }
 
 /**
+ * Sets the tab width for all files in this container.
+ * @param size - number of spaces for the tab width.
+ */
+
+void src_container::set_tab_width(int size)
+{
+	src_file *src_tab;
+	int c = count();
+	
+	for (int i = 0; i < c; i++) {
+		if ((src_tab = static_cast<src_file *>(widget(i))) == 0)
+			continue;	/* index out of range */
+			
+		src_tab->set_tab_width(size);
+	}
+}
+
+int src_container::get_tab_width() const
+{
+	return 0;
+}
+
+/**
  * [slot] Adds asterisk to end of file name if there are any unsaved modifications.
  * This slot is triggered by src_file::modificationChanged(bool).
  * @param changed -> true, if there are unsaved modifications, false otherwise.

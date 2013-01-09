@@ -60,7 +60,10 @@ public:
     
     void set_base_color(const QColor &color);
     void set_text_color(const QColor &color);
-    
+
+	bool set_tab_width(int size);
+	int get_tab_width() const;
+ 
     file_type::type get_file_type() const;
     void set_file_type(file_type::type type);
     
