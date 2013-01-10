@@ -6,7 +6,7 @@ SOURCES += ./src/core/main.cpp ui_main_window.cpp ./src/core/code_editor.cpp ./s
            config.cpp unsvFileDialog.cpp file_watcher.cpp recent_files.cpp search.cpp ./src/core/clipboard.cpp view_manager.cpp \
            ./src/core/view.cpp status_line.cpp ./src/utils/id.cpp ./src/core/file_type.cpp ./src/core/plugin_manager.cpp \
            ./src/core/highlight/cpp/lex.yy.cpp ./src/core/highlight/highlight_manager.cpp ./src/core/vjson/block_allocator.cpp \
-           ./src/core/vjson/json.cpp ./src/core/settings.cpp ./src/core/c_label.cpp ./src/core/text_manip.cpp cli.cpp cli_iface.cpp \
+           ./src/core/vjson/json.cpp ./src/core/settings.cpp ./src/core/c_label.cpp ./src/core/text_manip.cpp cli.cpp \
            command.cpp
            
 HEADERS += debug.h ./src/core/code_editor.h ui_main_window.h ./src/core/src_container.h ./src/core/highlight/cpp/cpp_hl.h \
@@ -15,7 +15,7 @@ HEADERS += debug.h ./src/core/code_editor.h ui_main_window.h ./src/core/src_cont
            ./src/core/view.h status_line.h utils.h ./src/utils/id.h ./src/core/exception.h ./src/core/interfaces.h ./src/core/file_type.h \
            ./src/core/plugin_manager.h ./src/core/highlight/highlight_manager.h ./src/core/highlight/highlighter.h \ 
            ./src/core/vjson/block_allocator.h ./src/core/vjson/json.h ./src/core/settings.h ./src/core/c_label.h ./src/core/text_manip.h cli.h \
-           cli_iface.h command.h
+           command.h
 
 INCLUDEPATH += ./src/utils ./src/core ./src/core/highlight
 INCLUDEPATH += /usr/local/include ./src/core/vjson

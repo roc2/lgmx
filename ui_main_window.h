@@ -40,7 +40,7 @@
 #include "recent_files.h"
 #include "search.h"
 #include "view_manager.h"
-#include <cli_iface.h>
+#include <cli.h>
 
 
 #include <iostream>
@@ -83,7 +83,7 @@ public:
 	QAction *action_find;
 
     QSplitter *splitter;
-    cli_iface *cli_;
+    lgmx::cli *cli_;
     QVBoxLayout *main_layout_;
     QWidget *widget_;
     QList<int> splitter_size;

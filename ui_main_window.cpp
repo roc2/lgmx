@@ -105,7 +105,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(&view_manage
 	//splitter_size = splitter->sizes();	/* this returns the current splitter sizes */
 
 	main_layout_ = new QVBoxLayout(this);
-	cli_ = new cli_iface(&view_manager_);
+	cli_ = new lgmx::cli(&view_manager_);
 	
 	main_layout_->addWidget(splitter);
 	main_layout_->addWidget(cli_);
