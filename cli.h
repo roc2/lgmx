@@ -3,6 +3,7 @@
 
 #include <map>
 #include <QString>
+#include <command.h>
 
 class command;
 class view_manager;
@@ -17,7 +18,7 @@ public:
 
 	bool add_command(command *cmd);
 
-	bool execute(QString &cmd_str, QString &result, QString &error);
+	cmd::stat execute(QString &cmd_str, QString &result);
 
 	void parse(QString &cmd_str);
 		// faz o match do nome do comando no map e chama o respectivo 

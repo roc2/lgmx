@@ -4,12 +4,15 @@
 
 command::command(QString& name, view_manager* manager) : name_(name), manager_(manager)
 {
-	
 }
 
-	
 command::~command()
 {
+}
+
+QString& command::get_name()
+{
+	return name_;
 }
 
 /////////////////////
@@ -23,17 +26,12 @@ tab_width_cmd::~tab_width_cmd()
 {
 }
 
-void tab_width_cmd::param_parser()
-{
-	
-}
-
-int tab_width_cmd::execute(QStringList &params, QString &result)
+cmd::stat tab_width_cmd::execute(QStringList &params, QString &result)
 {
 	switch (params.size()) {
 	case 1:
 		result = "tab width = 4";
-		return 0;
+		return cmd::OK_RES;
 		
 	case 2: {
 		bool ok = false;
@@ -43,22 +41,42 @@ int tab_width_cmd::execute(QStringList &params, QString &result)
 			manager_->set_tab_width(size);
 		} else {
 			result = "Invalid parameter: " + params.at(1);
-			return -1;
+			return cmd::ERR;
 		}
 		
-		return 0;
+		return cmd::OK;
 	}
 
 	default:
 		result = "Invalid parameters";
-		return -1;
+		return cmd::ERR;
 	}
 
 	
 	std::cout << "Executing tab_width_cmd!!" << std::endl;
-	return 0;
+	return cmd::OK;
 }
 
+/////////////////////
+
+version_cmd::version_cmd(QString name, view_manager* manager) : command(name, manager)
+{
+}
+
+version_cmd::~version_cmd()
+{
+}
+
+cmd::stat version_cmd::execute(QStringList &params, QString &result)
+{
+	if (params.size() > 1) {
+		result = "Invalid parameters";
+		return cmd::ERR;
+	}
+
+	result = manager_->get_version_number();
+	return cmd::OK_RES;
+}
 
 
 

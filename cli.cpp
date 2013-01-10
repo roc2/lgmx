@@ -2,7 +2,6 @@
 #include <list>
 
 #include <cli.h>
-#include <command.h>
 #include <exception.h>
 #include <view_manager.h>
 
@@ -11,6 +10,7 @@ lgmx::cli::cli(view_manager *manager)
 {
 	manager_ = manager;
 	add_command(new tab_width_cmd("tabwidth", manager));
+	add_command(new version_cmd("version", manager));
 }
 
 
@@ -27,10 +27,10 @@ bool lgmx::cli::add_command(command *cmd)
 
 
 /**
- * [throw]
+ *
  */
 
-bool lgmx::cli::execute(QString &cmd_str, QString &result, QString &error)
+cmd::stat lgmx::cli::execute(QString &cmd_str, QString &result)
 {
 	std::map<QString, command *>::iterator it;
 
@@ -40,18 +40,11 @@ bool lgmx::cli::execute(QString &cmd_str, QString &result, QString &error)
 	it = cmd_map_.find(cmd.at(0));
 	
 	if (it == cmd_map_.end()) {
-		error = "Unknown command: " + cmd.at(0);
-		return false;
+		result = "Unknown command: " + cmd.at(0);
+		return cmd::ERR;
 	}
 
-	//QString result;
-
-	if (it->second->execute(cmd, result) < 0) {
-		error = "Error: " + result;
-		return false;
-	}
-	
-	return true;
+	return it->second->execute(cmd, result);
 }
 
 void lgmx::cli::parse(QString &cmd_str)

@@ -4,12 +4,12 @@
 #include <QLineEdit>
 #include <list>
 #include <cli.h>
+#include <command.h>
 
 class QEvent;
 class QLabel;
 class QHBoxLayout;
 class view_manager;
-//class lgmx::cli;
 
 class cli_iface : public QWidget
 {
@@ -22,7 +22,6 @@ public:
 	
 
 private:
-	bool event(QEvent *event);
 	bool eventFilter(QObject *object, QEvent *event);
 
 private:

@@ -11,6 +11,7 @@
 
 #include <highlight_manager.h>
 #include <exception.h>
+#include <global.h>
 
 using namespace std;
 
@@ -637,6 +638,16 @@ void view_manager::set_tab_width(int size)
 int view_manager::get_tab_width() const
 {
 	return 0;
+}
+
+/**
+ * Returns the editor version number.
+ * @return version number string.
+ */
+
+QString view_manager::get_version_number()
+{
+	return STR_VER_NUM;
 }
 
 /**

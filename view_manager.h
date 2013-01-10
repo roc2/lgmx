@@ -42,6 +42,8 @@ public:
 	void set_tab_width(int size);
 	int get_tab_width() const;
 
+	QString get_version_number();
+
 	unsigned int generate_view_id();
 	void release_view_id(unsigned int id);
 	

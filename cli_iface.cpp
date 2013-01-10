@@ -9,8 +9,6 @@
 #include <exception.h>
 #include <view_manager.h>
 
-//joanin
-
 
 /**
  * Constructor.
@@ -41,7 +39,6 @@ cli_iface::cli_iface(view_manager *parent) : QWidget(parent)
 	this->setContentsMargins (0, 0, 0, 0);
 	setLayout(layout_);
 	this->setMaximumHeight (22);
-	
 }
 
 /**
@@ -59,69 +56,14 @@ cli_iface::~cli_iface()
  * commands.
  */
 
-bool cli_iface::event(QEvent *event)
-{/*
-	if (event->type() == QEvent::KeyPress) {
-		QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-
-		QString cmd(text());
-
-		switch (ke->key()) {
-		case Qt::Key_Return:
-		case Qt::Key_Enter:
-			
-			if (cmd.isEmpty())
-				return true;
-			
-			std::cout << "command issued: " << cmd.toStdString() << std::endl;
-			// handle command
-			try {
-				cli_->execute(cmd);
-			} catch (lgmx::exception &excp) {
-				debug(ERR, VIEW, excp.get_message());
-			}
-			
-			// add to history
-			cmd_history_->push_back(cmd);
-			curr_cmd_ = cmd_history_->end();
-			clear();
-			return true;
-			
-		case Qt::Key_Up:
-			if (curr_cmd_ != cmd_history_->begin()) {
-				curr_cmd_--;
-				setText(*curr_cmd_);
-			}
-			return true;
-		
-		case Qt::Key_Down:
-			if (curr_cmd_ == cmd_history_->end() || ++curr_cmd_ == cmd_history_->end())
-				clear();
-			else
-				setText(*curr_cmd_);
-
-			return true;
-		
-		case Qt::Key_Escape:
-			this->hide();
-			return true;
-		
-		default:
-			break;
-		}
-	}*/
-
-	return QWidget::event(event);
-}
-
 bool cli_iface::eventFilter(QObject *object, QEvent *event)
 {
 	if (object == input_ && event->type() == QEvent::KeyPress) {
 		QKeyEvent *ke = static_cast<QKeyEvent *>(event);
 
 		QString cmd(input_->text());
-		QString error;
 		QString result;
+		cmd::stat status;
 
 		switch (ke->key()) {
 		case Qt::Key_Return:
@@ -131,17 +73,18 @@ bool cli_iface::eventFilter(QObject *object, QEvent *event)
 				return true;
 			
 			std::cout << "command issued: " << cmd.toStdString() << std::endl;
+			
 			// handle command
-			if (cli_->execute(cmd, result, error)) {
-				if (result.isEmpty())
-					result_->hide();
-				else {
-					result_->setText("   " + result + "   " );
-					result_->setStyleSheet("background-color: rgb(0, 0, 230);");
-					result_->show();
-				}
+			status = cli_->execute(cmd, result);
+
+			if (status == cmd::OK) {
+				result_->hide();
+			} else if (status == cmd::OK_RES) {
+				result_->setText("   " + result + "   " );
+				result_->setStyleSheet("background-color: rgb(0, 0, 230);");
+				result_->show();
 			} else {
-				result_->setText("   " + error + "   ");
+				result_->setText("   " + result + "   ");
 				result_->setStyleSheet("background-color: rgb(200, 0, 0);");
 				result_->show();
 			}
