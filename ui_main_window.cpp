@@ -175,6 +175,7 @@ Ui_MainWindow::~Ui_MainWindow()
 		delete gt_ln_dialog;
 
     destroy_actions();
+    destroy_shortcuts();
 }
 
 void Ui_MainWindow::create_connections()
@@ -219,9 +220,29 @@ void Ui_MainWindow::create_connections()
 	//QObject::connect(this, SIGNAL(windowActivated()), &f_watcher, SLOT(check_for_reload()));
 }
 
+/**
+ * Creates main window shortcuts.
+ */
+
 void Ui_MainWindow::create_shortcuts()
 {
+	// close current file - ctrl+f4
+	close_curr_ = new QShortcut(Qt::CTRL+ Qt::Key_F4, this);
+	QObject::connect(close_curr_, SIGNAL(activated()), &view_manager_, SLOT(close_file()));
 
+	// next file - ctrl + tab
+	next_file_ = new QShortcut(Qt::CTRL+ Qt::Key_Tab, this);
+	QObject::connect(next_file_, SIGNAL(activated()), &view_manager_, SLOT(set_next_file_as_current()));
+}
+
+/**
+ * Destroys main window shortcuts.
+ */
+
+void Ui_MainWindow::destroy_shortcuts()
+{
+	delete next_file_;
+	delete close_curr_;
 }
 
 /**

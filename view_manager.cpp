@@ -246,17 +246,6 @@ bool view_manager::new_file(const QString &file_name)
 
 void view_manager::close_file(int index)
 {
-	/*
-	 * The file to be closed is identified by its unique ID.
-	 * The original file is the root file, if there are other views, 
-	 * the root file is cloned in all other views. The clone files do not have their 
-	 * own content (QTextDocument *), they all point to the root file's content instead.
-	 * Therefore, if the close action was requested from a child view, we can identify 
-	 * the corresponding root file to be closed by its ID, which is 
-	 * the same in the root file and its clones.
-	 */
-	
-	unsigned int id;
 	src_file *src_tab;
 
 	// get container
@@ -269,6 +258,43 @@ void view_manager::close_file(int index)
 		return;
 	}
 	
+	close_file(container, src_tab, index);
+}
+
+/**
+ * [Slot] Closes current file.
+ */
+
+void view_manager::close_file()
+{
+	src_container *container = get_current_view()->get_src_container();
+	src_file *src_tab = container->get_current_src_file();
+
+	if (!src_tab) {
+		debug(ERR, VIEW_MANAGER, "File not found");
+		return;
+	}
+	
+	close_file(container, src_tab, container->get_current_tab_index());
+}
+
+/**
+ * 
+ */
+
+void view_manager::close_file(src_container *container, src_file *src_tab, int index)
+{
+	/*
+	 * The file to be closed is identified by its unique ID.
+	 * The original file is the root file, if there are other views, 
+	 * the root file is cloned in all other views. The clone files do not have their 
+	 * own content (QTextDocument *), they all point to the root file's content instead.
+	 * Therefore, if the close action was requested from a child view, we can identify 
+	 * the corresponding root file to be closed by its ID, which is 
+	 * the same in the root file and its clones.
+	 */
+	
+	unsigned int id;
 	QString file_name(src_tab->get_src_file_full_name());
 	id = src_tab->get_id();
 
@@ -582,8 +608,8 @@ void view_manager::set_current_file_index(int index)
 {
 	current_view_ = get_current_view();
 
-	if (!current_view_)
-		return;
+	//if (!current_view_)
+		//return;
 	
 	src_container *container = current_view_->get_src_container();
 	
@@ -591,6 +617,15 @@ void view_manager::set_current_file_index(int index)
         return; /* index out of range */
     
     container->setCurrentIndex(index);
+}
+
+/**
+ * [slot] Sets the next file as the current file.
+ */
+
+void view_manager::set_next_file_as_current()
+{
+	get_current_view()->get_src_container()->set_next_src_file_as_current();
 }
 
 /**
@@ -638,6 +673,27 @@ void view_manager::set_tab_width(int size)
 int view_manager::get_tab_width() const
 {
 	return 0;
+}
+
+/**
+
+ */
+
+void view_manager::set_line_wrap(bool on)
+{
+	std::list<view *>::iterator it(view_list_.begin());
+
+	for (; it != view_list_.end(); it++)
+		(*it)->get_src_container()->set_line_wrap(on);
+}
+
+/**
+ * 
+ */
+
+bool view_manager::get_line_wrap() const
+{
+	return false;
 }
 
 /**

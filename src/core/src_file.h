@@ -63,7 +63,10 @@ public:
 
 	bool set_tab_width(int size);
 	int get_tab_width() const;
- 
+
+	void set_line_wrap(bool on);
+	bool get_line_wrap() const;
+
     file_type::type get_file_type() const;
     void set_file_type(file_type::type type);
     

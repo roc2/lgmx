@@ -47,6 +47,7 @@ public:
 	src_file *get_current_src_file();
 	unsigned int get_src_file_id(int index);
 	void set_current_src_file(unsigned int id);
+	void set_next_src_file_as_current();
 	src_file *get_src_file(int index);
 	src_file *get_src_file(unsigned int id);
 	
@@ -63,6 +64,8 @@ public:
     
     void set_tab_width(int size);
 	int get_tab_width() const;
+	
+	//void set_line_wrap(bool on);
     
     void focusInEvent(QFocusEvent *event);
     void update_current_view();

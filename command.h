@@ -55,4 +55,17 @@ public:
 	cmd::stat execute(QStringList &params, QString &result);
 };
 
+/**
+ * Line wrap command.
+ */
+
+class line_wrap_cmd : public command
+{
+public:
+	line_wrap_cmd(QString name, view_manager* manager);
+	~line_wrap_cmd();
+
+	cmd::stat execute(QStringList &params, QString &result);
+};
+
 #endif

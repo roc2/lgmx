@@ -244,6 +244,32 @@ int src_file::get_tab_width() const
 }
 
 /**
+ * Sets the line wrap mode.
+ * @param on - if true, text wraps at widget's width, otherwise 
+ * text does not wrap.
+ */
+
+void src_file::set_line_wrap(bool on)
+{
+	if (on)
+		setLineWrapMode(QPlainTextEdit::WidgetWidth);
+	else
+		setLineWrapMode(QPlainTextEdit::NoWrap);
+}
+
+/**
+ * 
+ */
+
+bool src_file::get_line_wrap() const
+{
+	if (lineWrapMode() == QPlainTextEdit::WidgetWidth)
+		return true;
+		
+	return false;
+}
+
+/**
  * Returns the file type.
  */
 

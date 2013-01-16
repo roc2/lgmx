@@ -40,6 +40,7 @@ lgmx::cli::cli(view_manager *manager) : QWidget(manager)
 	
 	add_command(new tab_width_cmd("tabwidth", manager));
 	add_command(new version_cmd("version", manager));
+	add_command(new line_wrap_cmd("linewrap", manager));
 }
 
 

@@ -41,6 +41,8 @@ public:
 
 	void set_tab_width(int size);
 	int get_tab_width() const;
+	void set_line_wrap(bool on);
+	bool get_line_wrap() const;
 
 	QString get_version_number();
 
@@ -55,6 +57,7 @@ private:
 	view_manager& operator=(const view_manager&);
 
 	void close_file(QTextDocument *content);
+	void close_file(src_container *container, src_file *src_tab, int index);
 	
 	bool save_file_as(src_container *src_c, int index);
 	bool save_file(src_container *src_c, const QString &fileName, int index);
@@ -80,6 +83,7 @@ public slots:
 	void remove_all_splits();
 
 	void close_file(int index);
+	void close_file();
 	void new_file();
 	void open_file();
 	void open_file(const QString &file_name);
@@ -88,6 +92,7 @@ public slots:
 	
 	void show_src_tab_bar(bool show);
 	void show_status_bar(bool show);
+	void set_next_file_as_current();
 
 private slots:
 	//void open_recent_file();

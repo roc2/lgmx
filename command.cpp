@@ -78,7 +78,48 @@ cmd::stat version_cmd::execute(QStringList &params, QString &result)
 	return cmd::OK_RES;
 }
 
+/////////////////////
 
+line_wrap_cmd::line_wrap_cmd(QString name, view_manager* manager) : command(name, manager)
+{
+}
+
+line_wrap_cmd::~line_wrap_cmd()
+{
+}
+
+cmd::stat line_wrap_cmd::execute(QStringList &params, QString &result)
+{
+	switch (params.size()) {
+	case 1:
+		if (manager_->get_line_wrap())
+			result = "on";
+		else
+			result = "off";
+
+		return cmd::OK_RES;
+		
+	case 2: {
+		if (params.at(1) == "on") {
+			manager_->set_line_wrap(true);
+		} else if (params.at(1) == "off") {
+			manager_->set_line_wrap(false);
+		} else {
+			result = "Invalid parameter: " + params.at(1);
+			return cmd::ERR;
+		}
+		
+		return cmd::OK;
+	}
+
+	default:
+		result = "Invalid parameters";
+		return cmd::ERR;
+	}
+
+	result = manager_->get_version_number();
+	return cmd::OK_RES;
+}
 
 
 

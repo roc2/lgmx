@@ -182,6 +182,24 @@ void src_container::set_current_src_file(unsigned int id)
 }
 
 /**
+ * Sets the next file as the current file.
+ */
+
+void src_container::set_next_src_file_as_current()
+{
+	int curr = currentIndex();
+	
+	if (curr < 0)
+		return;
+	
+	if (++curr >= count())
+		curr = 0;
+		
+	setCurrentIndex(curr);
+}
+
+
+/**
  * Returns the source file through its index.
  * @param index - source file index within the container.
  * @return pointer to the file, NULL pointer if the index is invalid.
@@ -529,7 +547,7 @@ int src_container::get_file_index(const QString &file_name)
  * @param wrap -> true, line wraps according to the widget's width, 
  * false, no wrap.
  */
-
+/*
 void src_container::set_line_wrap(bool wrap)
 {
 	int c = this->count();
@@ -540,7 +558,7 @@ void src_container::set_line_wrap(bool wrap)
 		else
 			static_cast<src_file *>(widget(i))->setLineWrapMode(QPlainTextEdit::NoWrap);
 	}
-}
+}*/
 
 /**
  * Returns the line wrap mode for the files within the container.
@@ -576,6 +594,23 @@ void src_container::set_tab_width(int size)
 int src_container::get_tab_width() const
 {
 	return 0;
+}
+
+/**
+ * 
+ */
+ 
+void src_container::set_line_wrap(bool wrap)
+{
+	src_file *src_tab;
+	int c = count();
+	
+	for (int i = 0; i < c; i++) {
+		if ((src_tab = static_cast<src_file *>(widget(i))) == 0)
+			continue;	/* index out of range */
+			
+		src_tab->set_line_wrap(wrap);
+	}
 }
 
 /**

@@ -152,6 +152,9 @@ private:
 
 	file_watcher f_watcher;
 	lgmx::search *search_dialog;
+	
+	QShortcut *next_file_;
+	QShortcut *close_curr_;
 
 private slots:
     // current in use
@@ -184,6 +187,7 @@ signals:
 private:
 	void create_connections();
 	void create_shortcuts();
+	void destroy_shortcuts();
 	void load_plugins();
 };
 
