@@ -13,13 +13,14 @@
 
 class QVBoxLayout;
 class view_manager;
+class Settings;
 
 class src_container : public QTabWidget
 {
 	Q_OBJECT
 	
 public:
-	src_container(view_manager *manager, QWidget *parent = 0);
+	src_container(view_manager *manager, Settings *settings, QWidget *parent = 0);
 	~src_container();
 	
 	int new_src_tab(const QString &file_name, unsigned int file_id);
@@ -44,6 +45,7 @@ public:
 	bool get_src_tab_content(int index, QString &content);
 
 	int get_current_tab_index();
+	int get_index_of(src_file *src_tab);
 	src_file *get_current_src_file();
 	unsigned int get_src_file_id(int index);
 	void set_current_src_file(unsigned int id);
@@ -82,6 +84,7 @@ private:
     QFont font;
     
     view_manager *manager_;
+    Settings *settings_;
 };
 
 #endif

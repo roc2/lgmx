@@ -1,6 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+
 #include <QDomDocument>
 #include <QDir>
 #include <QString>
@@ -19,6 +20,5 @@ class Config
 
 
 };
-
 
 #endif

@@ -23,7 +23,7 @@ class view_manager : public QWidget
 	Q_OBJECT
 	
 public:
-	view_manager(QWidget *parent, file_type *type_manager);
+	view_manager(QWidget *parent, file_type *type_manager, Settings *settings);
 	~view_manager();
 
 	void add_to_view_list(view *v);
@@ -51,6 +51,8 @@ public:
 	
 	bool check_unsaved_files();
 	highlight_manager* get_highlight_manager();
+	
+	Settings* get_settings();
 
 private:
 	view_manager(const view_manager&);
@@ -107,11 +109,11 @@ private:
     view *current_view_;
     QPointer<view> curr_view_;
     src_container *root_container_;
+    Settings *settings_;
     
     file_type *type_manager_;
     plugin_manager plugin_manager_;
     highlight_manager *highlight_manager_;
-    Settings settings_;
     
     std::set<QString> open_files_; /**< current open files */
     recent_files *recent_files_;

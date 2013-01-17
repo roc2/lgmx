@@ -65,6 +65,7 @@ class Ui_MainWindow : public QMainWindow
 public:
 	QAction *actionSave;
     QAction *actionOpen;
+    QAction *action_close_;
     QAction *action_reload;
     QAction *actionNew;
 	QAction *actionQuit;
@@ -92,7 +93,7 @@ public:
     QWidget *tab;
     QWidget *tab_2;
     
-    src_container _src_container;
+    src_container *_src_container;
     
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
@@ -130,11 +131,11 @@ protected:
 
 private:
 
-	src_container *_src_container_ptr;	// current active set of source files
 	src_container *_root_src_container;
 	
 	file_type type_manager;
-	view_manager view_manager_;
+	Settings *settings_;
+	view_manager *view_manager_;
 
     set<QString> open_files; /**< current open files */
     
@@ -154,7 +155,6 @@ private:
 	lgmx::search *search_dialog;
 	
 	QShortcut *next_file_;
-	QShortcut *close_curr_;
 
 private slots:
     // current in use

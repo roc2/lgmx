@@ -8,13 +8,14 @@
 #include <debug.h>
 #include <exception.h>
 #include <view_manager.h>
+#include <settings.h>
 
 /**
  * Constructor.
  * @param parent -> parent widget.
  */
 
-src_container::src_container(view_manager *manager, QWidget *parent) : QTabWidget(parent)
+src_container::src_container(view_manager *manager, Settings *settings, QWidget *parent) : QTabWidget(parent), settings_(settings)
 {
 	manager_ = manager;
 	
@@ -155,6 +156,16 @@ src_file* src_container::new_clone_tab(src_file *base_file)
 int src_container::get_current_tab_index()
 {
 	return currentIndex();
+}
+
+/**
+ * Returns the source_file's index in the container.
+ * @param src_tab - file we want the index of.
+ */
+
+int src_container::get_index_of(src_file *src_tab)
+{
+	return indexOf(static_cast<QWidget *>(src_tab));
 }
 
 /**

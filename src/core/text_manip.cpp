@@ -30,8 +30,9 @@ text_manip::text_manip(view_manager &manager, QWidget *parent) : manager_(manage
 
 text_manip::~text_manip()
 {
-	delete dup_up;
+	delete delete_line;
 	delete dup_down;
+	delete dup_up;
 }
 
 /**

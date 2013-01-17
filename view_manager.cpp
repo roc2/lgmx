@@ -19,9 +19,9 @@ using namespace std;
  * Constructor.
  */
 
-view_manager::view_manager(QWidget *parent, file_type *type_manager) : QWidget(parent)
+view_manager::view_manager(QWidget *parent, file_type *type_manager, Settings *settings) : QWidget(parent), settings_(settings)
 {
-	root_container_ = new src_container(this);
+	root_container_ = new src_container(this, settings_);
 	root_container_->hide();
 	
 	type_manager_ = type_manager;
@@ -598,6 +598,15 @@ bool view_manager::check_unsaved_files()
 highlight_manager* view_manager::get_highlight_manager()
 {
 	return highlight_manager_;
+}
+
+/**
+ * 
+ */
+
+Settings* view_manager::get_settings()
+{
+	return settings_;
 }
 
 /**

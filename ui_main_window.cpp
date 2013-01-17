@@ -30,14 +30,18 @@ using namespace std;
 
 qint64 start;
 
-Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(&view_manager_, this), view_manager_(this, &type_manager)
+Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 {
 	QDateTime boot_time;
 	start =	boot_time.currentMSecsSinceEpoch();
 	
     if (objectName().isEmpty())
 		setObjectName(QString::fromUtf8("main_window"));
-        
+
+	settings_ = new Settings();
+
+	view_manager_ = new view_manager(this, &type_manager, settings_);
+
 	//resize(831, 557);
 	//showMaximized();
 
@@ -50,9 +54,12 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(&view_manage
 	 * src_container deve sempre apontar para o grupo de arquivos ativo. Como os módulos apontam para src_container, 
 	 * sempre terão o endereço do grupo de arquivos ativo.
 	 */
-	_src_container_ptr = &_src_container;
+	 
+	 
+	// nao sei se esse container está sendo usado!!!
+	_src_container = new src_container(view_manager_, settings_, this);
 
-	_root_src_container = view_manager_.get_root_src_container();
+	_root_src_container = view_manager_->get_root_src_container();
 
 	gt_ln_dialog = NULL;
 
@@ -61,14 +68,14 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(&view_manage
     QCoreApplication::setApplicationName(APPLICATION);
 	
 	
-	search_dialog = new lgmx::search(view_manager_, this);
+	search_dialog = new lgmx::search(*view_manager_, this);
 	
-	c_board = new clipboard(view_manager_, this);
-	text_manip_ = new text_manip(view_manager_, this);
+	c_board = new clipboard(*view_manager_, this);
+	text_manip_ = new text_manip(*view_manager_, this);
 	
 	createActions();
 	
-	view_manager_.set_recent_files_widget(menu_recent_files);
+	view_manager_->set_recent_files_widget(menu_recent_files);
 	
 	// main splitter
 	splitter = new QSplitter(this);
@@ -94,7 +101,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(&view_manage
 	symbol_tab_widget->addTab(tab_2, QString());
 	
 	splitter->addWidget(symbol_tab_widget);
-	splitter->addWidget(&view_manager_);
+	splitter->addWidget(view_manager_);
 	
 	/* Configure splitter sizes. This must be called after the child widgets 
 	 * were inserted.
@@ -105,7 +112,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(&view_manage
 	//splitter_size = splitter->sizes();	/* this returns the current splitter sizes */
 
 	main_layout_ = new QVBoxLayout(this);
-	cli_ = new lgmx::cli(&view_manager_);
+	cli_ = new lgmx::cli(view_manager_);
 	
 	main_layout_->addWidget(splitter);
 	main_layout_->addWidget(cli_);
@@ -123,6 +130,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files) : _src_container(&view_manage
 	addAction(actionNew);
 	addAction(actionSave);
 	addAction(actionOpen);
+	addAction(action_close_);
 	addAction(action_reload);
 	addAction(action_split_horizontally);
 	addAction(action_split_vertically);
@@ -176,37 +184,43 @@ Ui_MainWindow::~Ui_MainWindow()
 
     destroy_actions();
     destroy_shortcuts();
+    
+    delete _src_container;
+    delete view_manager_;
+    delete settings_;
 }
 
 void Ui_MainWindow::create_connections()
 {
-	QObject::connect(actionSave, SIGNAL(triggered()), &view_manager_, SLOT(save()));
+	QObject::connect(actionSave, SIGNAL(triggered()), view_manager_, SLOT(save()));
 
-	QObject::connect(actionOpen, SIGNAL(triggered()), &view_manager_, SLOT(open_file()));
+	QObject::connect(actionOpen, SIGNAL(triggered()), view_manager_, SLOT(open_file()));
 	
-	QObject::connect(action_reload, SIGNAL(triggered()), &view_manager_, SLOT(reload_current_file()));
+	QObject::connect(action_close_, SIGNAL(triggered()), view_manager_, SLOT(close_file()));
 	
-	QObject::connect(actionNew, SIGNAL(triggered()), &view_manager_, SLOT(new_file()));
+	QObject::connect(action_reload, SIGNAL(triggered()), view_manager_, SLOT(reload_current_file()));
+	
+	QObject::connect(actionNew, SIGNAL(triggered()), view_manager_, SLOT(new_file()));
 	QObject::connect(actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
 	
 	/* side bar */
 	QObject::connect(actionSide_Bar, SIGNAL(toggled(bool)), this, SLOT(show_side_bar(bool)));
 	/* status bar */
-	QObject::connect(actionStatus_Bar, SIGNAL(toggled(bool)), &view_manager_, SLOT(show_status_bar(bool)));
+	QObject::connect(actionStatus_Bar, SIGNAL(toggled(bool)), view_manager_, SLOT(show_status_bar(bool)));
 	/* menu bar */
 	QObject::connect(actionMenuBar, SIGNAL(toggled(bool)), this, SLOT(show_menu_bar(bool)));
 	/* full screen */
 	QObject::connect(actionFullScreen, SIGNAL(toggled(bool)), this, SLOT(show_full_screen(bool)));
 	/* source tab bar */
-	QObject::connect(actionSrcTabBar, SIGNAL(toggled(bool)), &view_manager_, SLOT(show_src_tab_bar(bool)));
+	QObject::connect(actionSrcTabBar, SIGNAL(toggled(bool)), view_manager_, SLOT(show_src_tab_bar(bool)));
 	/* split horizontally */
-	QObject::connect(action_split_horizontally, SIGNAL(triggered()), &view_manager_, SLOT(split_horizontally()));
+	QObject::connect(action_split_horizontally, SIGNAL(triggered()), view_manager_, SLOT(split_horizontally()));
 	/* split vertically */
-	QObject::connect(action_split_vertically, SIGNAL(triggered()), &view_manager_, SLOT(split_vertically()));
+	QObject::connect(action_split_vertically, SIGNAL(triggered()), view_manager_, SLOT(split_vertically()));
 	/* unsplit */
-	QObject::connect(action_unsplit, SIGNAL(triggered()), &view_manager_, SLOT(unsplit()));
+	QObject::connect(action_unsplit, SIGNAL(triggered()), view_manager_, SLOT(unsplit()));
 	/* remove all splits */
-	QObject::connect(action_remove_all_splits, SIGNAL(triggered()), &view_manager_, SLOT(remove_all_splits()));
+	QObject::connect(action_remove_all_splits, SIGNAL(triggered()), view_manager_, SLOT(remove_all_splits()));
 	
 	/* go to line */
 	QObject::connect(actionGo_to_line, SIGNAL(triggered()), this, SLOT(go_to_ln()));
@@ -226,13 +240,9 @@ void Ui_MainWindow::create_connections()
 
 void Ui_MainWindow::create_shortcuts()
 {
-	// close current file - ctrl+f4
-	close_curr_ = new QShortcut(Qt::CTRL+ Qt::Key_F4, this);
-	QObject::connect(close_curr_, SIGNAL(activated()), &view_manager_, SLOT(close_file()));
-
 	// next file - ctrl + tab
 	next_file_ = new QShortcut(Qt::CTRL+ Qt::Key_Tab, this);
-	QObject::connect(next_file_, SIGNAL(activated()), &view_manager_, SLOT(set_next_file_as_current()));
+	QObject::connect(next_file_, SIGNAL(activated()), view_manager_, SLOT(set_next_file_as_current()));
 }
 
 /**
@@ -242,7 +252,6 @@ void Ui_MainWindow::create_shortcuts()
 void Ui_MainWindow::destroy_shortcuts()
 {
 	delete next_file_;
-	delete close_curr_;
 }
 
 /**
@@ -251,7 +260,7 @@ void Ui_MainWindow::destroy_shortcuts()
 
 src_container* Ui_MainWindow::get_current_src_container()
 {
-	return view_manager_.get_current_src_container();
+	return view_manager_->get_current_src_container();
 }
 
 void Ui_MainWindow::changeEvent(QEvent *e)
@@ -309,8 +318,8 @@ bool Ui_MainWindow::saveAs(int index)
         return false;   /* no file specified */
 
     if (saveFile(fileName, index)) {
-        _src_container.set_file_name(index, fileName);
-        _src_container.update_file_info(index);
+        _src_container->set_file_name(index, fileName);
+        _src_container->update_file_info(index);
         f_watcher.add_path(fileName);
         return true;
     }
@@ -332,10 +341,10 @@ bool Ui_MainWindow::saveFile(const QString &fileName, int index)
     
     cout << "file name -> " << fileName.toStdString() << endl;
 
-    if (!_src_container.src_tab_write_file(index, fileName))
+    if (!_src_container->src_tab_write_file(index, fileName))
         return false;
 
-    _src_container.set_modified(index, false);
+    _src_container->set_modified(index, false);
     open_files.insert(fileName);
     menu_recent_files->add_file(fileName);
 
@@ -344,15 +353,15 @@ bool Ui_MainWindow::saveFile(const QString &fileName, int index)
 
 void Ui_MainWindow::set_current_index(int index)
 {
-    if (index >= _src_container.count())
+    if (index >= _src_container->count())
         return; /* index out of range */
     
-    _src_container.setCurrentIndex(index);
+    _src_container->setCurrentIndex(index);
 }
 
 int Ui_MainWindow::get_file_index(const QString &file_name)
 {
-	return _src_container.get_file_index(file_name);
+	return _src_container->get_file_index(file_name);
 }
 
 /**
@@ -367,9 +376,9 @@ void Ui_MainWindow::load_parameter_files(list<QString> *files)
     for (list<QString>::iterator it = files->begin(); it != files->end(); it++) {
         if ((*it)[0] != '/') {  // append file path
 			QString file(curPath + '/' + *it);
-            view_manager_.open_file(file);
+            view_manager_->open_file(file);
         } else
-			view_manager_.open_file(*it);
+			view_manager_->open_file(*it);
     }
 }
 
@@ -493,7 +502,7 @@ void Ui_MainWindow::go_to_ln()
 	view *curr_view;
 	src_file *src_tab;
 
-	curr_view = view_manager_.get_current_view();
+	curr_view = view_manager_->get_current_view();
 	src_tab = curr_view->get_src_container()->get_current_src_file();
 
     if (!src_tab)
@@ -564,7 +573,7 @@ void Ui_MainWindow::readSettings()
 
 void Ui_MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (!view_manager_.check_unsaved_files()) {
+    if (!view_manager_->check_unsaved_files()) {
         event->ignore();
         return;
     }
@@ -599,6 +608,9 @@ void Ui_MainWindow::createActions()
     actionOpen = new QAction(this);
     actionOpen->setObjectName(QString::fromUtf8("actionOpen"));
     
+    action_close_ = new QAction(this);
+    action_close_->setObjectName(QString::fromUtf8("actionClose"));
+    
     actionNew = new QAction(this);
     actionNew->setObjectName(QString::fromUtf8("actionNew"));
     
@@ -610,7 +622,7 @@ void Ui_MainWindow::createActions()
 
 	/* recent files menu */
     menu_recent_files = new recent_files(tr("Recent Files"), this);
-    connect(menu_recent_files, SIGNAL(open_recent_file(const QString &)), &view_manager_, SLOT(open_file(const QString &)));
+    connect(menu_recent_files, SIGNAL(open_recent_file(const QString &)), view_manager_, SLOT(open_file(const QString &)));
     
     /* menu side bar */
     actionSide_Bar = new QAction(this);
@@ -688,6 +700,7 @@ void Ui_MainWindow::destroy_actions()
     delete menu_recent_files;
     delete actionQuit;
     delete actionNew;
+    delete action_close_;
     delete actionOpen;
     delete action_reload;
     delete actionSave;
@@ -731,6 +744,9 @@ void Ui_MainWindow::create_menus()
 	menu_File->addAction(actionOpen);
 
 	menu_File->addSeparator();
+	menu_File->addAction(action_close_);
+
+	menu_File->addSeparator();
 	menu_File->addMenu(menu_recent_files);
 	
 	menu_File->addSeparator();
@@ -768,6 +784,10 @@ void Ui_MainWindow::retranslateUi(QMainWindow *main_window)
 	actionSave->setShortcut(QApplication::translate("MainWindow", "Ctrl+S", 0, QApplication::UnicodeUTF8));
 	actionOpen->setText(QApplication::translate("MainWindow", "Open", 0, QApplication::UnicodeUTF8));
 	actionOpen->setShortcut(QApplication::translate("MainWindow", "Ctrl+O", 0, QApplication::UnicodeUTF8));
+	
+	action_close_->setText(QApplication::translate("MainWindow", "Close", 0, QApplication::UnicodeUTF8));
+	action_close_->setShortcut(QApplication::translate("MainWindow", "Ctrl+F4", 0, QApplication::UnicodeUTF8));
+	
 	actionNew->setText(QApplication::translate("MainWindow", "New", 0, QApplication::UnicodeUTF8));
 	actionNew->setShortcut(QApplication::translate("MainWindow", "Ctrl+N", 0, QApplication::UnicodeUTF8));
 	action_reload->setText(QApplication::translate("MainWindow", "Reload", 0, QApplication::UnicodeUTF8));
