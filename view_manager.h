@@ -41,7 +41,7 @@ public:
 
 	void set_tab_width(int size);
 	int get_tab_width() const;
-	void set_line_wrap(bool on);
+	void set_line_wrap(bool wrap);
 	bool get_line_wrap() const;
 
 	QString get_version_number();

@@ -1,4 +1,6 @@
 #include "cpp_hl.h"
+#include <QString>
+#include <QList>
 #include <iostream>
 
 using namespace std;
@@ -13,6 +15,8 @@ extern int pos;
 extern int cpp_start;
 extern bool comment;
 
+#define NUMBER		2
+#define KEYWORD		3
 
 
 C_highlighter::C_highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)
@@ -27,6 +31,11 @@ C_highlighter::C_highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)
 	
 	singleLineCommentFormat.setForeground(Qt::gray);
     singleLineCommentFormat.setBackground(Qt::transparent);
+    
+    //keywords_.insert("if");
+    //keywords_.insert("else");
+    //keywords_.insert("while");
+    //keywords_.insert("for");
 }
 
 C_highlighter::~C_highlighter()
@@ -38,6 +47,33 @@ void C_highlighter::highlightBlock(const QString &text)
 {
 	int ret;
 	int size;
+	QList<hl_info> hl_info_list;
+	QList<hl_info>::iterator it;
+
+	lex(text, hl_info_list);
+	
+	for (it = hl_info_list.begin(); it != hl_info_list.end(); it++) {
+		//cout << "begin " << it->begin << " offset "<< it->offset << endl;
+		
+		switch (it->token) {
+		case 0:
+			setFormat(it->begin, it->offset, integerFormat);
+			break;
+			
+		case 1:
+			setFormat(it->begin, it->offset, keywordFormat);
+			break;
+		
+		case NUMBER:
+			setFormat(it->begin, it->offset, integerFormat);
+			break;
+		
+		default:
+			break;
+		}
+	}
+
+	return;
 
 	init ((char*)(text.toStdString().c_str()), 0);
 	
@@ -79,5 +115,126 @@ void C_highlighter::highlightBlock(const QString &text)
 			//rehighlightBlock(currentBlock().next());
 	}*/
 }
+
+void C_highlighter::lex(const QString &data, QList<hl_info> &hl_info_list)
+{
+	int pos = 0;
+	int size = data.size();
+	struct hl_info info;
+	bool match;
+	
+	while (pos < size) {
+		match = true;
+		
+		switch (data[pos].unicode()) {
+		
+		case '/':	// match comments
+		{
+			if (pos + 1 < size) {
+				if (data[pos + 1] == '/') {		// single line comment
+					info.begin = pos;
+					info.offset = data.length() - info.begin;
+					info.token = 0;
+					pos = size;
+					hl_info_list.append(info);
+					break;
+					
+				} else if (data[pos+1] == '*') {
+					info.begin = pos;
+
+					while (data[pos] != '*' || data[pos + 1] != '/') {
+						pos++;
+						if (pos + 1 == size)
+							break;
+					}
+					
+					//end = pos++;
+					
+					//cout << "comment: " << begin << " " << end << endl;
+				}
+			}
+		}
+		break;
+
+		case '"':		// literal
+			info.begin = pos++;
+			
+			while (pos < size) {
+				if (data[pos] == '"' && data[pos - 1] != '\\') {
+					info.offset = pos - info.begin + 1;
+					info.token = 1;
+					hl_info_list.append(info);
+					break;
+				} else {
+					pos++;
+				}
+			}
+		
+			break;
+
+		default:
+			match = false;
+			break;
+	}
+	
+	if (!match) {
+		// number
+		if (data[pos].isDigit()) {
+			info.begin = pos;
+			
+			do {
+				pos++;
+			} while (pos < size && (data[pos].isDigit() || data[pos] == '.'|| data[pos].isLetter()));
+			
+			info.offset = pos - info.begin;
+			pos--;
+			info.token = NUMBER;
+			hl_info_list.append(info);
+		} else if (data[pos].isLower()) {
+			info.begin = pos;
+			
+			do {
+				pos++;
+			} while (pos < size && data[pos].isLower());
+			
+			//if (pos < size && !data[pos].isLetter() && data[pos] != '_')
+			
+			info.offset = pos - info.begin;
+			pos--;
+			info.token = KEYWORD;
+			hl_info_list.append(info);
+			
+		}
+	}
+	
+	pos++;
+	}
+	
+}	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 

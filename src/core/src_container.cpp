@@ -72,6 +72,11 @@ void src_container::update_current_view()
 	manager_->set_current_view(static_cast<view *>(this->parent()));
 }
 
+Settings* src_container::get_settings()
+{
+	return settings_;
+}
+
 /**
  * Create new source tab.
  * @param file_name -> the new file name.

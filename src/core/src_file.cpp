@@ -11,6 +11,7 @@
 #include <debug.h>
 #include <highlight_manager.h>
 #include <src_container.h>
+#include <settings.h>
 
 
 /**
@@ -26,9 +27,11 @@ src_file::src_file(const QString &file_name, unsigned int id, src_container *par
 
 	this->setContentsMargins(0, 0, 0, 0);
     this->setObjectName(QString::fromUtf8("src_editor"));
-    this->setTabStopWidth(4 * 8);
-    this->setLineWrapMode(QPlainTextEdit::NoWrap);
     this->installEventFilter(this);
+    
+    this->setTabStopWidth(parent->get_settings()->get_tab_width() * 8);
+    //this->setLineWrapMode(QPlainTextEdit::NoWrap);
+    set_line_wrap(parent->get_settings()->get_line_wrap());
     
     //this->setOverwriteMode(true);
     
@@ -70,9 +73,9 @@ src_file::src_file(src_file *base_file, src_container *parent)
 	
 	this->setContentsMargins(0, 0, 0, 0);
     this->setObjectName(QString::fromUtf8("src_editor"));
-    //editor->setTabStopWidth(num_spaces * font_size_in_pixels);
-    this->setTabStopWidth(4 * 8);
-    this->setLineWrapMode(QPlainTextEdit::NoWrap);
+    this->setTabStopWidth(parent->get_settings()->get_tab_width() * 8);
+    //this->setLineWrapMode(QPlainTextEdit::NoWrap);
+    set_line_wrap(parent->get_settings()->get_line_wrap());
     this->installEventFilter(this);
 
     highlight_manager_ = NULL;

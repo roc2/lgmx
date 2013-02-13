@@ -1,7 +1,6 @@
 #ifndef SRC_CONTAINER_H
 #define SRC_CONTAINER_H
 
-
 #include <QtGui/QTabWidget>
 #include <QTabBar>
 #include <QFont>
@@ -71,6 +70,8 @@ public:
     
     void focusInEvent(QFocusEvent *event);
     void update_current_view();
+    
+    Settings* get_settings();
 
 public slots:
 	void file_changed(bool changed);

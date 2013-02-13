@@ -673,6 +673,8 @@ void view_manager::set_tab_width(int size)
 
 	for (; it != view_list_.end(); it++)
 		(*it)->get_src_container()->set_tab_width(size);
+		
+	settings_->set_tab_width(size);
 }
 
 /**
@@ -688,12 +690,14 @@ int view_manager::get_tab_width() const
 
  */
 
-void view_manager::set_line_wrap(bool on)
+void view_manager::set_line_wrap(bool wrap)
 {
 	std::list<view *>::iterator it(view_list_.begin());
 
 	for (; it != view_list_.end(); it++)
-		(*it)->get_src_container()->set_line_wrap(on);
+		(*it)->get_src_container()->set_line_wrap(wrap);
+		
+	settings_->set_line_wrap(wrap);
 }
 
 /**
