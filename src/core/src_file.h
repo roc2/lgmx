@@ -45,6 +45,10 @@ public:
 	void focusInEvent(QFocusEvent *event);
 	void focusOutEvent(QFocusEvent *event);
 
+	int get_first_visible_block();
+	QTextBlock get_text_block(int block);
+	void get_visible_blocks_range(int &first, int &last);
+
 	QFont get_font() const;
 	void set_font(QFont &font);
 	void set_default_font();

@@ -13,6 +13,8 @@
 #include <src_container.h>
 #include <settings.h>
 
+#include <QRect>
+
 
 /**
  * [throw] Constructor.
@@ -502,6 +504,41 @@ void src_file::focusInEvent(QFocusEvent *event)
 void src_file::focusOutEvent(QFocusEvent *event)
 {
 	//debug(DEBUG, SRC_FILE, "Focus out!!");
+}
+
+/**
+ * Returns the number of the first visible line.
+ */
+
+int src_file::get_first_visible_block()
+{
+	return firstVisibleBlock().blockNumber();
+}
+
+/**
+ * Returns the first and last visible lines.
+ * @param first - return value for the first visible line.
+ * @param last - return value for the last visible line.
+ */
+
+void src_file::get_visible_blocks_range(int &first, int &last)
+{
+	QTextBlock block(firstVisibleBlock());
+	first = block.blockNumber();
+	
+	int block_height = (int) blockBoundingRect(block).height();
+	int content_height = contentsRect().height();
+	
+	last = first + content_height / block_height + 1;
+}
+
+/**
+ * 
+ */
+
+QTextBlock src_file::get_text_block(int block)
+{
+	return document()->findBlockByNumber(block);
 }
 
 /**
