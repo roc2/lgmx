@@ -31,16 +31,16 @@ highlight_manager::~highlight_manager()
  * is unknown.
  */
 
-QSyntaxHighlighter* highlight_manager::build_highlighter(src_file &file)
+syntax_highlighter* highlight_manager::build_highlighter(src_file *file)
 {
-	QSyntaxHighlighter *hl;
-	file_type::type tp = type_manager_->get_file_type(file.get_src_file_extension());
+	syntax_highlighter *hl;
+	file_type::type tp = type_manager_->get_file_type(file->get_src_file_extension());
 	
 	switch (tp) {
 
 	case file_type::C:
 	case file_type::CPP:
-		hl = new C_highlighter(file.document());
+		hl = new C_highlighter(file);
 		break;
 	
 	default:

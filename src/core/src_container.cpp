@@ -92,7 +92,8 @@ int src_container::new_src_tab(const QString &file_name, unsigned int file_id)
 
 	try {
 		QApplication::setOverrideCursor(Qt::WaitCursor);
-		index = addTab(new src_file(file_name, file_id, this, manager_->get_highlight_manager()), "");
+		src_tab = new src_file(file_name, file_id, this, manager_->get_highlight_manager());
+		index = addTab(src_tab, "");
 		QApplication::restoreOverrideCursor();
 		debug(INFO, SRC_CONTAINER, "New file created at index " << index);
 	} catch(lgmx::exception &excp) {
@@ -100,9 +101,6 @@ int src_container::new_src_tab(const QString &file_name, unsigned int file_id)
 		debug(ERR, SRC_CONTAINER, excp.get_message());
 		return -1;
 	}
-
-	if ((src_tab = static_cast<src_file *>(this->widget(index))) == 0)
-    	return -1;	/* index out of range */
 
     if (file_name.isEmpty())
         show_name = NEW_FILE_NAME;
@@ -135,14 +133,10 @@ src_file* src_container::new_clone_tab(src_file *base_file)
 	}
 
 	try {
-		index = addTab(new src_file(base_file, this), "");
+		src_tab = new src_file(base_file, this);
+		index = addTab(src_tab, "");
 	} catch(lgmx::exception &excp) {
 		lgmx::exception excp("At src_container::new_clone_tab: Unable to create file.");
-		throw excp;
-	}
-
-	if ((src_tab = static_cast<src_file *>(this->widget(index))) == 0) {
-    	lgmx::exception excp("At src_container::new_clone_tab: index out of range.");
 		throw excp;
 	}
 
@@ -150,6 +144,8 @@ src_file* src_container::new_clone_tab(src_file *base_file)
     
     // slot to add an asterisk to the end of file name in case of unsaved modifications
 	QObject::connect(src_tab, SIGNAL(modificationChanged(bool)), this, SLOT(file_changed(bool)));
+    
+    //src_tab->highlight_visible_blocks();
     
 	return src_tab;
 }
@@ -195,6 +191,19 @@ void src_container::set_current_src_file(unsigned int id)
 	
 	if (file)
 		setCurrentIndex(indexOf(file));
+}
+
+/**
+ * 
+ * @param id -> the file unique ID.
+ */
+
+void src_container::highlight_current_src_file()
+{
+	src_file *file = get_current_src_file();
+	
+	if (file)
+		file->highlight_visible_blocks();
 }
 
 /**

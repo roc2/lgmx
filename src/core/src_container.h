@@ -52,6 +52,8 @@ public:
 	src_file *get_src_file(int index);
 	src_file *get_src_file(unsigned int id);
 	
+	void highlight_current_src_file();
+	
 	bool get_curr_font(int index, QFont &font);
 	
     void show_tabs(bool show);

@@ -4,7 +4,7 @@
 #include "highlighter.h"
 #include <QSharedPointer>
 
-#include <QSyntaxHighlighter>
+#include <syntax_highlighter.h>
 
 class QString;
 class src_file;
@@ -17,7 +17,7 @@ public:
 	highlight_manager(file_type *type_manager);
 	~highlight_manager();
 
-	QSyntaxHighlighter* build_highlighter(src_file &file);
+	syntax_highlighter* build_highlighter(src_file *file);
 
 
 

@@ -12,9 +12,11 @@
 #include <highlight_manager.h>
 #include <src_container.h>
 #include <settings.h>
+#include <syntax_highlighter.h>
 
 #include <QRect>
 
+#include <iostream>
 
 /**
  * [throw] Constructor.
@@ -51,7 +53,7 @@ src_file::src_file(const QString &file_name, unsigned int id, src_container *par
 
 	if (hl_manager) {
 		highlight_manager_ = hl_manager;
-		highlighter_ = highlight_manager_->build_highlighter(*this);
+		highlighter_ = highlight_manager_->build_highlighter(this);
 	} else {
 		highlight_manager_ = NULL;
 		highlighter_ = NULL;
@@ -81,7 +83,7 @@ src_file::src_file(src_file *base_file, src_container *parent)
     this->installEventFilter(this);
 
     highlight_manager_ = NULL;
-	highlighter_ = NULL;
+	highlighter_ = base_file->get_highlighter();
     
     // set default font
     set_default_font();
@@ -95,6 +97,13 @@ src_file::src_file(src_file *base_file, src_container *parent)
 	set_content(base_file->get_mutable_content());
 
 	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
+	
+	QScrollBar *scroll = verticalScrollBar();
+	QObject *obj = (QObject *) scroll;		// ?????
+	QObject::connect(obj, SIGNAL(valueChanged(int)), this, SLOT(highlight(int)));
+	
+	// when cursor changes highlight
+	QObject::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlight()));
 }
 
 /**
@@ -485,6 +494,19 @@ void src_file::go_to_line(int line)
     
     this->setTextCursor(cursor);
     this->centerCursor();
+    
+    QTextBlock first_block;
+    get_visible_blocks(first_block);
+}
+
+void src_file::highlight(int val)
+{
+	highlight_visible_blocks();
+}
+
+void src_file::highlight()
+{
+	highlight_visible_blocks();
 }
 
 /**
@@ -527,9 +549,39 @@ void src_file::get_visible_blocks_range(int &first, int &last)
 	first = block.blockNumber();
 	
 	int block_height = (int) blockBoundingRect(block).height();
-	int content_height = contentsRect().height();
+	int content_height = (int) contentsRect().height();
 	
 	last = first + content_height / block_height + 1;
+}
+
+int src_file::get_visible_blocks(QTextBlock &first_block)
+{
+	first_block = firstVisibleBlock();
+	int first_num = first_block.blockNumber();
+	
+	int block_height = (int) blockBoundingRect(first_block).height();
+	int content_height = contentsRect().height();
+	
+	int last_num = first_num + content_height / block_height + 1;
+	
+	//std::cout << "blocks: " << first_num << " " << last_num << std::endl;
+	
+	return last_num - first_num;
+}
+
+void src_file::highlight_visible_blocks()
+{
+	QTextBlock first_block;
+	
+	int count = this->get_visible_blocks(first_block);
+	
+	if (highlighter_)
+		highlighter_->highlight_blocks(first_block, count);
+}
+
+syntax_highlighter *src_file::get_highlighter()
+{
+	return highlighter_;
 }
 
 /**

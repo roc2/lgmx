@@ -193,8 +193,10 @@ void view_manager::new_file()
 	for (it = view_list_.begin(); it != view_list_.end(); it++) {
 		(*it)->clone_file(file);
 		
-		if (*it == curr_view)
+		if (*it == curr_view) {
 			curr_view->get_src_container()->set_current_src_file(id);
+			curr_view->get_src_container()->highlight_current_src_file();
+		}
 	}
 }
 
@@ -230,8 +232,10 @@ bool view_manager::new_file(const QString &file_name)
 	for (it = view_list_.begin(); it != view_list_.end(); it++) {
 		(*it)->clone_file(file);
 		
-		if (*it == curr_view)
+		if (*it == curr_view) {
 			curr_view->get_src_container()->set_current_src_file(id);
+			curr_view->get_src_container()->highlight_current_src_file();
+		}
 	}
 	
 	//plugin_manager_.load_plugins(ft);
@@ -859,9 +863,9 @@ void view_manager::split(Qt::Orientation orientation)
 		set_view_properties(*curr_view, *new_view);
 		
 		if (orientation == Qt::Vertical)
-			size = curr_view->height() / 2;
+			size = curr_view->height() >> 1;
 		else
-			size = curr_view->width() / 2;
+			size = curr_view->width() >> 1;
 		
 		new_splitter->addWidget(curr_view);
 		new_splitter->addWidget(new_view);
@@ -886,9 +890,9 @@ void view_manager::split(Qt::Orientation orientation)
 
 		// get new splitter sizes
 		if (orientation == Qt::Vertical) {
-			size = curr_view->height() / 2;
+			size = curr_view->height() >> 1;
 		} else {
-			size = curr_view->width() / 2;
+			size = curr_view->width() >> 1;
 		}
 
 		sizes.push_back(size);

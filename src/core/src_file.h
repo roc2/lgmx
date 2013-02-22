@@ -10,7 +10,7 @@
 class QFileInfo;
 class src_container;
 class highlight_manager;
-class QSyntaxHighlighter;
+class syntax_highlighter;
 
 class src_file : public CodeEditor
 {
@@ -48,6 +48,9 @@ public:
 	int get_first_visible_block();
 	QTextBlock get_text_block(int block);
 	void get_visible_blocks_range(int &first, int &last);
+	int get_visible_blocks(QTextBlock &first_block);
+	void highlight_visible_blocks();
+	syntax_highlighter *get_highlighter();
 
 	QFont get_font() const;
 	void set_font(QFont &font);
@@ -81,6 +84,8 @@ signals:
 
 public slots:
     void go_to_line(int line);
+    void highlight(int val);
+    void highlight();
     
 private:
 	QFileInfo *file_info_;
@@ -89,7 +94,7 @@ private:
 	//srchiliteqt::Qt4SyntaxHighlighter *highlighter_;
 	
 	highlight_manager *highlight_manager_;
-	QSyntaxHighlighter *highlighter_;
+	syntax_highlighter *highlighter_;
 	bool clone_;
 	unsigned int id_;
 };

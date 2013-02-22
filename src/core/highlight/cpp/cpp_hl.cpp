@@ -15,11 +15,13 @@ extern int pos;
 extern int cpp_start;
 extern bool comment;
 
+#define COMMENT		0
 #define NUMBER		2
 #define KEYWORD		3
 
+#define IN_COMMENT	(1 << 0)
 
-C_highlighter::C_highlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)
+C_highlighter::C_highlighter(src_file *parent) : syntax_highlighter(parent)
 {
 	integerFormat.setForeground(Qt::red);
     integerFormat.setBackground(Qt::transparent);
@@ -43,7 +45,7 @@ C_highlighter::~C_highlighter()
 }
 
 
-void C_highlighter::highlightBlock(const QString &text)
+void C_highlighter::highlight_block(const QString &text)
 {
 	int ret;
 	int size;
@@ -56,16 +58,17 @@ void C_highlighter::highlightBlock(const QString &text)
 		//cout << "begin " << it->begin << " offset "<< it->offset << endl;
 		
 		switch (it->token) {
-		case 0:
-			setFormat(it->begin, it->offset, integerFormat);
+		case COMMENT:
+			cout << "comment: " << it->begin << " " << it->offset << endl;
+			set_format(it->begin, it->offset, integerFormat);
 			break;
 			
 		case 1:
-			setFormat(it->begin, it->offset, keywordFormat);
+			set_format(it->begin, it->offset, keywordFormat);
 			break;
 		
 		case NUMBER:
-			setFormat(it->begin, it->offset, integerFormat);
+			set_format(it->begin, it->offset, integerFormat);
 			break;
 		
 		default:
@@ -83,19 +86,19 @@ void C_highlighter::highlightBlock(const QString &text)
 		case 282:
 		case 278:
 			//printf("Integer: len: %d start: %d - %s\n", yyleng, start, buff.c_str());
-			setFormat(cpp_start, yyleng, integerFormat);
+			set_format(cpp_start, yyleng, integerFormat);
 			break;
 			
 		case 279:
-			setFormat(cpp_start, yyleng, keywordFormat);
+			set_format(cpp_start, yyleng, keywordFormat);
 			break;
 			
 		case 280:
-			setFormat(cpp_start, yyleng, singleLineCommentFormat);
+			set_format(cpp_start, yyleng, singleLineCommentFormat);
 			break;
 
 		case 281:
-			setFormat(cpp_start, yyleng, singleLineCommentFormat);
+			set_format(cpp_start, yyleng, singleLineCommentFormat);
 			
 			//if (comment) {
 			//	this->highlightBlock(currentBlock().next().text());
@@ -122,7 +125,12 @@ void C_highlighter::lex(const QString &data, QList<hl_info> &hl_info_list)
 	int size = data.size();
 	struct hl_info info;
 	bool match;
+	int prev_state = get_previous_block_state();
 	
+	if (prev_state && IN_COMMENT) {
+		// in multi line comment
+	}
+
 	while (pos < size) {
 		match = true;
 		
@@ -134,7 +142,7 @@ void C_highlighter::lex(const QString &data, QList<hl_info> &hl_info_list)
 				if (data[pos + 1] == '/') {		// single line comment
 					info.begin = pos;
 					info.offset = data.length() - info.begin;
-					info.token = 0;
+					info.token = COMMENT;
 					pos = size;
 					hl_info_list.append(info);
 					break;
