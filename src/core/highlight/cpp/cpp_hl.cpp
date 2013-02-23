@@ -59,7 +59,7 @@ void C_highlighter::highlight_block(const QString &text)
 		
 		switch (it->token) {
 		case COMMENT:
-			cout << "comment: " << it->begin << " " << it->offset << endl;
+			cout << "comment: " << it->begin << " " << it->offset - 1 << endl;
 			set_format(it->begin, it->offset, integerFormat);
 			break;
 			
@@ -125,10 +125,30 @@ void C_highlighter::lex(const QString &data, QList<hl_info> &hl_info_list)
 	int size = data.size();
 	struct hl_info info;
 	bool match;
+	
+	cout << "size = " << size << endl;
+	
 	int prev_state = get_previous_block_state();
 	
-	if (prev_state && IN_COMMENT) {
-		// in multi line comment
+	if (prev_state == IN_COMMENT) {
+		info.begin = pos;
+
+		int index = data.indexOf("*/", pos);
+		
+		cout << "idx: " << index << " from: " << pos << endl;
+		
+		if (index < 0) {
+			cout << "ends in comment" << endl;
+			info.offset = size - info.begin;
+			set_current_block_state(IN_COMMENT);
+			pos = size;
+		} else {
+			info.offset = index - info.begin + 2;
+			pos += info.offset;
+		}
+		
+		info.token = COMMENT;
+		hl_info_list.append(info);
 	}
 
 	while (pos < size) {
@@ -150,15 +170,20 @@ void C_highlighter::lex(const QString &data, QList<hl_info> &hl_info_list)
 				} else if (data[pos+1] == '*') {
 					info.begin = pos;
 
-					while (data[pos] != '*' || data[pos + 1] != '/') {
-						pos++;
-						if (pos + 1 == size)
-							break;
+					int index = data.indexOf("*/", pos + 2);
+					
+					cout << "idx: " << index << " from: " << pos + 2 << endl;
+					
+					if (index < 0) {
+						cout << "ends in comment" << endl;
+						info.offset = size - info.begin;
+						set_current_block_state(IN_COMMENT);
+					} else {
+						info.offset = index - info.begin + 2;
 					}
 					
-					//end = pos++;
-					
-					//cout << "comment: " << begin << " " << end << endl;
+					info.token = COMMENT;
+					hl_info_list.append(info);
 				}
 			}
 		}

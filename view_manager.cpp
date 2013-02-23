@@ -839,6 +839,12 @@ void view_manager::split_vertically()
  * horizontal (left/right).
  */
 
+/**
+ * @todo when splitting, get the width and height of the other view (the one that 
+ * is not being splitted) and save it. After the split is complete, restore the other 
+ * view's original size.
+ */
+
 void view_manager::split(Qt::Orientation orientation)
 {
 	QSplitter *new_splitter;
