@@ -54,10 +54,6 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	 * src_container deve sempre apontar para o grupo de arquivos ativo. Como os módulos apontam para src_container, 
 	 * sempre terão o endereço do grupo de arquivos ativo.
 	 */
-	 
-	 
-	// nao sei se esse container está sendo usado!!!
-	_src_container = new src_container(view_manager_, settings_, this);
 
 	_root_src_container = view_manager_->get_root_src_container();
 
@@ -106,6 +102,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	/* Configure splitter sizes. This must be called after the child widgets 
 	 * were inserted.
 	 */
+	QList<int> splitter_size;
 	splitter_size.append(100);
 	splitter_size.append(900);
 	splitter->setSizes(splitter_size);
@@ -172,6 +169,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	show_status_bar(false);
 	std::cout << "init time = " << boot_time.currentMSecsSinceEpoch() - start << std::endl;
 	//load_plugins();
+	show_side_bar(false);
 }
 
 Ui_MainWindow::~Ui_MainWindow()
@@ -182,10 +180,10 @@ Ui_MainWindow::~Ui_MainWindow()
 	if (gt_ln_dialog)
 		delete gt_ln_dialog;
 
+	destroy_menus();
     destroy_actions();
     destroy_shortcuts();
-    
-    delete _src_container;
+
     delete view_manager_;
     delete settings_;
 }
@@ -221,7 +219,6 @@ void Ui_MainWindow::create_connections()
 	QObject::connect(action_unsplit, SIGNAL(triggered()), view_manager_, SLOT(unsplit()));
 	/* remove all splits */
 	QObject::connect(action_remove_all_splits, SIGNAL(triggered()), view_manager_, SLOT(remove_all_splits()));
-	
 	/* go to line */
 	QObject::connect(actionGo_to_line, SIGNAL(triggered()), this, SLOT(go_to_ln()));
 	/* find */
@@ -230,7 +227,7 @@ void Ui_MainWindow::create_connections()
 	QMetaObject::connectSlotsByName(this);
 	
 	// file watcher signals
-	QObject::connect(&f_watcher, SIGNAL(reload(const QString &)), this, SLOT(reload_file(const QString &)));
+	//QObject::connect(&f_watcher, SIGNAL(reload(const QString &)), this, SLOT(reload_file(const QString &)));
 	//QObject::connect(this, SIGNAL(windowActivated()), &f_watcher, SLOT(check_for_reload()));
 }
 
@@ -295,75 +292,6 @@ bool Ui_MainWindow::is_active_window()
 	return isActiveWindow();
 }
 
-
-void Ui_MainWindow::reload_file(const QString path)
-{
-	cout << "reloading file " << path.toStdString() << endl;
-
-}
-
-/**
- * Save file as. Saves a file which has not been written to the 
- * disk yet.
- * @param index - file index number in the tab widget
- */
-
-bool Ui_MainWindow::saveAs(int index)
-{
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"));
-    // mudar para abrir na home do user se o arquivo nao existe:
-    //files = QFileDialog::getSaveFileName(this, tr("Save File"), path, tr("All files (*.c *.cpp *.h)"));
-    
-    if (fileName.isEmpty())
-        return false;   /* no file specified */
-
-    if (saveFile(fileName, index)) {
-        _src_container->set_file_name(index, fileName);
-        _src_container->update_file_info(index);
-        f_watcher.add_path(fileName);
-        return true;
-    }
-    
-    return false;
-}
-
-/**
- * Saves file to disk
- * @brief Saves file to disk
- * @param fileName -> file name
- * @param index -> index in the source tab
- * @return true -> file saved successfully, false -> error
- */
-
-bool Ui_MainWindow::saveFile(const QString &fileName, int index)
-{
-    QString error;
-    
-    cout << "file name -> " << fileName.toStdString() << endl;
-
-    if (!_src_container->src_tab_write_file(index, fileName))
-        return false;
-
-    _src_container->set_modified(index, false);
-    open_files.insert(fileName);
-    menu_recent_files->add_file(fileName);
-
-    return true;
-}
-
-void Ui_MainWindow::set_current_index(int index)
-{
-    if (index >= _src_container->count())
-        return; /* index out of range */
-    
-    _src_container->setCurrentIndex(index);
-}
-
-int Ui_MainWindow::get_file_index(const QString &file_name)
-{
-	return _src_container->get_file_index(file_name);
-}
-
 /**
  * Open files passed as parameters.
  */
@@ -411,21 +339,6 @@ void Ui_MainWindow::set_font()
 */
 	
 	//editor->setFont(font);
-}
-
-void Ui_MainWindow::set_tab_width()
-{
-	QFont font;
-	QFontMetrics font_metrics(font);
-	int size;
-	
-	_root_src_container->get_curr_font(0, font);
-	
-	if ((size = font.pixelSize()) < 0) {
-		//size = font.pointSize();
-		size = font_metrics.width('a');
-	}
-	cout << "size = " << size << endl;
 }
 
 /**
@@ -589,11 +502,6 @@ void Ui_MainWindow::closeEvent(QCloseEvent *event)
 void Ui_MainWindow::quit()
 {
 	this->close();
-}
-
-void Ui_MainWindow::print_msg()
-{
-		cout << "hovered" << endl;
 }
 
 /**
@@ -770,7 +678,10 @@ void Ui_MainWindow::create_menus()
 
 void Ui_MainWindow::destroy_menus()
 {
-
+	delete menu_Search;
+	delete menuView;
+	delete menu_File;
+	delete menuBar;
 }
 
 /**

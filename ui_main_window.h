@@ -87,13 +87,10 @@ public:
     lgmx::cli *cli_;
     QVBoxLayout *main_layout_;
     QWidget *widget_;
-    QList<int> splitter_size;
     
     QTabWidget *symbol_tab_widget;
     QWidget *tab;
     QWidget *tab_2;
-    
-    src_container *_src_container;
     
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
@@ -144,9 +141,6 @@ private:
     void create_menus();
     void destroy_menus();
 
-    bool saveFile(const QString &fileName, int index);
-    int get_file_index(const QString &file_name);
-    void set_current_index(int index);
     void load_parameter_files(list<QString> *files);
 
 	src_container* get_current_src_container();
@@ -157,11 +151,7 @@ private:
 	QShortcut *next_file_;
 
 private slots:
-    // current in use
-    bool saveAs(int index);
-    ///////////////////////////
-	
-	//void save_file();
+
 	void quit();
 	
 	void show_side_bar(bool show);
@@ -170,16 +160,9 @@ private slots:
     void show_full_screen(bool fullscreen);
 	
 	void set_font();
-	void set_tab_width();
-	//bool save_as();
-	
 	void go_to_ln();
-	
-	void print_msg();	// remove
 
 public slots:
-
-	void reload_file(const QString path);
 
 signals:
     void windowActivated();
