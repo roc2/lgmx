@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 
-#include <QDomDocument>
+//#include <QDomDocument>
 #include <QDir>
 #include <QString>
 
@@ -11,7 +11,7 @@
 
 class Config
 {
-    QDomDocument *conf;
+    //QDomDocument *conf;
     QString conf_file;
 
     public:
