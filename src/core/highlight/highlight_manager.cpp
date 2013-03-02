@@ -41,6 +41,7 @@ syntax_highlighter* highlight_manager::build_highlighter(src_file *file)
 	case file_type::C:
 	case file_type::CPP:
 		hl = new C_highlighter(file);
+		//hl = new dummy_highlighter(file);
 		break;
 	
 	default:

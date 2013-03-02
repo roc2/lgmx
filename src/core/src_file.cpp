@@ -60,6 +60,7 @@ src_file::src_file(const QString &file_name, unsigned int id, src_container *par
 	}
 
 	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
+	std::cout << "src_file constructor ok" << std::endl;
 }
 
 /**
@@ -75,6 +76,10 @@ src_file::src_file(src_file *base_file, src_container *parent)
 	parent_ = parent;
 	type_ = base_file->get_file_type();
 	
+	/* get file info and content from the base file */
+	file_info_ = base_file->get_file_info();
+	set_content(base_file->get_mutable_content());
+	
 	this->setContentsMargins(0, 0, 0, 0);
     this->setObjectName(QString::fromUtf8("src_editor"));
     this->setTabStopWidth(parent->get_settings()->get_tab_width() * 8);
@@ -83,6 +88,7 @@ src_file::src_file(src_file *base_file, src_container *parent)
     this->installEventFilter(this);
 
     highlight_manager_ = NULL;
+    //highlighter_ = NULL;
 	highlighter_ = base_file->get_highlighter();
     
     // set default font
@@ -92,10 +98,6 @@ src_file::src_file(src_file *base_file, src_container *parent)
     set_base_color(Qt::white);
     set_text_color(Qt::black);
 
-    /* get file info and content from the base file */
-	file_info_ = base_file->get_file_info();
-	set_content(base_file->get_mutable_content());
-
 	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
 	
 	QScrollBar *scroll = verticalScrollBar();
@@ -104,6 +106,7 @@ src_file::src_file(src_file *base_file, src_container *parent)
 	
 	// when cursor changes highlight
 	QObject::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlight()));
+	std::cout << "Clone Ok!!" << std::endl;
 }
 
 /**
@@ -571,12 +574,11 @@ int src_file::get_visible_blocks(QTextBlock &first_block)
 
 void src_file::highlight_visible_blocks()
 {
-	QTextBlock first_block;
-	
-	int count = this->get_visible_blocks(first_block);
-	
-	if (highlighter_)
+	if (highlighter_) {
+		QTextBlock first_block;
+		int count = this->get_visible_blocks(first_block);
 		highlighter_->highlight_blocks(first_block, count);
+	}
 }
 
 syntax_highlighter *src_file::get_highlighter()

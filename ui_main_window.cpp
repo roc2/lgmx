@@ -398,10 +398,9 @@ void Ui_MainWindow::show_menu_bar(bool show)
 /**
  * Turns on/off the editor full screen mode
  * @brief Turns on/off the editor full screen mode
- * @param fullscreen -> true, show full screen; false, show normal mode
  */
 
-void Ui_MainWindow::show_full_screen(bool fullscreen)
+void Ui_MainWindow::show_full_screen()
 {
 	setWindowState(windowState() ^ Qt::WindowFullScreen);
 }

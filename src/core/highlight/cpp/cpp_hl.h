@@ -1,7 +1,9 @@
 #ifndef CPP_HIGHLIGHT_H
 #define CPP_HIGHLIGHT_H
 
-#include <QSyntaxHighlighter>
+#include <QTextCharFormat>
+#include <QSet>
+
 #include <syntax_highlighter.h>
 #include <set>
 
@@ -24,10 +26,29 @@ protected:
 	void lex(const QString &data, QList<hl_info> &hl_info_list);
 
 private:
-	//std::set<QString> keywords_;
-	QTextCharFormat keywordFormat;
-	QTextCharFormat singleLineCommentFormat;
-	QTextCharFormat integerFormat;
+	//QSet<QString> *keywords_;
+	QTextCharFormat *keywordFormat;
+	QTextCharFormat *CommentFormat;
+	QTextCharFormat *integerFormat;
+	QTextCharFormat *literalFormat;
+	QTextCharFormat *pre_processor;
+};
+
+class dummy_highlighter : public syntax_highlighter
+{
+	Q_OBJECT
+
+public:
+	 dummy_highlighter(src_file *parent);
+	 ~dummy_highlighter();
+	 
+	 void highlight_block(const QString &text);
+	 
+private:
+	QTextCharFormat *keywordFormat;
+	//QTextCharFormat CommentFormat;
+	//QTextCharFormat integerFormat;
+	//QTextCharFormat literalFormat;
 };
 
 #endif

@@ -157,7 +157,7 @@ private slots:
 	void show_side_bar(bool show);
 	void show_status_bar(bool show);
     void show_menu_bar(bool show);
-    void show_full_screen(bool fullscreen);
+    void show_full_screen();
 	
 	void set_font();
 	void go_to_ln();

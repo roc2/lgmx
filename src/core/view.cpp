@@ -90,7 +90,7 @@ int view::close_file(int index)
 */
 
 /**
- * Clone a source file. Creates a new file structure using a reference to 
+ * Clones a source file. Creates a new file structure using a reference to 
  * the original file content, therefore the changes in the clone file are
  * reflected in the original file as well as in the other clone files.
  * @param file - the file to be cloned.

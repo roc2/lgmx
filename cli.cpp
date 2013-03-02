@@ -107,7 +107,7 @@ bool lgmx::cli::eventFilter(QObject *object, QEvent *event)
 			if (cmd.isEmpty())
 				return true;
 			
-			std::cout << "command issued: " << cmd.toStdString() << std::endl;
+			//std::cout << "command issued: " << cmd.toStdString() << std::endl;
 			
 			// handle command
 			status = execute(cmd, result);

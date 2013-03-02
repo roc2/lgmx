@@ -5,7 +5,7 @@ SOURCES += ./src/core/main.cpp ui_main_window.cpp ./src/core/code_editor.cpp ./s
            ./src/core/highlight/cpp/cpp_hl.cpp go_to_line.cpp ./src/core/src_file.cpp \
            config.cpp unsvFileDialog.cpp file_watcher.cpp recent_files.cpp search.cpp ./src/core/clipboard.cpp view_manager.cpp \
            ./src/core/view.cpp status_line.cpp ./src/utils/id.cpp ./src/core/file_type.cpp ./src/core/plugin_manager.cpp \
-           ./src/core/highlight/cpp/lex.yy.cpp ./src/core/highlight/highlight_manager.cpp ./src/core/vjson/block_allocator.cpp \
+           ./src/core/highlight/highlight_manager.cpp ./src/core/vjson/block_allocator.cpp \
            ./src/core/vjson/json.cpp ./src/core/settings.cpp ./src/core/c_label.cpp ./src/core/text_manip.cpp cli.cpp \
            command.cpp ./src/core/highlight/syntax_highlighter.cpp
            

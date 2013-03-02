@@ -145,8 +145,6 @@ src_file* src_container::new_clone_tab(src_file *base_file)
     // slot to add an asterisk to the end of file name in case of unsaved modifications
 	QObject::connect(src_tab, SIGNAL(modificationChanged(bool)), this, SLOT(file_changed(bool)));
     
-    //src_tab->highlight_visible_blocks();
-    
 	return src_tab;
 }
 
