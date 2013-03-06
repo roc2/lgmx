@@ -4,7 +4,6 @@
 #include <QString>
 #include <code_editor.h>
 #include <file_type.h>
-//#include <srchiliteqt/Qt4SyntaxHighlighter.h>
 
 
 class QFileInfo;
@@ -91,7 +90,6 @@ private:
 	QFileInfo *file_info_;
 	file_type::type type_;
 	src_container *parent_;
-	//srchiliteqt::Qt4SyntaxHighlighter *highlighter_;
 	
 	highlight_manager *highlight_manager_;
 	syntax_highlighter *highlighter_;

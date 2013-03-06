@@ -309,17 +309,22 @@ void view_manager::close_file(src_container *container, src_file *src_tab, int i
 
 		// build close file message
 		if (!exists) {
-			msg = tr("The file 'untitled' has been modified.\nDo you want to save your changes?");
+			msg = tr("The file 'untitled' has been modified.");
 		} else {
 			msg = tr("The file '") + src_tab->get_src_file_name() + 
-				  tr("' has been modified.\nDo you want to save your changes?");
+				  tr("' has been modified.");
 		}
 		
 		container->setCurrentIndex(index);
 
-        QMessageBox::StandardButton ret;
-        ret = QMessageBox::warning(this, "lgmx", msg,
-			  QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(tr("Close"));
+		msgBox.setText(msg);
+		msgBox.setInformativeText("Do you want to save your changes?");
+		msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Cancel);
+		msgBox.setIcon(QMessageBox::Question);
+		int ret = msgBox.exec();
 	
 		if (ret == QMessageBox::Save) { /* save file */
             
@@ -425,15 +430,45 @@ void view_manager::open_file(const QString &file_name)
 
 void view_manager::reload_current_file()
 {
-	src_file *file = this->get_current_src_file();
+	src_container *container = get_current_src_container();
+	src_file *file = container->get_current_src_file();
 	
-	if (!file)
+	if (!file || !file->exists()) {
+		debug(ERR, VIEW_MANAGER, "Invalid file");
 		return;
+	}
 
-	// check for modifications and ask for confirmation
-	// check if file exists on the disk
+	int index = container->index_of(file);
+	if (index < 0) {
+		debug(ERR, VIEW_MANAGER, "File not found");
+		return;
+	}
+
+	QString file_name(file->get_src_file_full_name());
+
+	// check if file needs to be saved
+	if (file->is_modified()) {
+		// display message box
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(tr("Reload"));
+		msgBox.setText(tr("The file '") + file->get_src_file_name() + tr("' has been modified."));
+		msgBox.setInformativeText("Do you want to save your changes?");
+		msgBox.addButton(tr("Discard Changes"), QMessageBox::NoRole);
+		msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Cancel);
+		msgBox.setIcon(QMessageBox::Question);
+		int ret = msgBox.exec();
+	
+		if (ret == QMessageBox::Save) { // save file
+			if (!save_file(container, file_name, index))
+				return; // could not save, just return
+            
+        } else if (ret == QMessageBox::Cancel)
+			return;     // if dialog is canceled, do nothing
+	}
 
 	file->load_file(file->get_src_file_full_name());
+	debug(DEBUG, VIEW_MANAGER, "File reloaded");
 }
 
 /**
@@ -543,8 +578,7 @@ bool view_manager::save_file(src_container *src_c, const QString &fileName, int 
 
 bool view_manager::check_unsaved_files()
 {
-	int index, tabs;
-    QMessageBox::StandardButton ret;
+	int index, tabs;    
     QString msg;
     src_container *curr = get_current_src_container();
     
@@ -565,14 +599,20 @@ bool view_manager::check_unsaved_files()
 
             // build close file message
 			if (!exists) {
-				msg = tr("The file 'untitled' has been modified.\nDo you want to save your changes?");
+				msg = tr("The file 'untitled' has been modified.");
 			} else {
 				msg = tr("The file '") + src_tab->get_src_file_name() + 
-					  tr("' has been modified.\nDo you want to save your changes?");
+					  tr("' has been modified.");
 			}
             
-            ret = QMessageBox::warning(this, "lgmx", msg,
-			      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+            QMessageBox msgBox;
+			msgBox.setWindowTitle(tr("Quit"));
+			msgBox.setText(msg);
+			msgBox.setInformativeText("Do you want to save your changes?");
+			msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+			msgBox.setDefaultButton(QMessageBox::Cancel);
+			msgBox.setIcon(QMessageBox::Question);
+            int ret = msgBox.exec();
             
             if (ret == QMessageBox::Save) { /* save file */
             
@@ -619,12 +659,7 @@ Settings* view_manager::get_settings()
 
 void view_manager::set_current_file_index(int index)
 {
-	current_view_ = get_current_view();
-
-	//if (!current_view_)
-		//return;
-	
-	src_container *container = current_view_->get_src_container();
+	src_container *container = get_current_view()->get_src_container();
 	
     if (index >= container->count())
         return; /* index out of range */

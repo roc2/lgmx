@@ -134,13 +134,19 @@ bool src_file::load_file(const QString &fileName)
     QFile file(fileName);
     
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::critical(this, "lgmx", tr("Cannot read file %1:\n%2.") .arg(fileName) .arg(file.errorString()));
+		QMessageBox msgBox;
+		msgBox.setWindowTitle(tr("Open"));
+		msgBox.setText(tr("Cannot read file %1:\n%2.") .arg(fileName) .arg(file.errorString()));
+		msgBox.setIcon(QMessageBox::Warning);
+		msgBox.exec();
 
         return false;
     }
 
     QTextStream in(&file);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
     this->setPlainText(in.readAll());
+    QApplication::restoreOverrideCursor();
 
     return true;
 }
@@ -556,6 +562,12 @@ void src_file::get_visible_blocks_range(int &first, int &last)
 	
 	last = first + content_height / block_height + 1;
 }
+
+/**
+ * Returns the first visible block and the number of visible blocks.
+ * @param first_block - return value for the first visible block.
+ * @return The number of visible blocks. 
+ */
 
 int src_file::get_visible_blocks(QTextBlock &first_block)
 {

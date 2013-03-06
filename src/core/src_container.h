@@ -44,6 +44,7 @@ public:
 	bool get_src_tab_content(int index, QString &content);
 
 	int get_current_tab_index();
+	int index_of(src_file *src_tab) const;
 	int get_index_of(src_file *src_tab);
 	src_file *get_current_src_file();
 	unsigned int get_src_file_id(int index);

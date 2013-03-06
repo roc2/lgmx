@@ -1,4 +1,3 @@
-#include <QMessageBox>
 #include <QPushButton>
 #include <QApplication>
 #include <QDesktopWidget>
@@ -91,13 +90,10 @@ int src_container::new_src_tab(const QString &file_name, unsigned int file_id)
 	QString show_name;
 
 	try {
-		QApplication::setOverrideCursor(Qt::WaitCursor);
 		src_tab = new src_file(file_name, file_id, this, manager_->get_highlight_manager());
 		index = addTab(src_tab, "");
-		QApplication::restoreOverrideCursor();
 		debug(INFO, SRC_CONTAINER, "New file created at index " << index);
 	} catch(lgmx::exception &excp) {
-		QApplication::restoreOverrideCursor();
 		debug(ERR, SRC_CONTAINER, excp.get_message());
 		return -1;
 	}
@@ -155,6 +151,20 @@ src_file* src_container::new_clone_tab(src_file *base_file)
 int src_container::get_current_tab_index()
 {
 	return currentIndex();
+}
+
+/**
+ * Returns the file index within the container.
+ * @param src_tab - file we want the index of.
+ * @return file index, or -1 if the file is not found.
+ */
+
+int src_container::index_of(src_file *src_tab) const
+{
+	if (!src_tab)
+		return -1;
+		
+	return indexOf(static_cast<QWidget *>(src_tab));
 }
 
 /**
