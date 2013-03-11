@@ -23,7 +23,6 @@ src_container::src_container(view_manager *manager, Settings *settings, QWidget 
 	setTabsClosable(true);
 	setMovable(true);
 	setContentsMargins(0, 0, 0, 0);
-	//setTabShape(QTabWidget::Triangular);
 
     tab_bar = tabBar();
     tab_bar->setContentsMargins(0, 0, 0, 0);
@@ -31,7 +30,6 @@ src_container::src_container(view_manager *manager, Settings *settings, QWidget 
     /* Update current tab focus */
 	QObject::connect(this, SIGNAL(currentChanged(int)), this, SLOT(set_focus_to_current_tab(int)));
     
-    //this->setFocusPolicy(Qt::StrongFocus);
     tab_bar->setStyleSheet("border-width: 0px;");
     
     //setStyleSheet("border-width: 0px;");

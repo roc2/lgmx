@@ -80,6 +80,7 @@ void status_line::remove_file(unsigned int id)
 void status_line::update_file_name(int index)
 {
 	unsigned int id;
+	cout << "update_file_name 1" << endl;
 	
 	try {
 		id = src_container_->get_src_file_id(index);
@@ -106,6 +107,7 @@ void status_line::update_file_name(int index)
 
 void status_line::update_file_name(const QString &fileName, unsigned int id)
 {
+	cout << "update_file_name 2" << endl;
 	int count = file_list_->count();
 
 	for (int i = 0; i <= count; i++) {

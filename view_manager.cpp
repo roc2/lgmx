@@ -297,7 +297,7 @@ void view_manager::close_file(src_container *container, src_file *src_tab, int i
 	 * the corresponding root file to be closed by its ID, which is 
 	 * the same in the root file and its clones.
 	 */
-	
+
 	unsigned int id;
 	QString file_name(src_tab->get_src_file_full_name());
 	id = src_tab->get_id();
@@ -433,10 +433,8 @@ void view_manager::reload_current_file()
 	src_container *container = get_current_src_container();
 	src_file *file = container->get_current_src_file();
 	
-	if (!file || !file->exists()) {
-		debug(ERR, VIEW_MANAGER, "Invalid file");
+	if (!file || !file->exists())
 		return;
-	}
 
 	int index = container->index_of(file);
 	if (index < 0) {
@@ -453,7 +451,7 @@ void view_manager::reload_current_file()
 		msgBox.setWindowTitle(tr("Reload"));
 		msgBox.setText(tr("The file '") + file->get_src_file_name() + tr("' has been modified."));
 		msgBox.setInformativeText("Do you want to save your changes?");
-		msgBox.addButton(tr("Discard Changes"), QMessageBox::NoRole);
+		msgBox.addButton(tr("Discard Changes"), QMessageBox::ActionRole);
 		msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
 		msgBox.setDefaultButton(QMessageBox::Cancel);
 		msgBox.setIcon(QMessageBox::Question);
@@ -467,7 +465,13 @@ void view_manager::reload_current_file()
 			return;     // if dialog is canceled, do nothing
 	}
 
-	file->load_file(file->get_src_file_full_name());
+	int pos = file->get_cursor_position();
+	file->load_file(file_name);
+	// restore cursor position
+	QTextCursor cursor(file->get_cursor());
+	cursor.setPosition(pos);
+	file->set_cursor(cursor);
+	file->centerCursor();
 	debug(DEBUG, VIEW_MANAGER, "File reloaded");
 }
 
@@ -677,16 +681,13 @@ void view_manager::set_next_file_as_current()
 }
 
 /**
- * 
+ * Returns the file index in the container.
+ * @param file_name - complete file name.
+ * @return file index, or -1 if the file is not found.
  */
 
 int view_manager::get_current_file_index(const QString &file_name)
-{
-	current_view_ = get_current_view();
-
-	if (!current_view_)
-		return -1;
-	
+{	
 	return current_view_->get_src_container()->get_file_index(file_name);
 }
 

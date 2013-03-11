@@ -2,6 +2,7 @@
 #define SRC_FILE_H
 
 #include <QString>
+#include <QBasicTimer>
 #include <code_editor.h>
 #include <file_type.h>
 
@@ -51,15 +52,12 @@ public:
 	void highlight_visible_blocks();
 	syntax_highlighter *get_highlighter();
 
-	QFont get_font() const;
-	void set_font(QFont &font);
-	void set_default_font();
-
     void update_src_file_info();
     
     void set_cursor(const QTextCursor &cursor);
     QTextCursor get_cursor();
     int get_cursor_position();
+    void setBlinkingCursorEnabled(bool enable);
     
     void set_file_info(QFileInfo *file_info);
     QFileInfo *get_file_info() const;
@@ -78,6 +76,12 @@ public:
     
     bool eventFilter(QObject* pObject, QEvent* pEvent);
 
+private:
+	void timerEvent(QTimerEvent *);
+	
+	void updateLines();
+	void updateLines(int fromPosition, int toPosition);
+
 signals:
 	void modificationChanged(bool);
 
@@ -95,6 +99,9 @@ private:
 	syntax_highlighter *highlighter_;
 	bool clone_;
 	unsigned int id_;
+	
+	QBasicTimer cursor_blink_timer_;
+	bool cursor_visible_;
 };
 
 

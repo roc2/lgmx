@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include <QTextBlock>
 #include <QtGui/QApplication>
+#include <QScrollBar>
 
 #include <src_file.h>
 #include <exception.h>
@@ -76,6 +77,8 @@ src_file::src_file(src_file *base_file, src_container *parent)
 	parent_ = parent;
 	type_ = base_file->get_file_type();
 	
+	cursor_visible_ = true;
+	
 	/* get file info and content from the base file */
 	file_info_ = base_file->get_file_info();
 	set_content(base_file->get_mutable_content());
@@ -97,6 +100,10 @@ src_file::src_file(src_file *base_file, src_container *parent)
     // change editor colors
     set_base_color(Qt::white);
     set_text_color(Qt::black);
+
+	setCursorWidth(get_font_width());
+	QApplication::setCursorFlashTime(1000);
+	setBlinkingCursorEnabled(true);
 
 	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
 	
@@ -455,37 +462,6 @@ bool src_file::exists() const
 }
 
 /**
- * Returns the file font.
- */
-
-QFont src_file::get_font() const
-{
-    return this->font();
-}
-
-/**
- * Sets the file font.
- * @param font -> font type.
- */
-
-void src_file::set_font(QFont &font)
-{
-    this->setFont(font);
-}
-
-/**
- * Sets the source file default font.
- */
-
-void src_file::set_default_font()
-{
-	QFont def("monospace", 10);
-    def.setFixedPitch(true);
-    
-    this->setFont(def);
-}
-
-/**
  * [slot] Moves the cursor to the beginning of the specified line.
  * @param line -> line number
  */
@@ -526,6 +502,7 @@ void src_file::focusInEvent(QFocusEvent *event)
 {
 	// updates the view_manager current view.
 	parent_->update_current_view();
+	setBlinkingCursorEnabled(true);
 }
 
 /**
@@ -534,7 +511,7 @@ void src_file::focusInEvent(QFocusEvent *event)
 
 void src_file::focusOutEvent(QFocusEvent *event)
 {
-	//debug(DEBUG, SRC_FILE, "Focus out!!");
+	setBlinkingCursorEnabled(false);
 }
 
 /**
@@ -606,6 +583,59 @@ QTextBlock src_file::get_text_block(int block)
 {
 	return document()->findBlockByNumber(block);
 }
+
+/**
+ * 
+ */
+
+void src_file::setBlinkingCursorEnabled(bool enable)
+{
+    if (enable)
+        cursor_blink_timer_.start(QApplication::cursorFlashTime() / 2, this);
+    else
+        cursor_blink_timer_.stop();
+    //m_cursorVisible = enable;
+    //updateLines();
+}
+
+void src_file::timerEvent(QTimerEvent *e)
+{
+    if (e->timerId() == cursor_blink_timer_.timerId())
+        updateLines();
+}
+
+/**
+ * @todo - the cursor should show the char behind it, and should 
+ * not blink when it's moving.
+ */
+
+void src_file::updateLines()
+{
+	QRect cursor_rect(cursorRect());
+	
+	if (cursor_visible_)
+		setCursorWidth(0);
+	else
+		setCursorWidth(get_font_width());
+
+	cursor_visible_ = !cursor_visible_;
+	
+	viewport()->update(cursor_rect);
+	//int cursor_pos = get_cursor_position();
+    //updateLines(cursor_pos, cursor_pos);
+}
+
+void src_file::updateLines(int fromPosition, int toPosition)
+{/*
+    int topLine = verticalScrollBar()->value();
+    int firstLine = qMin(fromPosition, toPosition) / m_bytesPerLine;
+    int lastLine = qMax(fromPosition, toPosition) / m_bytesPerLine;
+    int y = (firstLine - topLine) * m_lineHeight;
+    int h = (lastLine - firstLine + 1 ) * m_lineHeight;
+
+    viewport()->update(0, y, viewport()->width(), h);*/
+}
+
 
 /**
  * Events filter. For VI mode and shortcuts

@@ -40,7 +40,7 @@ void lgmx::search::update_current_file(int)
 	src_ctr = manager_.get_current_view()->get_src_container();
 	
 	/* Update current tab focus */
-	QObject::connect(src_ctr, SIGNAL(currentChanged(int)), this, SLOT(update_current_file(int)));
+	//QObject::connect(src_ctr, SIGNAL(currentChanged(int)), this, SLOT(update_current_file(int)));
 
 	curr_file_ = src_ctr->get_current_src_file();
 }

@@ -30,80 +30,52 @@ CodeEditor::~CodeEditor()
 	delete lineNumberArea;
 }
 
-/**
- * Teste
- */
-
-void CodeEditor::print_visible_blocks()
-{
-	QTextBlock block = firstVisibleBlock();
-
-	while (block.isValid() && block.isVisible()) {
-		debug(INFO, CODE_EDITOR, block.text().toStdString());
-		block = block.next();
-	}
-}
-
-
-void CodeEditor::get_first_visible_block_content()
-{
-    QTextBlock block;
-    QTextCharFormat keywordFormat;
-    QString value;
-    QTextCursor cursor = this->textCursor();
-    
-    cursor.movePosition(QTextCursor::Start); 
-    cursor.movePosition(QTextCursor::NextCharacter);
-    cursor.movePosition(QTextCursor::NextCharacter);
-    cursor.movePosition(QTextCursor::NextCharacter);
-    
-    keywordFormat.setForeground(Qt::red);
-    block = firstVisibleBlock();
-    
-    value = block.text();
-    
-    QTextBlockFormat blockFormat = cursor.blockFormat();
-    blockFormat.setBackground(QColor("yellow"));
-    blockFormat.setNonBreakableLines(true);
-    blockFormat.setPageBreakPolicy(QTextFormat::PageBreak_AlwaysBefore);
-    cursor.setBlockFormat(blockFormat);
-
-    for (QTextBlock::iterator it = cursor.block().begin(); !(it.atEnd()); ++it) {
-        QTextCharFormat charFormat = it.fragment().charFormat();
-        charFormat.setFont(QFont("Times", 15, QFont::Bold));
-
-        QTextCursor tempCursor = cursor;
-        tempCursor.setPosition(it.fragment().position());
-        tempCursor.setPosition(it.fragment().position() + it.fragment().length(), QTextCursor::KeepAnchor);
-        tempCursor.setCharFormat(charFormat);
-    }
-    
-    //mycursor.setBlockFormat(keywordFormat);
-    cursor.mergeBlockCharFormat(keywordFormat);
-    
-    debug(INFO, CODE_EDITOR, "position " << cursor.positionInBlock());
-    
-    //return block;
-    /*
-    for (int i = 0; i < 5 ; i++) {
-        cout << "num = " << block.blockNumber () << endl;
-        cout << block.text().toStdString() << endl;
-        block = block.next();
-
-        cout << "num = " << block.blockNumber () << endl;
-        cout << block.text().toStdString() << endl;
-        block = block.next();
-    }
-    return block.text();
-    */
-}
-
 /*
 void CodeEditor::focusInEvent(QFocusEvent *event)
 {
 	cout << "Editor has focus!!" << endl;
 	//_parent->set_current_widget(this);
 }*/
+
+/**
+ * Returns the file font.
+ */
+
+QFont CodeEditor::get_font() const
+{
+    return this->font();
+}
+
+/**
+ * Sets the file font.
+ * @param font -> font type.
+ */
+
+void CodeEditor::set_font(QFont &font)
+{
+    this->setFont(font);
+}
+
+/**
+ * Returns the document font width in pixels.
+ */
+
+int CodeEditor::get_font_width() const
+{
+	return fontMetrics().width(QLatin1Char('9'));
+}
+
+/**
+ * Sets the source file default font.
+ */
+
+void CodeEditor::set_default_font()
+{
+	QFont def("monospace", 10);
+    def.setFixedPitch(true);
+    
+    this->setFont(def);
+}
 
 /**
  * Returns the width of the line number area based on the number of digits 
