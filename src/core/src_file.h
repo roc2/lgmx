@@ -16,11 +16,16 @@ class src_file : public CodeEditor
 {
 	Q_OBJECT
 
+private:
+	src_file();
+	src_file(const src_file&);
+	src_file& operator=(const src_file&);
+
 public:
     src_file(const QString &file_name, unsigned int id, src_container *parent, highlight_manager *hl_manager = NULL);
     src_file(src_file *base_file, src_container *parent);
     ~src_file();
-    
+
     bool load_file(const QString &fileName);
     bool write_file(const QString &fileName);
     
@@ -79,7 +84,7 @@ public:
 private:
 	void timerEvent(QTimerEvent *);
 	
-	void updateLines();
+	void update_cursor();
 	void updateLines(int fromPosition, int toPosition);
 
 signals:

@@ -12,7 +12,12 @@
 class clipboard : public QObject
 {
 	Q_OBJECT
-	
+
+private:
+	clipboard();
+	clipboard(const clipboard&);
+	clipboard& operator=(const clipboard&);
+
 public:
 	clipboard(view_manager &manager, QWidget *parent = 0);
 	~clipboard();

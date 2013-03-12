@@ -6,11 +6,16 @@
 class QString;
 
 /**
- * 
+ * This class is responsible for managing file types according to 
+ * the file extension.
  */
 
 class file_type
 {
+private:
+	file_type(const file_type&);
+	file_type& operator=(const file_type&);
+	
 public:
 	file_type();
 	~file_type();
@@ -24,7 +29,6 @@ public:
 private:
 	std::map<QString, type> type_map_;
 };
-
 
 #endif
 

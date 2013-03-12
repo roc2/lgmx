@@ -33,7 +33,7 @@ view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
 
 	/* update status line signal */
 	QObject::connect(src_container_, SIGNAL(currentChanged(int)), status_line_, SLOT(update_file_name(int)));
- 
+
     this->setFocusPolicy(Qt::StrongFocus);
 }
 

@@ -26,14 +26,13 @@ view_manager::view_manager(QWidget *parent, file_type *type_manager, Settings *s
 	
 	type_manager_ = type_manager;
 
-	current_view_ = create_view(this);
-	curr_view_ = current_view_;
+	curr_view_ = create_view(this);
 	num_splits_ = 0;
 
 	highlight_manager_ = new highlight_manager(type_manager_);
 
 	layout_ = new QVBoxLayout(this);
-	layout_->addWidget(current_view_);
+	layout_->addWidget(curr_view_);
 	layout_->setContentsMargins (0, 0, 0, 0);
 	layout_->setSpacing(0);
     setLayout(layout_);
@@ -317,7 +316,7 @@ void view_manager::close_file(src_container *container, src_file *src_tab, int i
 		
 		container->setCurrentIndex(index);
 
-		QMessageBox msgBox;
+		QMessageBox msgBox(this);
 		msgBox.setWindowTitle(tr("Close"));
 		msgBox.setText(msg);
 		msgBox.setInformativeText("Do you want to save your changes?");
@@ -386,7 +385,7 @@ void view_manager::open_file()
      * "open file" dialog path is the path of the current open file, or "home"
      * if there is no file open
      */
-    if (index < 0 || (path = get_current_src_container()->get_src_tab_path(index)) == "")
+    if (index < 0 || (path = ctr->get_src_tab_path(index)) == "")
         path = dir.homePath();
  
 	// list of files to be opened
@@ -416,9 +415,7 @@ void view_manager::open_file(const QString &file_name)
 		recent_files_->add_file(file_name);
 	} else {
 		// file already open, only set it as current file
-		current_view_ = get_current_view();
-
-		int index = current_view_->get_src_container()->get_file_index(file_name);
+		int index = get_current_src_container()->get_file_index(file_name);
 		if (index >= 0)
 			set_current_file_index(index);
 	}
@@ -447,7 +444,7 @@ void view_manager::reload_current_file()
 	// check if file needs to be saved
 	if (file->is_modified()) {
 		// display message box
-		QMessageBox msgBox;
+		QMessageBox msgBox(this);
 		msgBox.setWindowTitle(tr("Reload"));
 		msgBox.setText(tr("The file '") + file->get_src_file_name() + tr("' has been modified."));
 		msgBox.setInformativeText("Do you want to save your changes?");
@@ -609,7 +606,7 @@ bool view_manager::check_unsaved_files()
 					  tr("' has been modified.");
 			}
             
-            QMessageBox msgBox;
+            QMessageBox msgBox(this);
 			msgBox.setWindowTitle(tr("Quit"));
 			msgBox.setText(msg);
 			msgBox.setInformativeText("Do you want to save your changes?");
@@ -688,7 +685,7 @@ void view_manager::set_next_file_as_current()
 
 int view_manager::get_current_file_index(const QString &file_name)
 {	
-	return current_view_->get_src_container()->get_file_index(file_name);
+	return get_current_src_container()->get_file_index(file_name);
 }
 
 /**
@@ -847,7 +844,6 @@ void view_manager::set_current_view(view* curr_view)
 		return;
 	}
 
-	current_view_ = curr_view;
 	curr_view_ = curr_view;
 }
 
@@ -879,6 +875,9 @@ void view_manager::split_vertically()
  * @todo when splitting, get the width and height of the other view (the one that 
  * is not being splitted) and save it. After the split is complete, restore the other 
  * view's original size.
+ * 
+ * Get the height and width of the view being splitted, if it's a horizontal split, set the 
+ * saved width for both the 2 new views, if it's a vertical split, set the height.
  */
 
 void view_manager::split(Qt::Orientation orientation)

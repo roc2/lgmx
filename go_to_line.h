@@ -12,7 +12,7 @@ class go_to_line : public QDialog, public Ui_go_to_line
     int line;
 
 public:
-    go_to_line(QWidget *parent = 0);
+    go_to_line(QWidget *parent = 0, int val = 0);
     ~go_to_line();
     int get_line();
     void regular_size();

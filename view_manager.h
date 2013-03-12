@@ -21,7 +21,12 @@ class highlight_manager;
 class view_manager : public QWidget
 {
 	Q_OBJECT
-	
+
+private:
+	view_manager();
+	view_manager(const view_manager&);
+	view_manager& operator=(const view_manager&);
+
 public:
 	view_manager(QWidget *parent, file_type *type_manager, Settings *settings);
 	~view_manager();
@@ -55,9 +60,6 @@ public:
 	Settings* get_settings();
 
 private:
-	view_manager(const view_manager&);
-	view_manager& operator=(const view_manager&);
-
 	void close_file(QTextDocument *content);
 	void close_file(src_container *container, src_file *src_tab, int index);
 	
@@ -106,7 +108,6 @@ private:
     std::list<view *> view_list_;	/**< list of pointers to all existent views */
     std::list<QSplitter*> view_splitters_;
     
-    view *current_view_;
     QPointer<view> curr_view_;
     src_container *root_container_;
     Settings *settings_;

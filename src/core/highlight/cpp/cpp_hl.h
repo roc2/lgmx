@@ -26,7 +26,7 @@ protected:
 	void lex(const QString &data, QList<hl_info> &hl_info_list);
 
 private:
-	//QSet<QString> *keywords_;
+	//std::set<QString> keywords_;
 	QTextCharFormat *keywordFormat;
 	QTextCharFormat *CommentFormat;
 	QTextCharFormat *integerFormat;

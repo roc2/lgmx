@@ -72,6 +72,7 @@ C_highlighter::C_highlighter(src_file *parent) : syntax_highlighter(parent)
     keywords_.insert("else");
     keywords_.insert("while");
     keywords_.insert("for");
+    keywords_.insert("goto");
     keywords_.insert("return");
     keywords_.insert("const");
     keywords_.insert("unsigned");

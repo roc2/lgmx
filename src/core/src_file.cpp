@@ -113,7 +113,6 @@ src_file::src_file(src_file *base_file, src_container *parent)
 	
 	// when cursor changes highlight
 	QObject::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlight()));
-	std::cout << "Clone Ok!!" << std::endl;
 }
 
 /**
@@ -479,9 +478,6 @@ void src_file::go_to_line(int line)
     
     this->setTextCursor(cursor);
     this->centerCursor();
-    
-    QTextBlock first_block;
-    get_visible_blocks(first_block);
 }
 
 void src_file::highlight(int val)
@@ -591,17 +587,15 @@ QTextBlock src_file::get_text_block(int block)
 void src_file::setBlinkingCursorEnabled(bool enable)
 {
     if (enable)
-        cursor_blink_timer_.start(QApplication::cursorFlashTime() / 2, this);
+        cursor_blink_timer_.start(QApplication::cursorFlashTime() >> 1, this);
     else
         cursor_blink_timer_.stop();
-    //m_cursorVisible = enable;
-    //updateLines();
 }
 
 void src_file::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == cursor_blink_timer_.timerId())
-        updateLines();
+        update_cursor();
 }
 
 /**
@@ -609,7 +603,7 @@ void src_file::timerEvent(QTimerEvent *e)
  * not blink when it's moving.
  */
 
-void src_file::updateLines()
+void src_file::update_cursor()
 {
 	QRect cursor_rect(cursorRect());
 	

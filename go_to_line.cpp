@@ -4,11 +4,12 @@
 
 using namespace std;
 
-go_to_line::go_to_line(QWidget *parent) : QDialog(parent)   /*, ui(new go_to_line)*/
+go_to_line::go_to_line(QWidget *parent, int val) : QDialog(parent)   /*, ui(new go_to_line)*/
 {
     setupUi(this);
     
-    line = 0;
+    line = val;
+    spinBox->setValue(line);
     //Ui_go_to_line *ui;
     
     //ui = new Ui_go_to_line;

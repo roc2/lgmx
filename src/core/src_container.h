@@ -17,7 +17,12 @@ class Settings;
 class src_container : public QTabWidget
 {
 	Q_OBJECT
-	
+
+private:
+	src_container();
+	src_container(const src_container&);
+	src_container& operator=(const src_container&);
+
 public:
 	src_container(view_manager *manager, Settings *settings, QWidget *parent = 0);
 	~src_container();
@@ -86,7 +91,6 @@ private:
     QTabBar *tab_bar;
     QVBoxLayout *main_layout_;
     QFont font;
-    
     view_manager *manager_;
     Settings *settings_;
 };

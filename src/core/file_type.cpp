@@ -7,7 +7,7 @@
 
 file_type::file_type()
 {
-	// default file types
+	// default "file extension -> file type" map
 	type_map_["c"] = C;
 	type_map_["cpp"] = CPP;
 	type_map_["h"] = CPP;

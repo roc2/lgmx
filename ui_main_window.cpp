@@ -6,6 +6,7 @@
 #include <QShortcut>
 #include <QPluginLoader>
 #include <QLineEdit>
+#include <QTextBlock>
 
 #include "ui_main_window.h"
 #include "code_editor.h"
@@ -419,13 +420,14 @@ void Ui_MainWindow::go_to_ln()
     if (!src_tab)
 		return;
 	
-	if (!gt_ln_dialog) {
-		cout << "new go to line object" << endl;
-		gt_ln_dialog = new go_to_line(this);
-	}
-	
 	// get current cursor position
 	QTextCursor curr(src_tab->get_cursor());
+	
+	if (!gt_ln_dialog) {
+		int line = curr.block().blockNumber() + 1;
+		cout << "new go to line object" << endl;
+		gt_ln_dialog = new go_to_line(this, line);
+	}
 	
 	gt_ln_dialog->regular_size();
 	gt_ln_dialog->set_focus();
@@ -433,11 +435,13 @@ void Ui_MainWindow::go_to_ln()
 	QObject::connect(gt_ln_dialog->spinBox, SIGNAL(valueChanged(int)), src_tab, SLOT(go_to_line(int)));
 	
 	// run modal dialog
-	if (gt_ln_dialog->exec() == 1)
+	if (gt_ln_dialog->exec() == 1) {
 		src_tab->go_to_line(gt_ln_dialog->get_line());
-	else
-		src_tab->set_cursor(curr);	// canceled, restore cursor
-		
+	} else {	// canceled, restore cursor
+		src_tab->set_cursor(curr);
+		src_tab->centerCursor();
+	}
+	
 	QObject::disconnect(gt_ln_dialog->spinBox, SIGNAL(valueChanged(int)), src_tab, SLOT(go_to_line(int)));
 }
 

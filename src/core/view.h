@@ -14,7 +14,12 @@ class QVBoxLayout;
 class view : public QWidget
 {
 	Q_OBJECT
-	
+
+private:
+	view();
+	view(const view&);
+	view& operator=(const view&);
+
 public:
 	view(view_manager *manager, QWidget *parent = NULL);
 	~view();
