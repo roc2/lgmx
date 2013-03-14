@@ -1,6 +1,11 @@
-#include "recent_files.h"
+#include <recent_files.h>
 #include <QVariant>
+#include <QAction>
+#include <QSettings>
 
+/**
+ * Constructor.
+ */
 
 recent_files::recent_files(const QString &title, QWidget *parent) : QMenu(title, parent)
 {
@@ -12,11 +17,20 @@ recent_files::recent_files(const QString &title, QWidget *parent) : QMenu(title,
 	}
 }
 
+/**
+ * Destructor.
+ */
+
 recent_files::~recent_files()
 {
 	for (int i = 0; i < MAX_FILES; i++)
 		delete recentFileActions[i];
 }
+
+/**
+ * Adds a new file to the list.
+ * @param file_name - file to be added.
+ */
 
 void recent_files::add_file(const QString &file_name)
 {
@@ -35,6 +49,10 @@ void recent_files::add_file(const QString &file_name)
     update_menu();
 }
 
+/**
+ * Updates graphical menu.
+ */
+
 void recent_files::update_menu()
 {
 	int i;
@@ -48,6 +66,10 @@ void recent_files::update_menu()
 		recentFileActions[i]->setVisible(false);
 }
 
+/**
+ * Opens file from the list.
+ */
+
 void recent_files::open_recent_file()
 {
 	QAction *action = static_cast<QAction *>(sender());
@@ -57,10 +79,18 @@ void recent_files::open_recent_file()
 	emit open_recent_file(file_name);
 }
 
+/**
+ * Returns the file list.
+ */
+
 const QStringList& recent_files::get_file_list()
 {
 	return file_list;
 }
+
+/**
+ * Reads recent file list from permanent storage.
+ */
 
 void recent_files::load_files_from_disk(const QSettings &settings)
 {
@@ -69,6 +99,10 @@ void recent_files::load_files_from_disk(const QSettings &settings)
 	file_list = v.toStringList();
 	update_menu();
 }
+
+/**
+ * Writes recent file list to permanent storage.
+ */
 
 void recent_files::save_files_to_disk(QSettings &settings)
 {

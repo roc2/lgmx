@@ -374,11 +374,6 @@ void view_manager::open_file()
     src_container* ctr;
     
     ctr = get_current_src_container();
-    if (!ctr) {
-		debug(ERR, VIEW_MANAGER, "Invalid view");
-		return;
-    }
-    
     index = ctr->get_current_tab_index();  /* get current file index */
     
     /* 
@@ -483,9 +478,6 @@ bool view_manager::save()
     bool result;
     
     src_container *curr_src_c = get_current_src_container();
-
-    if (!curr_src_c)
-		return false;
     
     index = curr_src_c->get_current_tab_index();  /* get current file index */
     

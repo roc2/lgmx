@@ -3,15 +3,21 @@
 
 #include <QStringList>
 #include <QMenu>
-#include <QAction>
-#include <QSettings>
 
 #define MAX_FILES	10
+
+class QAction;
+class QSettings;
 
 class recent_files : public QMenu
 {
 	Q_OBJECT
-	
+
+private:
+	recent_files();
+	recent_files(const recent_files&);
+	recent_files& operator=(const recent_files&);
+
 public:
 	recent_files(const QString &title, QWidget *parent = 0);
 	~recent_files();
