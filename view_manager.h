@@ -8,15 +8,19 @@
 #include <stack>
 #include <set>
 
-#include "view.h"
 #include "recent_files.h"
-#include "id.h"
+#include <id.h>
 #include <plugin_manager.h>
 #include <settings.h>
 
 
 class QSplitter;
+class QTextDocument;
+class QVBoxLayout;
 class highlight_manager;
+class view;
+class src_container;
+class src_file;
 
 class view_manager : public QWidget
 {

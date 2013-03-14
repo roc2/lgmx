@@ -7,6 +7,7 @@
 #include <debug.h>
 #include <exception.h>
 #include <view_manager.h>
+#include <view.h>
 #include <settings.h>
 
 /**

@@ -1,4 +1,7 @@
+#include <QShortcut>
 #include <clipboard.h>
+#include <view_manager.h>
+#include <src_file.h>
 #include <sstream>
 
 /**

@@ -13,6 +13,7 @@
 #include "config.h"
 #include "unsvFileDialog.h"
 #include "clipboard.h"
+#include <view.h>
 #include <text_manip.h>
 #include <interfaces.h>
 

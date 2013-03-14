@@ -1,19 +1,16 @@
 #include <QVBoxLayout>
 #include <QSplitter>
-#include "view_manager.h"
-#include <iostream>
-#include <algorithm>
-#include <debug.h>
-
 #include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include <view_manager.h>
+#include <view.h>
 #include <highlight_manager.h>
 #include <exception.h>
 #include <global.h>
+#include <debug.h>
 
-using namespace std;
 
 /**
  * Constructor.
@@ -185,7 +182,7 @@ void view_manager::new_file()
 	
 	src_file *file = root_container_->get_src_file(index);
 
-	list<view *>::iterator it;
+	std::list<view *>::iterator it;
 	view *curr_view = get_current_view();
 
 	// clone the new file in all views
@@ -225,7 +222,7 @@ bool view_manager::new_file(const QString &file_name)
 	ft = type_manager_->get_file_type(file->get_src_file_extension());
 	debug(DEBUG, VIEW_MANAGER, "File type: " << ft);
 	
-	list<view *>::iterator it;
+	std::list<view *>::iterator it;
 	view *curr_view = get_current_view();
 	
 	for (it = view_list_.begin(); it != view_list_.end(); it++) {
@@ -282,7 +279,10 @@ void view_manager::close_file()
 }
 
 /**
- * 
+ * Destroys a file removing it from all views.
+ * @param container - container in which the action started.
+ * @param src_tab - file to be closed.
+ * @param index - file index within the container.
  */
 
 void view_manager::close_file(src_container *container, src_file *src_tab, int index)
@@ -341,7 +341,7 @@ void view_manager::close_file(src_container *container, src_file *src_tab, int i
 			return;     /* if dialog is canceled, do nothing */
 	}
 
-	list<view *>::iterator v_it;
+	std::list<view *>::iterator v_it;
 	
 	// remove the file from all views
 	for (v_it = view_list_.begin(); v_it != view_list_.end(); v_it++)
@@ -350,14 +350,14 @@ void view_manager::close_file(src_container *container, src_file *src_tab, int i
 	// remove the file from root container
 	src_tab = root_container_->get_src_file(id);
 	if (!src_tab) {
-		debug(ERR, VIEW_MANAGER, "File not found in root container");
+		debug(CRIT, VIEW_MANAGER, "File not found in root container");
 		return;
 	}
 
 	delete src_tab;
 	
 	// remove the file from open files list
-	set<QString>::iterator it(open_files_.find(file_name));
+	std::set<QString>::iterator it(open_files_.find(file_name));
     if (it != open_files_.end())
         open_files_.erase(*it);
 }
@@ -486,10 +486,9 @@ bool view_manager::save()
     
     curr_src_c->get_src_tab_full_name(index, file_name);
     
-    if (file_name.isEmpty()) {
-        cout << "file name empty" << endl;
+    if (file_name.isEmpty())
         result = save_file_as(curr_src_c, index);
-    } else
+    else
 		result = save_file(curr_src_c, file_name, index);
 	
 	if (result)
@@ -553,6 +552,8 @@ bool view_manager::save_file_as(src_container *src_c, int index)
 
 bool view_manager::save_file(src_container *src_c, const QString &fileName, int index)
 {
+	// check here if the file has modifications
+	
     if (!src_c->src_tab_write_file(index, fileName))
         return false;
 
@@ -629,7 +630,7 @@ bool view_manager::check_unsaved_files()
 }
 
 /**
- * 
+ * Returns a pointer to the highlight manager.
  */
 
 highlight_manager* view_manager::get_highlight_manager()
@@ -781,20 +782,20 @@ view* view_manager::get_current_view() const
 		return *(view_list_.begin());
 	
 	if (curr_view_) {
-		debug(INFO, VIEW_MANAGER, "from QPointer!!");
+		debug(DEBUG, VIEW_MANAGER, "from QPointer!!");
 		return curr_view_.data();
 	} else {
-		debug(INFO, VIEW_MANAGER, "Invalid QPointer!!");
+		debug(WARNING, VIEW_MANAGER, "Invalid QPointer!");
 	}
 	
-	list<view *>::const_iterator it;
+	std::list<view *>::const_iterator it;
 	int i;
 	QWidget *curr_widget = 0;
 
 	for (i = 0, it = view_list_.begin(); it != view_list_.end(); it++, i++) {
 		curr_widget = (*it)->focusWidget();
 		if (curr_widget && curr_widget->hasFocus()) {
-			cout << "get_current_view " << i << endl;
+			debug(DEBUG, VIEW_MANAGER, "get_current_view - number: " << i);
 			return *it;
 		}
 	}
@@ -863,26 +864,12 @@ void view_manager::split_vertically()
  * horizontal (left/right).
  */
 
-/**
- * @todo when splitting, get the width and height of the other view (the one that 
- * is not being splitted) and save it. After the split is complete, restore the other 
- * view's original size.
- * 
- * Get the height and width of the view being splitted, if it's a horizontal split, set the 
- * saved width for both the 2 new views, if it's a vertical split, set the height.
- */
-
 void view_manager::split(Qt::Orientation orientation)
 {
 	QSplitter *new_splitter;
 	view *new_view;
 	int size;
 	view *curr_view = get_current_view();
-	
-	if (!curr_view) {
-		debug(ERR, VIEW_MANAGER, "No current view");
-		return;
-	}
 	
 	if (num_splits_ == 0) {
 		new_splitter = new QSplitter(orientation, this);
@@ -899,7 +886,7 @@ void view_manager::split(Qt::Orientation orientation)
 			size = curr_view->height() >> 1;
 		else
 			size = curr_view->width() >> 1;
-		
+
 		new_splitter->addWidget(curr_view);
 		new_splitter->addWidget(new_view);
 		layout_->addWidget(new_splitter);
@@ -908,7 +895,6 @@ void view_manager::split(Qt::Orientation orientation)
 		sizes.push_back(size);
 		sizes.push_back(size);
 		new_splitter->setSizes(sizes);
-			
 		view_splitters_.push_back(new_splitter);
 		
 	} else {
@@ -922,11 +908,10 @@ void view_manager::split(Qt::Orientation orientation)
 		index = parent->indexOf(curr_view);
 
 		// get new splitter sizes
-		if (orientation == Qt::Vertical) {
+		if (orientation == Qt::Vertical)
 			size = curr_view->height() >> 1;
-		} else {
+		else
 			size = curr_view->width() >> 1;
-		}
 
 		sizes.push_back(size);
 		sizes.push_back(size);
@@ -935,11 +920,21 @@ void view_manager::split(Qt::Orientation orientation)
 		QWidget *widget = parent->widget(index == 1 ? 0 : 1);
 
 		if (parent->orientation() == Qt::Vertical) {
-			p_split_sizes.push_back(widget->height());
-			p_split_sizes.push_back(curr_view->height());
+			if (index == 1) {
+				p_split_sizes.push_back(widget->height());
+				p_split_sizes.push_back(curr_view->height());
+			} else {
+				p_split_sizes.push_back(curr_view->height());
+				p_split_sizes.push_back(widget->height());
+			}
 		} else {
-			p_split_sizes.push_back(widget->width());
-			p_split_sizes.push_back(curr_view->width());
+			if (index == 1) {
+				p_split_sizes.push_back(widget->width());
+				p_split_sizes.push_back(curr_view->width());
+			} else {
+				p_split_sizes.push_back(curr_view->width());
+				p_split_sizes.push_back(widget->width());
+			}
 		}
 
 		// create new splitter
@@ -985,8 +980,8 @@ void view_manager::unsplit()
 	view *curr_view = get_current_view();
 
 	QSplitter *grand_parent;
-	list<QSplitter *>::iterator s_it;
-	list<view *>::iterator v_it;
+	std::list<QSplitter *>::iterator s_it;
+	std::list<view *>::iterator v_it;
 
 	// get parent splitter
 	QSplitter *parent = static_cast<QSplitter*>(curr_view->parentWidget());
@@ -1092,7 +1087,7 @@ void view_manager::set_recent_files_widget(recent_files *recent_files_widget)
 
 void view_manager::show_src_tab_bar(bool show)
 {
-	list<view *>::iterator it;
+	std::list<view *>::iterator it;
 	
 	for (it = view_list_.begin(); it != view_list_.end(); it++)
 		(*it)->show_src_tab_bar(show);
@@ -1104,7 +1099,7 @@ void view_manager::show_src_tab_bar(bool show)
 
 void view_manager::show_status_bar(bool show)
 {
-	list<view *>::iterator it;
+	std::list<view *>::iterator it;
 	
 	for (it = view_list_.begin(); it != view_list_.end(); it++)
 		(*it)->show_status_bar(show);
@@ -1116,7 +1111,7 @@ void view_manager::show_status_bar(bool show)
 
 void view_manager::update_status_bar(const QString &fileName, unsigned int id)
 {
-	list<view *>::iterator v_it;
+	std::list<view *>::iterator v_it;
 	
 	// update status bar in all views
 	for (v_it = view_list_.begin(); v_it != view_list_.end(); v_it++)

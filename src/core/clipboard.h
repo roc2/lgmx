@@ -1,13 +1,13 @@
 #ifndef CLIPBOARD_H
 #define CLIPBOARD_H
 
-#include <QShortcut>
 #include <QSignalMapper>
-#include <view_manager.h>
 
 #define MAX_BUFFS	10
 #define NUM_SHORTCUTS	10
 
+class view_manager;
+class QShortcut;
 
 class clipboard : public QObject
 {

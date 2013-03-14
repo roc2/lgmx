@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <view_manager.h>
+#include <view.h>
 
 #define SEARCH_SAVE_KEY	"search_flags"
 

@@ -56,6 +56,13 @@ void file_watcher::set_handling(bool handling)
 	_handling_mutex.unlock();
 }
 
+/**
+ * @todo create a QSet in this class, whenever the editor saves a file 
+ * it warns the file watcher adding the file to the set, when this slot 
+ * is called we check whether the modified file is in the set, if it is the 
+ * modification was done by the editor and shall be discarded.
+ */
+
 void file_watcher::changed_file(const QString &file_name)
 {
 	cout << "changed file!!" << endl;
