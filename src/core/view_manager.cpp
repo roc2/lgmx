@@ -267,7 +267,7 @@ void view_manager::close_file(int index)
 
 void view_manager::close_file()
 {
-	src_container *container = get_current_view()->get_src_container();
+	src_container *container = get_current_src_container();
 	src_file *src_tab = container->get_current_src_file();
 
 	if (!src_tab) {
@@ -486,11 +486,15 @@ bool view_manager::save()
     
     curr_src_c->get_src_tab_full_name(index, file_name);
     
-    if (file_name.isEmpty())
+    if (file_name.isEmpty()) {
         result = save_file_as(curr_src_c, index);
-    else
+    } else if (curr_src_c->is_modified(index)) {
 		result = save_file(curr_src_c, file_name, index);
-	
+	} else {
+		debug(INFO, VIEW_MANAGER, "File has no modifications");
+		return false;
+	}
+
 	if (result)
 		curr_src_c->set_modified(index, false);
 		
@@ -552,8 +556,6 @@ bool view_manager::save_file_as(src_container *src_c, int index)
 
 bool view_manager::save_file(src_container *src_c, const QString &fileName, int index)
 {
-	// check here if the file has modifications
-	
     if (!src_c->src_tab_write_file(index, fileName))
         return false;
 
@@ -648,12 +650,13 @@ Settings* view_manager::get_settings()
 }
 
 /**
- * 
+ * Sets the file specified by index as the current file.
+ * @param index - file index in the container.
  */
 
 void view_manager::set_current_file_index(int index)
 {
-	src_container *container = get_current_view()->get_src_container();
+	src_container *container = get_current_src_container();
 	
     if (index >= container->count())
         return; /* index out of range */
@@ -667,7 +670,7 @@ void view_manager::set_current_file_index(int index)
 
 void view_manager::set_next_file_as_current()
 {
-	get_current_view()->get_src_container()->set_next_src_file_as_current();
+	get_current_src_container()->set_next_src_file_as_current();
 }
 
 /**
@@ -708,7 +711,7 @@ void view_manager::set_tab_width(int size)
 }
 
 /**
- * 
+ * @todo implement this method.
  */
 
 int view_manager::get_tab_width() const
@@ -717,7 +720,8 @@ int view_manager::get_tab_width() const
 }
 
 /**
-
+ * Sets the line wrap mode.
+ * @param wrap - true, line wrap on, false for line wrap disabled.
  */
 
 void view_manager::set_line_wrap(bool wrap)
@@ -731,7 +735,7 @@ void view_manager::set_line_wrap(bool wrap)
 }
 
 /**
- * 
+ * @todo implement this method.
  */
 
 bool view_manager::get_line_wrap() const
@@ -773,7 +777,6 @@ void view_manager::release_view_id(unsigned int id)
 /**
  * Returns the current view. This method always returns a valid view.
  * @return Address of the current view.
- * @todo - review this method
  */
 
 view* view_manager::get_current_view() const
@@ -782,7 +785,7 @@ view* view_manager::get_current_view() const
 		return *(view_list_.begin());
 	
 	if (curr_view_) {
-		debug(DEBUG, VIEW_MANAGER, "from QPointer!!");
+		debug(DEBUG, VIEW_MANAGER, "QPointer Ok!!");
 		return curr_view_.data();
 	} else {
 		debug(WARNING, VIEW_MANAGER, "Invalid QPointer!");
@@ -958,10 +961,7 @@ void view_manager::split(Qt::Orientation orientation)
 		// set splitter sizes
 		new_splitter->setSizes(sizes);
 		parent->setSizes(p_split_sizes);
-		
-		debug(INFO, VIEW_MANAGER, "splitter count -> " << parent->count());
-		debug(INFO, VIEW_MANAGER, "new splitter count -> " << new_splitter->count());
-		
+
 		view_splitters_.push_back(new_splitter);
 	}
 	
@@ -1001,9 +1001,6 @@ void view_manager::unsplit()
 		delete parent;
 
 	} else if ((grand_parent = dynamic_cast<QSplitter*>(parent->parentWidget()))) {
-		
-		debug(DEBUG, VIEW_MANAGER, "grand parent is QSplitter");
-		
 		// parent index in the grandparent splitter
 		int index = grand_parent->indexOf(parent);
 		
@@ -1018,13 +1015,12 @@ void view_manager::unsplit()
 		set_current_view(static_cast<view *>(grand_parent->widget(index)));
 		remove_from_splitter_list(parent);
 
-		// destroy current
 		debug(DEBUG, VIEW_MANAGER, "splitter count: " << parent->count());
 		
 		destroy_view(curr_view);
 		delete parent;
 	} else {
-		debug(CRIT, VIEW_MANAGER, "Unknown parent splitter");
+		debug(CRIT, VIEW_MANAGER, "Unknown parent widget");
 		return;
 	}
 	
@@ -1073,7 +1069,7 @@ void view_manager::set_view_properties(view &old_view, view &new_view)
 }
 
 /**
- * 
+ * Sets recent files widget pointer.
  */
 
 void view_manager::set_recent_files_widget(recent_files *recent_files_widget)
@@ -1082,6 +1078,7 @@ void view_manager::set_recent_files_widget(recent_files *recent_files_widget)
 }
 
 /**
+ * Shows the source files tabs bar.
  * @param show: true, show tab bar, or false, hide tab bar.
  */
 
@@ -1094,7 +1091,8 @@ void view_manager::show_src_tab_bar(bool show)
 }
 
 /**
- * 
+ * Shows status bar.
+ * @param show: true, show status bar, or false, hide status bar.
  */
 
 void view_manager::show_status_bar(bool show)

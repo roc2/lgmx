@@ -5,10 +5,9 @@
 #include <QPointer>
 
 #include <list>
-#include <stack>
 #include <set>
 
-#include "recent_files.h"
+#include <recent_files.h>
 #include <id.h>
 #include <plugin_manager.h>
 #include <settings.h>
@@ -103,10 +102,8 @@ public slots:
 	void set_next_file_as_current();
 
 private slots:
-	//void open_recent_file();
 
 signals:
-    //void open_recent_file(QString &);
 
 private:
     std::list<view *> view_list_;	/**< list of pointers to all existent views */

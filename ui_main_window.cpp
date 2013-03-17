@@ -23,6 +23,9 @@
 
 using namespace std;
 
+/**
+ * @todo create user_opt class to parse command line user options
+ */
 
 /**
  * MainWindow Constructor with file list as parameter
@@ -43,25 +46,11 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 
 	view_manager_ = new view_manager(this, &type_manager, settings_);
 
-	//resize(831, 557);
-	//showMaximized();
-
-	/*
-	 * atualmente este ponteiro é fixo, mas a ideia é que ele sempre aponte para o grupo de 
-	 * arquivos ativo. No caso de um split screen este ponteiro deve ser atualizado, para possibilitar 
-	 * os outros modulos de requerer o arquivo ativo.
-	 * Todos os módulos devem receber o endereço deste ponteiro.
-	 * src_files deve ser um vector, a cada split screen é adicionado um elemento no vector, e o ponteiro 
-	 * src_container deve sempre apontar para o grupo de arquivos ativo. Como os módulos apontam para src_container, 
-	 * sempre terão o endereço do grupo de arquivos ativo.
-	 */
-
 	_root_src_container = view_manager_->get_root_src_container();
 
 	gt_ln_dialog = NULL;
 
 	QCoreApplication::setOrganizationName(COMPANY);
-    //QCoreApplication::setOrganizationDomain("mysoft.com");
     QCoreApplication::setApplicationName(APPLICATION);
 	
 	
@@ -481,7 +470,7 @@ void Ui_MainWindow::readSettings()
 }
 
 /**
- * Closes the editor. Checks if there are unsaved changes and saves 
+ * Closes the application. Checks if there are unsaved changes and saves 
  * configuration before quiting.
  * @brief Closes the editor
  * @param event -> closing event
