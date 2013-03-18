@@ -384,7 +384,9 @@ void view_manager::open_file()
         path = dir.homePath();
  
 	// list of files to be opened
-    QStringList files(QFileDialog::getOpenFileNames(this, tr("Open File"), path, tr("All files (*.c *.cpp *.h)")));
+    QFileDialog dialog(this);
+	dialog.setFileMode(QFileDialog::ExistingFiles);
+    QStringList files(dialog.getOpenFileNames(this, tr("Open File"), path));
 
     size = files.size();
     for (index = 0; index < size; ++index) {
@@ -510,9 +512,10 @@ bool view_manager::save()
 
 bool view_manager::save_file_as(src_container *src_c, int index)
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"));
-    // mudar para abrir na home do user se o arquivo nao existe:
-    //files = QFileDialog::getSaveFileName(this, tr("Save File"), path, tr("All files (*.c *.cpp *.h)"));
+    QDir dir;
+    QString path(dir.homePath());
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), path);
     
     if (fileName.isEmpty())
         return false;   /* no file specified */
@@ -641,7 +644,7 @@ highlight_manager* view_manager::get_highlight_manager()
 }
 
 /**
- * 
+ * Returns a pointer to the settings object.
  */
 
 Settings* view_manager::get_settings()

@@ -1,15 +1,17 @@
-#include "status_line.h"
+#include <status_line.h>
 #include <src_container.h>
 #include <QPalette>
 #include <QComboBox>
+#include <QHBoxLayout>
 
 #include <debug.h>
 #include <exception.h>
-#include <iostream>
-
-using namespace std;
 
 #define DEF_NAME	tr("Untitled")
+
+/**
+ * Constructor.
+ */
 
 status_line::status_line(src_container *container)
 {
@@ -17,7 +19,6 @@ status_line::status_line(src_container *container)
 	
 	layout_ = new QHBoxLayout;
 	file_list_ = new QComboBox(this);
-	file_list_->setStyleSheet("QComboBox {border: 0px solid gray;border-radius: 0px; color: black; background-color: gray} QComboBox:on { padding-top: 0px; padding-left: 0px;} QComboBox::drop-down {border-width: 0px;} QComboBox::down-arrow {image: url(noimg); border-width: 0px;}");
 
 	connect(file_list_, SIGNAL(currentIndexChanged(int)), this, SLOT(current_file_changed(int)));
 
@@ -25,8 +26,12 @@ status_line::status_line(src_container *container)
 	layout_->setContentsMargins(0, 0, 0, 0);
 
 	this->setLayout(layout_);
-	//set_default_colors();
+	set_default_colors();
 }
+
+/**
+ * Destructor.
+ */
 
 status_line::~status_line()
 {
@@ -80,7 +85,6 @@ void status_line::remove_file(unsigned int id)
 void status_line::update_file_name(int index)
 {
 	unsigned int id;
-	cout << "update_file_name 1" << endl;
 	
 	try {
 		id = src_container_->get_src_file_id(index);
@@ -107,7 +111,6 @@ void status_line::update_file_name(int index)
 
 void status_line::update_file_name(const QString &fileName, unsigned int id)
 {
-	cout << "update_file_name 2" << endl;
 	int count = file_list_->count();
 
 	for (int i = 0; i <= count; i++) {
@@ -121,15 +124,6 @@ void status_line::update_file_name(const QString &fileName, unsigned int id)
 void status_line::set_src_container(src_container *container)
 {
 	src_container_ = container;
-}
-
-/**
- * [slot]
- */
-
-void status_line::file_name_clicked()
-{
-	std::cout << "label clicked" << std::endl;
 }
 
 /**
@@ -151,25 +145,9 @@ void status_line::current_file_changed(int index)
 
 void status_line::set_default_colors()
 {
-	QPalette p;
-	QColor c(0, 0, 0);
-	p.setColor(QPalette::WindowText, c);
-	file_list_->setPalette(p);
-	//QColor c2(0, 0, 255);
-	//p.setColor(QPalette::Window, c2);
-	//file_name_->setPalette(p);
-    file_list_->setStyleSheet("background: blue");
+	setStyleSheet("QComboBox {border: 0px solid gray;border-radius: 0px; \
+	color: black; background-color: gray} QComboBox:on { padding-top: 0px; \
+	padding-left: 0px;} QComboBox::drop-down {border-width: 0px;} \
+	 QComboBox::down-arrow {image: url(noimg); border-width: 0px;}");
 }
-
-
-
-
-
-
-
-
-
-
-
-
 

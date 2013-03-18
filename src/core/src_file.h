@@ -83,16 +83,14 @@ public:
 
 private:
 	void timerEvent(QTimerEvent *);
-	
 	void update_cursor();
-	void updateLines(int fromPosition, int toPosition);
 
 signals:
 	void modificationChanged(bool);
 
 public slots:
     void go_to_line(int line);
-    void highlight(int val);
+    void highlight(int);
     void highlight();
     
 private:
@@ -107,6 +105,7 @@ private:
 	
 	QBasicTimer cursor_blink_timer_;
 	bool cursor_visible_;
+	bool blink_cursor_;
 };
 
 

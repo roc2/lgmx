@@ -29,6 +29,7 @@ src_file::src_file(const QString &file_name, unsigned int id, src_container *par
 	id_ = id;
 	parent_ = parent;
 	type_ = file_type::UNKNOWN;
+	blink_cursor_ = false;
 
 	this->setContentsMargins(0, 0, 0, 0);
     this->setObjectName(QString::fromUtf8("src_editor"));
@@ -76,6 +77,7 @@ src_file::src_file(src_file *base_file, src_container *parent)
 	id_ = base_file->get_id();
 	parent_ = parent;
 	type_ = base_file->get_file_type();
+	blink_cursor_ = false;
 	
 	cursor_visible_ = true;
 	
@@ -101,9 +103,10 @@ src_file::src_file(src_file *base_file, src_container *parent)
     set_base_color(Qt::white);
     set_text_color(Qt::black);
 
-	setCursorWidth(get_font_width());
+	//setCursorWidth(get_font_width());
+	setCursorWidth(1);
 	QApplication::setCursorFlashTime(1000);
-	setBlinkingCursorEnabled(true);
+	setBlinkingCursorEnabled(false);
 
 	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
 	
@@ -480,7 +483,7 @@ void src_file::go_to_line(int line)
     this->centerCursor();
 }
 
-void src_file::highlight(int val)
+void src_file::highlight(int)
 {
 	highlight_visible_blocks();
 }
@@ -498,7 +501,9 @@ void src_file::focusInEvent(QFocusEvent *event)
 {
 	// updates the view_manager current view.
 	parent_->update_current_view();
-	setBlinkingCursorEnabled(true);
+	
+	if (blink_cursor_)
+		setBlinkingCursorEnabled(true);
 }
 
 /**
@@ -507,7 +512,8 @@ void src_file::focusInEvent(QFocusEvent *event)
 
 void src_file::focusOutEvent(QFocusEvent *event)
 {
-	setBlinkingCursorEnabled(false);
+	if (blink_cursor_)
+		setBlinkingCursorEnabled(false);
 }
 
 /**
@@ -551,8 +557,6 @@ int src_file::get_visible_blocks(QTextBlock &first_block)
 	int content_height = contentsRect().height();
 	
 	int last_num = first_num + content_height / block_height + 1;
-	
-	//std::cout << "blocks: " << first_num << " " << last_num << std::endl;
 	
 	return last_num - first_num;
 }
@@ -613,23 +617,8 @@ void src_file::update_cursor()
 		setCursorWidth(get_font_width());
 
 	cursor_visible_ = !cursor_visible_;
-	
 	viewport()->update(cursor_rect);
-	//int cursor_pos = get_cursor_position();
-    //updateLines(cursor_pos, cursor_pos);
 }
-
-void src_file::updateLines(int fromPosition, int toPosition)
-{/*
-    int topLine = verticalScrollBar()->value();
-    int firstLine = qMin(fromPosition, toPosition) / m_bytesPerLine;
-    int lastLine = qMax(fromPosition, toPosition) / m_bytesPerLine;
-    int y = (firstLine - topLine) * m_lineHeight;
-    int h = (lastLine - firstLine + 1 ) * m_lineHeight;
-
-    viewport()->update(0, y, viewport()->width(), h);*/
-}
-
 
 /**
  * Events filter. For VI mode and shortcuts
