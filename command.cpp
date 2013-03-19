@@ -10,7 +10,7 @@ command::~command()
 {
 }
 
-QString& command::get_name()
+QString command::get_name()
 {
 	return name_;
 }

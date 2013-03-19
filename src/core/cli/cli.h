@@ -19,21 +19,23 @@ class cli : public QWidget
 {
 	Q_OBJECT
 
+private:
+	cli();
+	cli(const cli&);
+	cli& operator=(const cli&);
+
 public:
 	cli(view_manager *manager);
 	~cli();
 
-	bool add_command(command *cmd);
-
 	cmd::stat execute(QString &cmd_str, QString &result);
-
-	void parse(QString &cmd_str);
-		// faz o match do nome do comando no map e chama o respectivo 
-		// cmd_obj passando os parametros em uma lista de strings (tokens)
 
 private:
 	bool eventFilter(QObject *object, QEvent *event);	
 
+	bool add_command(command *cmd);
+	void create_commands();
+	void destroy_commands();
 
 private:
 	view_manager *manager_;

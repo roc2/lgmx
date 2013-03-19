@@ -1,18 +1,19 @@
 #include <QStringList>
-#include <list>
 
 #include <cli.h>
-#include <exception.h>
 #include <view_manager.h>
 
 #include <QEvent>
 #include <QKeyEvent>
-#include <QString>
 #include <QLabel>
 #include <QLineEdit>
 #include <QHBoxLayout>
 #include <debug.h>
 #include <exception.h>
+
+/**
+ * Constructor.
+ */
 
 lgmx::cli::cli(view_manager *manager) : QWidget(manager)
 {
@@ -38,27 +39,70 @@ lgmx::cli::cli(view_manager *manager) : QWidget(manager)
 	setLayout(layout_);
 	this->setMaximumHeight (22);
 	
-	add_command(new tab_width_cmd("tabwidth", manager));
-	add_command(new version_cmd("version", manager));
-	add_command(new line_wrap_cmd("linewrap", manager));
+	create_commands();
 }
 
+/**
+ * Destructor.
+ */
 
 lgmx::cli::~cli()
 {
 	delete cmd_history_;
-	// delete all commands from map
+	destroy_commands();
+	delete layout_;
+	delete input_;
+	delete result_;
 }
+
+/**
+ * Adds a command to the command map.
+ * @param cmd - command to be added.
+ */
 
 bool lgmx::cli::add_command(command *cmd)
 {
+	if (!cmd) {
+		debug(ERR, CLI, "Invalid command");
+		return false;
+	}
+	
 	cmd_map_[cmd->get_name()] = cmd;
 	return true;
 };
 
+/**
+ * Creates all commands.
+ */
+
+void lgmx::cli::create_commands()
+{
+	try {
+		add_command(new tab_width_cmd("tabwidth", manager_));
+		add_command(new version_cmd("version", manager_));
+		add_command(new line_wrap_cmd("linewrap", manager_));
+	} catch (std::bad_alloc&) {
+		debug(ALERT, CLI, "Bad alloc!");
+	}
+}
 
 /**
- *
+ * Destroys all commands.
+ */
+
+void lgmx::cli::destroy_commands()
+{
+	std::map<QString, command *>::iterator it;
+	
+	for (it = cmd_map_.begin(); it != cmd_map_.end(); it++)
+		delete it->second;
+}
+
+/**
+ * Executes a command. Checks if the command exists and splits 
+ * parameters into tokens before executing.
+ * @param cmd_str - complete command string (command + parameters).
+ * @param result - command result if any.
  */
 
 cmd::stat lgmx::cli::execute(QString &cmd_str, QString &result)
@@ -76,13 +120,6 @@ cmd::stat lgmx::cli::execute(QString &cmd_str, QString &result)
 	}
 
 	return it->second->execute(cmd, result);
-}
-
-void lgmx::cli::parse(QString &cmd_str)
-{
-	
-
-
 }
 
 /**
@@ -107,7 +144,7 @@ bool lgmx::cli::eventFilter(QObject *object, QEvent *event)
 			if (cmd.isEmpty())
 				return true;
 			
-			//std::cout << "command issued: " << cmd.toStdString() << std::endl;
+			debug(DEBUG, CLI, "command issued: " << cmd.toStdString());
 			
 			// handle command
 			status = execute(cmd, result);

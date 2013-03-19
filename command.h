@@ -19,7 +19,7 @@ public:
 	virtual cmd::stat execute(QStringList &params, QString &result) = 0;
 
 public:
-	QString& get_name();
+	QString get_name();
 
 protected:
 	QString name_;
