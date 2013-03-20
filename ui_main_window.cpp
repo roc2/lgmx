@@ -230,6 +230,9 @@ void Ui_MainWindow::create_shortcuts()
 	// next file - ctrl + tab
 	next_file_ = new QShortcut(Qt::CTRL+ Qt::Key_Tab, this);
 	QObject::connect(next_file_, SIGNAL(activated()), view_manager_, SLOT(set_next_file_as_current()));
+	// jump to tag - ctrl + ]
+	go_to_tag_ = new QShortcut(Qt::CTRL+ Qt::Key_BracketRight, this);
+	QObject::connect(go_to_tag_, SIGNAL(activated()), view_manager_, SLOT(go_to_tag()));
 }
 
 /**
@@ -239,6 +242,7 @@ void Ui_MainWindow::create_shortcuts()
 void Ui_MainWindow::destroy_shortcuts()
 {
 	delete next_file_;
+	delete go_to_tag_;
 }
 
 /**

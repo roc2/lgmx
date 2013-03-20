@@ -14,10 +14,7 @@
 #include <src_container.h>
 #include <settings.h>
 #include <syntax_highlighter.h>
-
 #include <QRect>
-
-#include <iostream>
 
 /**
  * [throw] Constructor.
@@ -62,7 +59,6 @@ src_file::src_file(const QString &file_name, unsigned int id, src_container *par
 	}
 
 	QObject::connect(this->document(), SIGNAL(modificationChanged(bool)), this, SIGNAL(modificationChanged(bool)));
-	std::cout << "src_file constructor ok" << std::endl;
 }
 
 /**
@@ -317,6 +313,17 @@ file_type::type src_file::get_file_type() const
 void src_file::set_file_type(file_type::type type)
 {
 	type_ = type;
+}
+
+/**
+ * Returns the word under cursor. It may be empty.
+ */
+
+QString src_file::get_word_under_cursor()
+{
+	QTextCursor cursor(textCursor());
+	cursor.select(QTextCursor::WordUnderCursor);
+	return cursor.selectedText();
 }
 
 /**
@@ -619,7 +626,15 @@ void src_file::update_cursor()
 	cursor_visible_ = !cursor_visible_;
 	viewport()->update(cursor_rect);
 }
-
+/*
+void src_file::mousePressEvent(QMouseEvent *event)
+{
+	if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier) {
+		debug(DEBUG, SRC_FILE, "Ctrl + left_click");
+	} else 
+		QWidget::mousePressEvent(event);
+}
+*/
 /**
  * Events filter. For VI mode and shortcuts
  * 

@@ -79,7 +79,10 @@ public:
     file_type::type get_file_type() const;
     void set_file_type(file_type::type type);
     
+    QString get_word_under_cursor();
+    
     bool eventFilter(QObject* pObject, QEvent* pEvent);
+    //void mousePressEvent(QMouseEvent *event);
 
 private:
 	void timerEvent(QTimerEvent *);

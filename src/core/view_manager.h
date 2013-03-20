@@ -11,6 +11,7 @@
 #include <id.h>
 #include <plugin_manager.h>
 #include <settings.h>
+#include <tags.h>
 
 
 class QSplitter;
@@ -100,6 +101,7 @@ public slots:
 	void show_src_tab_bar(bool show);
 	void show_status_bar(bool show);
 	void set_next_file_as_current();
+	void go_to_tag();
 
 private slots:
 
@@ -125,6 +127,8 @@ private:
 
     Id file_id_;	/**< source file ID generator */
     Id view_id_;	/**< view ID generator */
+    
+    tag *tag_;
 };
 
 #endif

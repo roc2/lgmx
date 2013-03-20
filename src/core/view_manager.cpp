@@ -25,6 +25,7 @@ view_manager::view_manager(QWidget *parent, file_type *type_manager, Settings *s
 
 	curr_view_ = create_view(this);
 	num_splits_ = 0;
+	tag_ = NULL;
 
 	highlight_manager_ = new highlight_manager(type_manager_);
 
@@ -45,6 +46,10 @@ view_manager::~view_manager()
 	delete highlight_manager_;
 	clear_view_list();
 	clear_splitter_list();
+	
+	if (tag_)
+		delete tag_;
+
 	delete root_container_;
 }
 
@@ -674,6 +679,44 @@ void view_manager::set_current_file_index(int index)
 void view_manager::set_next_file_as_current()
 {
 	get_current_src_container()->set_next_src_file_as_current();
+}
+
+/**
+ * [slot] Jumps to the tag under cursor.
+ */
+
+void view_manager::go_to_tag()
+{
+	if (!tag_) {
+		tag_ = new tag();
+		debug(DEBUG, VIEW_MANAGER, "Created tags");
+	}
+	
+	src_file *file = get_current_src_file();
+	
+	if (!file) {
+		debug(INFO, VIEW_MANAGER, "No current file");
+		return;
+	}
+	
+	QString tag(file->get_word_under_cursor());
+	
+	if (tag.isEmpty())
+		return;
+	
+	debug(INFO, VIEW_MANAGER, tag.toStdString());
+	
+	QString file_name;
+	int line;
+	
+	if (!tag_->find_tag(tag, file_name, line))
+		return;
+		
+	open_file(file_name);
+	
+	src_file* tab = get_current_src_file();
+	if (tab)
+		tab->go_to_line(line);
 }
 
 /**

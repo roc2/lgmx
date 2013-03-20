@@ -7,7 +7,7 @@ SOURCES += ./src/core/main.cpp ui_main_window.cpp ./src/core/code_editor.cpp ./s
            ./src/core/view.cpp ./src/core/status_line.cpp ./src/utils/id.cpp ./src/core/file_type.cpp ./src/core/plugin_manager.cpp \
            ./src/core/highlight/highlight_manager.cpp ./src/core/vjson/block_allocator.cpp \
            ./src/core/vjson/json.cpp ./src/core/settings.cpp ./src/core/c_label.cpp ./src/core/text_manip.cpp ./src/core/cli/cli.cpp \
-           command.cpp ./src/core/highlight/syntax_highlighter.cpp
+           command.cpp ./src/core/highlight/syntax_highlighter.cpp ./src/core/tags/tags.cpp ./src/core/tags/readtags.cpp
            
 HEADERS += debug.h ./src/core/code_editor.h ui_main_window.h ./src/core/src_container.h ./src/core/highlight/cpp/cpp_hl.h \
            go_to_line.h ui_go_to_line.h \
@@ -15,9 +15,9 @@ HEADERS += debug.h ./src/core/code_editor.h ui_main_window.h ./src/core/src_cont
            ./src/core/view.h ./src/core/status_line.h utils.h ./src/utils/id.h ./src/core/exception.h ./src/core/interfaces.h ./src/core/file_type.h \
            ./src/core/plugin_manager.h ./src/core/highlight/highlight_manager.h \ 
            ./src/core/vjson/block_allocator.h ./src/core/vjson/json.h ./src/core/settings.h ./src/core/c_label.h ./src/core/text_manip.h ./src/core/cli/cli.h \
-           command.h ./src/core/highlight/syntax_highlighter.h
+           command.h ./src/core/highlight/syntax_highlighter.h ./src/core/tags/tags.h ./src/core/tags/readtags.h
 
-INCLUDEPATH += ./src/utils ./src/core ./src/core/highlight
+INCLUDEPATH += ./src/utils ./src/core ./src/core/highlight ./src/core/tags
 INCLUDEPATH += /usr/local/include ./src/core/vjson ./src/core/cli
            
 TARGET = editor       

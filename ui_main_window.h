@@ -149,6 +149,7 @@ private:
 	lgmx::search *search_dialog;
 	
 	QShortcut *next_file_;
+	QShortcut *go_to_tag_;
 
 private slots:
 
