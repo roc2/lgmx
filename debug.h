@@ -6,6 +6,7 @@
  */
 
 #define _DEBUG_
+//#undef _DEBUG_
 
 #ifdef _DEBUG_
 
@@ -38,6 +39,7 @@
 #define SRC_FILE		1
 #define SRC_CONTAINER	1
 #define VIEW_MANAGER	1
+#define MAIN_WINDOW		1
 #define CODE_EDITOR		1
 #define STATUS_BAR		1
 #define CLI				1

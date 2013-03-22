@@ -1,27 +1,26 @@
-#include <iostream>
-#include <QFileDialog>
-#include <cstdlib>
 #include <QDir>
 #include <QString>
 #include <QShortcut>
 #include <QPluginLoader>
 #include <QLineEdit>
 #include <QTextBlock>
+#include <QDockWidget>
 
-#include "ui_main_window.h"
-#include "code_editor.h"
+#include <ui_main_window.h>
+#include <code_editor.h>
 #include "config.h"
 #include "unsvFileDialog.h"
-#include "clipboard.h"
+#include <clipboard.h>
 #include <view.h>
 #include <text_manip.h>
 #include <interfaces.h>
+#include <debug.h>
 
-#include "string"
-
+#ifdef _DEBUG_
 #include <QDateTime>
+qint64 start;
+#endif
 
-using namespace std;
 
 /**
  * @todo create user_opt class to parse command line user options
@@ -32,27 +31,21 @@ using namespace std;
  * @brief MainWindow Constructor
  */
 
-qint64 start;
-
 Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 {
+#ifdef _DEBUG_
 	QDateTime boot_time;
 	start =	boot_time.currentMSecsSinceEpoch();
-	
-    if (objectName().isEmpty())
-		setObjectName(QString::fromUtf8("main_window"));
-
-	settings_ = new Settings();
-
-	view_manager_ = new view_manager(this, &type_manager, settings_);
-
-	_root_src_container = view_manager_->get_root_src_container();
-
-	gt_ln_dialog = NULL;
+#endif
 
 	QCoreApplication::setOrganizationName(COMPANY);
     QCoreApplication::setApplicationName(APPLICATION);
-	
+	setObjectName(QString::fromUtf8("main_window"));
+	setDockOptions(QMainWindow::AnimatedDocks | QMainWindow::AllowTabbedDocks | QMainWindow::VerticalTabs);
+
+	settings_ = new Settings();
+	view_manager_ = new view_manager(this, &type_manager, settings_);
+	gt_ln_dialog = NULL;
 	
 	search_dialog = new lgmx::search(*view_manager_, this);
 	
@@ -62,55 +55,29 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	createActions();
 	
 	view_manager_->set_recent_files_widget(menu_recent_files);
-	
-	// main splitter
-	splitter = new QSplitter(this);
-	splitter->setHandleWidth(1);
-	splitter->setChildrenCollapsible(false);
-	splitter->setProperty("minisplitter", true);
-	splitter->setObjectName(QString::fromUtf8("splitter"));
-	splitter->setOrientation(Qt::Horizontal);
-	
-	symbol_tab_widget = new QTabWidget(splitter);
-	symbol_tab_widget->setObjectName(QString::fromUtf8("symbol_tab_widget"));
-	symbol_tab_widget->setTabsClosable(true);
-	symbol_tab_widget->setMovable(true);
-	//symbol_tab_widget->show();
-	//symbol_tab_widget->hide();
-	
-	tab = new QWidget();
-	tab->setObjectName(QString::fromUtf8("tab"));
-	symbol_tab_widget->addTab(tab, QString());
-	
-	tab_2 = new QWidget();
-	tab_2->setObjectName(QString::fromUtf8("tab_2"));
-	symbol_tab_widget->addTab(tab_2, QString());
-	
-	splitter->addWidget(symbol_tab_widget);
-	splitter->addWidget(view_manager_);
-	
-	/* Configure splitter sizes. This must be called after the child widgets 
-	 * were inserted.
-	 */
-	QList<int> splitter_size;
-	splitter_size.append(100);
-	splitter_size.append(900);
-	splitter->setSizes(splitter_size);
-	//splitter_size = splitter->sizes();	/* this returns the current splitter sizes */
 
-	main_layout_ = new QVBoxLayout(this);
+	widget_ = new QWidget(this);	// central widget
+	main_layout_ = new QVBoxLayout(widget_);
 	cli_ = new lgmx::cli(view_manager_);
-	
-	main_layout_->addWidget(splitter);
+
+	main_layout_->addWidget(view_manager_);
 	main_layout_->addWidget(cli_);
 	main_layout_->setContentsMargins (0, 0, 0, 0);
 	main_layout_->setSpacing(0);
-	
-	widget_ = new QWidget(this);
 	widget_->setLayout(main_layout_);
+	setCentralWidget(widget_);
 
-	setCentralWidget(widget_);		// main splitter is the central widget
-
+/*
+	QDockWidget *dockWidget = new QDockWidget(tr("Dock Widget"), this);
+	dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+	//dockWidget->setWidget(symbol_tab_widget);
+	addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
+	
+	QDockWidget *dockWidget_2 = new QDockWidget(tr("Dock Widget 2"), this);
+	dockWidget_2->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+	//dockWidget->setWidget(symbol_tab_widget);
+	addDockWidget(Qt::RightDockWidgetArea, dockWidget_2);
+*/
 	create_menus();
 
 	/* add actions to main window, so they work when menuBar is hidden */
@@ -134,8 +101,6 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	menuBar->addAction(menuView->menuAction());
 	menuBar->addAction(menu_Search->menuAction());
 	menuView->addSeparator();
-	//menuView->addAction(actionSide_Bar);
-	//menuView->addAction(actionStatus_Bar);
 	menu_Search->addSeparator();
 	menu_Search->addAction(actionGo_to_line);
 	menu_Search->addAction(action_find);
@@ -143,10 +108,8 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	addAction(action_find);
 		
 	create_shortcuts();
-	
-	retranslateUi(this);
-	
 	create_connections();
+	retranslateUi(this);
 
 	set_font();
 	readSettings();
@@ -157,10 +120,13 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	
 	//Config conf;
 	show_status_bar(false);
-	std::cout << "init time = " << boot_time.currentMSecsSinceEpoch() - start << std::endl;
-	//load_plugins();
-	show_side_bar(false);
+	
+	debug(DEBUG, MAIN_WINDOW, "init time = " << boot_time.currentMSecsSinceEpoch() - start);
 }
+
+/**
+ * Destructor.
+ */
 
 Ui_MainWindow::~Ui_MainWindow()
 {
@@ -177,6 +143,10 @@ Ui_MainWindow::~Ui_MainWindow()
     delete view_manager_;
     delete settings_;
 }
+
+/**
+ * Creates signal/slot connections.
+ */
 
 void Ui_MainWindow::create_connections()
 {
@@ -245,15 +215,6 @@ void Ui_MainWindow::destroy_shortcuts()
 	delete go_to_tag_;
 }
 
-/**
- * 
- */
-
-src_container* Ui_MainWindow::get_current_src_container()
-{
-	return view_manager_->get_current_src_container();
-}
-
 void Ui_MainWindow::changeEvent(QEvent *e)
 {
     QMainWindow::changeEvent(e);
@@ -310,6 +271,7 @@ void Ui_MainWindow::load_parameter_files(list<QString> *files)
 
 void Ui_MainWindow::set_font()
 {
+/*
 	QFont initial;
     
 	initial.setFamily("monospace");
@@ -317,8 +279,7 @@ void Ui_MainWindow::set_font()
 	initial.setPointSize(10);
 
     cout << "will set font..." << endl;
-    _root_src_container->setFont(initial);
-/*
+
 	cout << "choose font!!" << endl;
 
 	QFont font = QFontDialog::getFont(&ok, QFont("Times", 12), this);
@@ -336,7 +297,7 @@ void Ui_MainWindow::set_font()
 }
 
 /**
- * Returns the user home directory absolute path.
+ * Returns the user's home directory absolute path.
  * @return absolute path as a QString
  */
 
@@ -355,10 +316,10 @@ QString Ui_MainWindow::getHomePath()
 
 void Ui_MainWindow::show_side_bar(bool show)
 {
-	if (show)
-		symbol_tab_widget->show();
-	else
-		symbol_tab_widget->hide();
+	//if (show)
+		//symbol_tab_widget->show();
+	//else
+		//symbol_tab_widget->hide();
 }
 
 /**
@@ -394,7 +355,7 @@ void Ui_MainWindow::show_menu_bar(bool show)
  * @brief Turns on/off the editor full screen mode
  */
 
-void Ui_MainWindow::show_full_screen()
+void Ui_MainWindow::show_full_screen(bool)
 {
 	setWindowState(windowState() ^ Qt::WindowFullScreen);
 }
@@ -419,7 +380,6 @@ void Ui_MainWindow::go_to_ln()
 	
 	if (!gt_ln_dialog) {
 		int line = curr.block().blockNumber() + 1;
-		cout << "new go to line object" << endl;
 		gt_ln_dialog = new go_to_line(this, line);
 	}
 	
@@ -455,7 +415,7 @@ void Ui_MainWindow::writeSettings()
     
     delete search_dialog;
     
-	cout << "Saved settings" << endl;
+	debug(DEBUG, MAIN_WINDOW, "Settings saved");
 }
 
 /**
@@ -742,14 +702,11 @@ void Ui_MainWindow::retranslateUi(QMainWindow *main_window)
 	
 	action_find->setText(QApplication::translate("main_window", "Find", 0, QApplication::UnicodeUTF8));
 	action_find->setShortcut(QApplication::translate("main_window", "Ctrl+F", 0, QApplication::UnicodeUTF8));
-	
-	symbol_tab_widget->setTabText(symbol_tab_widget->indexOf(tab), QApplication::translate("main_window", "Tab 1", 0, QApplication::UnicodeUTF8));
-	symbol_tab_widget->setTabText(symbol_tab_widget->indexOf(tab_2), QApplication::translate("main_window", "Tab 2", 0, QApplication::UnicodeUTF8));
 
 	menu_File->setTitle(QApplication::translate("MainWindow", "&File", 0, QApplication::UnicodeUTF8));
 	menuView->setTitle(QApplication::translate("main_window", "&View", 0, QApplication::UnicodeUTF8));
 	menu_Search->setTitle(QApplication::translate("main_window", "&Search", 0, QApplication::UnicodeUTF8));
-} // retranslateUi
+}
 
 
 void Ui_MainWindow::load_plugins()
@@ -784,10 +741,4 @@ void Ui_MainWindow::load_plugins()
 		}
      }
 }
-
-
-
-
-
-
 

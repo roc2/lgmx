@@ -699,17 +699,17 @@ void view_manager::go_to_tag()
 		return;
 	}
 	
-	QString tag(file->get_word_under_cursor());
+	QString tag_name(file->get_word_under_cursor());
 	
-	if (tag.isEmpty())
+	if (tag_name.isEmpty())
 		return;
 	
-	debug(INFO, VIEW_MANAGER, tag.toStdString());
+	debug(INFO, VIEW_MANAGER, tag_name.toStdString());
 	
 	QString file_name;
 	int line;
 	
-	if (!tag_->find_tag(tag, file_name, line))
+	if (!tag_->find_tag(tag_name, file_name, line))
 		return;
 		
 	open_file(file_name);
