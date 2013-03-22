@@ -1,5 +1,5 @@
 #include <QMainWindow>
-#include "ui_main_window.h"
+#include <main_window.h>
 
 #define Q_WS_X11
 
@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 #endif
 	
     QApplication a(argc, argv);
-    Ui_MainWindow *main_window;
+    MainWindow *main_window;
 
     {
 		list<QString> file_list;
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 		for (int i = 1; i < argc; i++)
 			file_list.push_back(argv[i]);
 
-		main_window = new Ui_MainWindow(&file_list);
+		main_window = new MainWindow(&file_list);
 	}
     
     main_window->show();

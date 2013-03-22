@@ -18,7 +18,6 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenuBar>
-#include <QtGui/QPlainTextEdit>
 #include <QtGui/QSplitter>
 #include <QtGui/QStatusBar>
 #include <QtGui/QTabWidget>
@@ -29,16 +28,14 @@
 #include <QFontInfo>
 #include <QSettings>
 #include <QMenu>
-#include <set>
-#include <list>
 
-#include "code_editor.h"
-#include "src_container.h"
-#include "go_to_line.h"
-#include "file_watcher.h"
-#include "recent_files.h"
-#include "search.h"
-#include "view_manager.h"
+#include <code_editor.h>
+#include <src_container.h>
+#include <go_to_line.h>
+#include <file_watcher.h>
+#include <recent_files.h>
+#include <search.h>
+#include <view_manager.h>
 #include <cli.h>
 
 
@@ -52,18 +49,18 @@ class text_manip;
 
 QT_BEGIN_NAMESPACE
 
-class Ui_MainWindow : public QMainWindow
+class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
 private:
-	Ui_MainWindow();
-	Ui_MainWindow(const Ui_MainWindow&);
-	Ui_MainWindow& operator=(const Ui_MainWindow&);
+	MainWindow();
+	MainWindow(const MainWindow&);
+	MainWindow& operator=(const MainWindow&);
 
 public:
-	Ui_MainWindow(list<QString> *files = NULL);
-    ~Ui_MainWindow();
+	MainWindow(list<QString> *files = NULL);
+    ~MainWindow();
 
 private:
 	void createActions();
@@ -90,11 +87,8 @@ public slots:
 
 private slots:
 	void quit();
-	void show_side_bar(bool show);
-	void show_status_bar(bool show);
     void show_menu_bar(bool show);
     void show_full_screen(bool);
-	void set_font();
 	void go_to_ln();
 
 signals:
@@ -146,10 +140,6 @@ private:
 	text_manip *text_manip_;
 };
 
-namespace Ui {
-    class main_window: public Ui_MainWindow {};
-} // namespace Ui
-
 QT_END_NAMESPACE
 
-#endif // UI_MAIN_WINDOW_H
+#endif

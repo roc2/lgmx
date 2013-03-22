@@ -2,14 +2,11 @@
 #include <QString>
 #include <QShortcut>
 #include <QPluginLoader>
-#include <QLineEdit>
 #include <QTextBlock>
 #include <QDockWidget>
 
-#include <ui_main_window.h>
-#include <code_editor.h>
-#include "config.h"
-#include "unsvFileDialog.h"
+#include <main_window.h>
+#include <config.h>
 #include <clipboard.h>
 #include <view.h>
 #include <text_manip.h>
@@ -31,7 +28,7 @@ qint64 start;
  * @brief MainWindow Constructor
  */
 
-Ui_MainWindow::Ui_MainWindow(list<QString> *files)
+MainWindow::MainWindow(list<QString> *files)
 {
 #ifdef _DEBUG_
 	QDateTime boot_time;
@@ -67,7 +64,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	widget_->setLayout(main_layout_);
 	setCentralWidget(widget_);
 
-/*
+#if 0
 	QDockWidget *dockWidget = new QDockWidget(tr("Dock Widget"), this);
 	dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	//dockWidget->setWidget(symbol_tab_widget);
@@ -77,7 +74,8 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	dockWidget_2->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	//dockWidget->setWidget(symbol_tab_widget);
 	addDockWidget(Qt::RightDockWidgetArea, dockWidget_2);
-*/
+#endif
+
 	create_menus();
 
 	/* add actions to main window, so they work when menuBar is hidden */
@@ -92,7 +90,7 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	addAction(action_remove_all_splits);
 	
 	/* view actions */
-	addAction(actionSide_Bar);
+	//addAction(actionSide_Bar);
 	addAction(actionStatus_Bar);
 	addAction(actionMenuBar);
 	addAction(actionFullScreen);
@@ -111,16 +109,13 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
 	create_connections();
 	retranslateUi(this);
 
-	set_font();
 	readSettings();
 	
 	if (!files->empty()) {
 		this->load_parameter_files(files);
 	}
 	
-	//Config conf;
-	show_status_bar(false);
-	
+	//Config conf;	
 	debug(DEBUG, MAIN_WINDOW, "init time = " << boot_time.currentMSecsSinceEpoch() - start);
 }
 
@@ -128,8 +123,9 @@ Ui_MainWindow::Ui_MainWindow(list<QString> *files)
  * Destructor.
  */
 
-Ui_MainWindow::~Ui_MainWindow()
+MainWindow::~MainWindow()
 {
+	delete text_manip_;
 	delete c_board;
 	delete search_dialog;
 
@@ -142,13 +138,16 @@ Ui_MainWindow::~Ui_MainWindow()
 
     delete view_manager_;
     delete settings_;
+    delete cli_;
+	delete main_layout_;
+    delete widget_;
 }
 
 /**
  * Creates signal/slot connections.
  */
 
-void Ui_MainWindow::create_connections()
+void MainWindow::create_connections()
 {
 	QObject::connect(actionSave, SIGNAL(triggered()), view_manager_, SLOT(save()));
 
@@ -162,7 +161,7 @@ void Ui_MainWindow::create_connections()
 	QObject::connect(actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
 	
 	/* side bar */
-	QObject::connect(actionSide_Bar, SIGNAL(toggled(bool)), this, SLOT(show_side_bar(bool)));
+	//QObject::connect(actionSide_Bar, SIGNAL(toggled(bool)), this, SLOT(show_side_bar(bool)));
 	/* status bar */
 	QObject::connect(actionStatus_Bar, SIGNAL(toggled(bool)), view_manager_, SLOT(show_status_bar(bool)));
 	/* menu bar */
@@ -195,7 +194,7 @@ void Ui_MainWindow::create_connections()
  * Creates main window shortcuts.
  */
 
-void Ui_MainWindow::create_shortcuts()
+void MainWindow::create_shortcuts()
 {
 	// next file - ctrl + tab
 	next_file_ = new QShortcut(Qt::CTRL+ Qt::Key_Tab, this);
@@ -209,13 +208,13 @@ void Ui_MainWindow::create_shortcuts()
  * Destroys main window shortcuts.
  */
 
-void Ui_MainWindow::destroy_shortcuts()
+void MainWindow::destroy_shortcuts()
 {
 	delete next_file_;
 	delete go_to_tag_;
 }
 
-void Ui_MainWindow::changeEvent(QEvent *e)
+void MainWindow::changeEvent(QEvent *e)
 {
     QMainWindow::changeEvent(e);
     
@@ -223,7 +222,7 @@ void Ui_MainWindow::changeEvent(QEvent *e)
         if (isActiveWindow()) {
 			//if (debugMainWindow)
               //  qDebug() << "main window activated";
-            cout << "main window activated" << endl;
+            debug(DEBUG, MAIN_WINDOW, "main window active");
             emit windowActivated();
         }
     } else if (e->type() == QEvent::WindowStateChange) {
@@ -242,7 +241,7 @@ void Ui_MainWindow::changeEvent(QEvent *e)
     }
 }
 
-bool Ui_MainWindow::is_active_window()
+bool MainWindow::is_active_window()
 {
 	return isActiveWindow();
 }
@@ -251,7 +250,7 @@ bool Ui_MainWindow::is_active_window()
  * Open files passed as parameters.
  */
 
-void Ui_MainWindow::load_parameter_files(list<QString> *files)
+void MainWindow::load_parameter_files(list<QString> *files)
 {
     QDir dir;
     QString curPath(dir.currentPath());
@@ -266,74 +265,15 @@ void Ui_MainWindow::load_parameter_files(list<QString> *files)
 }
 
 /**
- * 
- */
-
-void Ui_MainWindow::set_font()
-{
-/*
-	QFont initial;
-    
-	initial.setFamily("monospace");
-	initial.setFixedPitch(true);
-	initial.setPointSize(10);
-
-    cout << "will set font..." << endl;
-
-	cout << "choose font!!" << endl;
-
-	QFont font = QFontDialog::getFont(&ok, QFont("Times", 12), this);
-	if (ok) {
-		cout << "OK" << endl;
-     // font is set to the font the user selected
-	} else {
-		cout << "canceled" << endl;
-     // the user canceled the dialog; font is set to the initial
-     // value, in this case Times, 12.
-	}
-*/
-	
-	//editor->setFont(font);
-}
-
-/**
  * Returns the user's home directory absolute path.
  * @return absolute path as a QString
  */
 
-QString Ui_MainWindow::getHomePath()
+QString MainWindow::getHomePath()
 {
     QDir dir;
     
     return dir.homePath();
-}
-
-/**
- * Show or hide the side bar.
- * @brief Show or hide the side bar.
- * @param show -> true, show bar false, hide bar
- */
-
-void Ui_MainWindow::show_side_bar(bool show)
-{
-	//if (show)
-		//symbol_tab_widget->show();
-	//else
-		//symbol_tab_widget->hide();
-}
-
-/**
- * Show or hide the status bar.
- * @brief Show or hide the side bar.
- * @param show -> true, show bar false, hide bar
- */
-
-void Ui_MainWindow::show_status_bar(bool show)
-{
-	//if (show)
-	//	statusBar->show();
-	//else
-	//	statusBar->hide();
 }
 
 /**
@@ -342,7 +282,7 @@ void Ui_MainWindow::show_status_bar(bool show)
  * @param show -> true, show menu; false, hide menu
  */
 
-void Ui_MainWindow::show_menu_bar(bool show)
+void MainWindow::show_menu_bar(bool show)
 {
 	if (show)
 		menuBar->show();
@@ -355,7 +295,7 @@ void Ui_MainWindow::show_menu_bar(bool show)
  * @brief Turns on/off the editor full screen mode
  */
 
-void Ui_MainWindow::show_full_screen(bool)
+void MainWindow::show_full_screen(bool)
 {
 	setWindowState(windowState() ^ Qt::WindowFullScreen);
 }
@@ -364,7 +304,7 @@ void Ui_MainWindow::show_full_screen(bool)
  * Creates go to line dialog and jumps to specified line.
  */
 
-void Ui_MainWindow::go_to_ln()
+void MainWindow::go_to_ln()
 {
 	view *curr_view;
 	src_file *src_tab;
@@ -403,7 +343,7 @@ void Ui_MainWindow::go_to_ln()
  * Store main window settings
  */
 
-void Ui_MainWindow::writeSettings()
+void MainWindow::writeSettings()
 {
 	QSettings settings(COMPANY, APPLICATION);
 
@@ -422,7 +362,7 @@ void Ui_MainWindow::writeSettings()
  * Read and apply main window settings
  */
 
-void Ui_MainWindow::readSettings()
+void MainWindow::readSettings()
 {
 	QSettings settings(COMPANY, APPLICATION);
 
@@ -440,7 +380,7 @@ void Ui_MainWindow::readSettings()
  * @param event -> closing event
  */
 
-void Ui_MainWindow::closeEvent(QCloseEvent *event)
+void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (!view_manager_->check_unsaved_files()) {
         event->ignore();
@@ -455,7 +395,7 @@ void Ui_MainWindow::closeEvent(QCloseEvent *event)
  * Exit from application.
  */
 
-void Ui_MainWindow::quit()
+void MainWindow::quit()
 {
 	this->close();
 }
@@ -464,7 +404,7 @@ void Ui_MainWindow::quit()
  * Create main window actions.
  */
 
-void Ui_MainWindow::createActions()
+void MainWindow::createActions()
 {
     actionSave = new QAction(this);
     actionSave->setObjectName(QString::fromUtf8("actionSave"));
@@ -489,11 +429,11 @@ void Ui_MainWindow::createActions()
     connect(menu_recent_files, SIGNAL(open_recent_file(const QString &)), view_manager_, SLOT(open_file(const QString &)));
     
     /* menu side bar */
-    actionSide_Bar = new QAction(this);
-    actionSide_Bar->setObjectName(QString::fromUtf8("actionSide_Bar"));
-    actionSide_Bar->setCheckable(true);
-    actionSide_Bar->setChecked(true);	// default "checked"
-    actionSide_Bar->setStatusTip(tr("Show or hide side bar"));
+    //actionSide_Bar = new QAction(this);
+    //actionSide_Bar->setObjectName(QString::fromUtf8("actionSide_Bar"));
+    //actionSide_Bar->setCheckable(true);
+    //actionSide_Bar->setChecked(true);	// default "checked"
+    //actionSide_Bar->setStatusTip(tr("Show or hide side bar"));
     
     /* menu status bar */
     actionStatus_Bar = new QAction(this);
@@ -548,7 +488,7 @@ void Ui_MainWindow::createActions()
  * Destroy main window actions.
  */
 
-void Ui_MainWindow::destroy_actions()
+void MainWindow::destroy_actions()
 {
     delete action_find;
     delete actionGo_to_line;
@@ -560,7 +500,7 @@ void Ui_MainWindow::destroy_actions()
     delete action_remove_all_splits;
     delete actionMenuBar;
     delete actionStatus_Bar;
-    delete actionSide_Bar;
+    //delete actionSide_Bar;
     delete menu_recent_files;
     delete actionQuit;
     delete actionNew;
@@ -570,37 +510,26 @@ void Ui_MainWindow::destroy_actions()
     delete actionSave;
 }
 
-void Ui_MainWindow::create_menus()
+/**
+ * Create menus.
+ */
+
+void MainWindow::create_menus()
 {
 	menuBar = new QMenuBar(this);
 	menuBar->setObjectName(QString::fromUtf8("menuBar"));
 	menuBar->setGeometry(QRect(0, 0, 831, 25));
 	
-	
 	menu_File = new QMenu(menuBar);
 	menu_File->setObjectName(QString::fromUtf8("menu_File"));
 	
 	menuView = new QMenu(menuBar);
-	//menu_View = new QMenu(menuBar);
 	menuView->setObjectName(QString::fromUtf8("menuView"));
-	//menu_View->setObjectName(QString::fromUtf8("menu_View"));
 	/* search menu */
 	menu_Search = new QMenu(menuBar);
 	menu_Search->setObjectName(QString::fromUtf8("menu_Search"));
 	
 	setMenuBar(menuBar);
-		
-	/* main window tool bar */
-	//mainToolBar = new QToolBar(this);
-	//mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
-	//addToolBar(Qt::TopToolBarArea, mainToolBar);
-	//mainToolBar->hide();	/* hide tool bar */
-	//mainToolBar->show();	/* show tool bar */
-	
-	/* main window status bar */
-	//statusBar = new QStatusBar(this);
-	//statusBar->setObjectName(QString::fromUtf8("statusBar"));
-	//setStatusBar(statusBar);
 
 	menuBar->addAction(menu_File->menuAction());
 	menu_File->addAction(actionNew);
@@ -620,7 +549,7 @@ void Ui_MainWindow::create_menus()
 	menu_File->addAction(actionQuit);
 	
 	menuView->addSeparator();
-	menuView->addAction(actionSide_Bar);
+	//menuView->addAction(actionSide_Bar);
 	menuView->addAction(actionStatus_Bar);
 	menuView->addAction(actionMenuBar);
 	menuView->addAction(actionFullScreen);
@@ -632,7 +561,7 @@ void Ui_MainWindow::create_menus()
 	menuView->addAction(action_remove_all_splits);
 }
 
-void Ui_MainWindow::destroy_menus()
+void MainWindow::destroy_menus()
 {
 	delete menu_Search;
 	delete menuView;
@@ -644,7 +573,7 @@ void Ui_MainWindow::destroy_menus()
  * Translate main window interface.
  */
 
-void Ui_MainWindow::retranslateUi(QMainWindow *main_window)
+void MainWindow::retranslateUi(QMainWindow *main_window)
 {
 	main_window->setWindowTitle(QApplication::translate("main_window", "lgmx", 0, QApplication::UnicodeUTF8));
 	actionSave->setText(QApplication::translate("MainWindow", "Save", 0, QApplication::UnicodeUTF8));
@@ -663,8 +592,8 @@ void Ui_MainWindow::retranslateUi(QMainWindow *main_window)
 	actionQuit->setText(QApplication::translate("MainWindow", "Quit", 0, QApplication::UnicodeUTF8));
 	actionQuit->setShortcut(QApplication::translate("MainWindow", "Alt+F4", 0, QApplication::UnicodeUTF8));
 	
-	actionSide_Bar->setText(QApplication::translate("main_window", "Side Bar", 0, QApplication::UnicodeUTF8));
-	actionSide_Bar->setShortcut(QApplication::translate("main_window", "Alt+X", 0, QApplication::UnicodeUTF8));
+	//actionSide_Bar->setText(QApplication::translate("main_window", "Side Bar", 0, QApplication::UnicodeUTF8));
+	//actionSide_Bar->setShortcut(QApplication::translate("main_window", "Alt+X", 0, QApplication::UnicodeUTF8));
 	
 	actionStatus_Bar->setText(QApplication::translate("main_window", "Status Bar", 0, QApplication::UnicodeUTF8));
 	actionStatus_Bar->setShortcut(QApplication::translate("main_window", "Alt+Z", 0, QApplication::UnicodeUTF8));
@@ -708,8 +637,11 @@ void Ui_MainWindow::retranslateUi(QMainWindow *main_window)
 	menu_Search->setTitle(QApplication::translate("main_window", "&Search", 0, QApplication::UnicodeUTF8));
 }
 
+/**
+ * Load plugins.
+ */
 
-void Ui_MainWindow::load_plugins()
+void MainWindow::load_plugins()
 {
 	QDir pluginsDir = QDir(QApplication::applicationDirPath());
 	pluginsDir.cd("plugins");
@@ -720,24 +652,24 @@ void Ui_MainWindow::load_plugins()
 		QObject *plugin = loader.instance();	// get plugin instance
 
 		if (plugin) {
-			cout << "plugin loaded: " << fileName.toStdString() << endl;
+			debug(DEBUG, MAIN_WINDOW, "plugin loaded: " << fileName.toStdString());
 			
 			Highlighter *hl = qobject_cast<Highlighter *>(plugin);
 			
 			if (hl) {
-				cout << "plugin Ok!!" << endl;
-				cout << hl->test_interface().toStdString() << endl;
+				debug(DEBUG, MAIN_WINDOW, "plugin Ok!!");
+				debug(DEBUG, MAIN_WINDOW, hl->test_interface().toStdString());
 				
 				if (loader.unload()) {
-					cout << "plugin unloaded Ok!!" << endl;
+					debug(DEBUG, MAIN_WINDOW, "plugin unloaded Ok!!");
 				} else {
-					cout << "could not unload plugin" << endl;
+					debug(DEBUG, MAIN_WINDOW, "could not unload plugin");
 				}
 			} else
-				cout << "plugin not ok" << endl; 
+				debug(DEBUG, MAIN_WINDOW, "plugin not ok");
 			
 		} else {
-			cout << "plugin not loaded: " << fileName.toStdString() << endl;
+			debug(DEBUG, MAIN_WINDOW, "plugin not loaded: " << fileName.toStdString());
 		}
      }
 }
