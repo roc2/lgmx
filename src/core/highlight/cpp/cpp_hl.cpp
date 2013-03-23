@@ -19,14 +19,6 @@ extern QVector<QTextCharFormat> formatChanges;
 #define IN_LITERAL		2
 
 
-QString words[] = {
-	"if", "else", "while"
-};
-
-std::set<QString> key_(words, words + 3);
-
-QSet<QString> keywords_;
-
 dummy_highlighter::dummy_highlighter(src_file *parent) : syntax_highlighter(parent)
 {
 	keywordFormat = new QTextCharFormat();
@@ -42,8 +34,9 @@ void dummy_highlighter::highlight_block(const QString &text)
 {
 }
 
-C_highlighter::C_highlighter(src_file *parent) : syntax_highlighter(parent)
+C_highlighter::C_highlighter(src_file *parent, QSharedPointer<QSet<QString> > keywords) : syntax_highlighter(parent), keywords_(keywords)
 {
+	
 	integerFormat = new QTextCharFormat();
 	integerFormat->setForeground(Qt::blue);
     integerFormat->setBackground(Qt::transparent);
@@ -67,22 +60,6 @@ C_highlighter::C_highlighter(src_file *parent) : syntax_highlighter(parent)
     pre_processor->setBackground(Qt::transparent);
     
     
-    //keywords_ = new QSet<QString>();
-    keywords_.insert("if");
-    keywords_.insert("else");
-    keywords_.insert("while");
-    keywords_.insert("for");
-    keywords_.insert("goto");
-    keywords_.insert("return");
-    keywords_.insert("const");
-    keywords_.insert("unsigned");
-    keywords_.insert("int");
-    keywords_.insert("struct");
-    keywords_.insert("static");
-    keywords_.insert("long");
-    keywords_.insert("void");
-    keywords_.insert("break");
-    keywords_.insert("char");
     cout << "C_highlighter constructor ok" << endl;
 }
 
@@ -94,7 +71,6 @@ C_highlighter::~C_highlighter()
 	delete literalFormat;
 	delete pre_processor;
 	
-	//delete keywords_;
 	cout << "~C_highlighter" << endl;
 }
 
@@ -112,27 +88,27 @@ void C_highlighter::highlight_block(const QString &text)
 		
 		switch (it->token) {
 		case COMMENT:
-			cout << "comment: " << it->begin << " " << it->offset - 1 << endl;
+			//cout << "comment: " << it->begin << " " << it->offset - 1 << endl;
 			set_format(it->begin, it->offset, *CommentFormat);
 			break;
 			
 		case KEYWORD:
-			cout << "keyword: " << it->begin << " " << it->offset - 1 << endl;
+			//cout << "keyword: " << it->begin << " " << it->offset - 1 << endl;
 			set_format(it->begin, it->offset, *keywordFormat);
 			break;
 		
 		case NUMBER:
-			cout << "number: " << it->begin << " " << it->offset - 1 << endl;
+			//cout << "number: " << it->begin << " " << it->offset - 1 << endl;
 			set_format(it->begin, it->offset, *integerFormat);
 			break;
 			
 		case LITERAL:
-			cout << "literal: " << it->begin << " " << it->offset - 1 << endl;
+			//cout << "literal: " << it->begin << " " << it->offset - 1 << endl;
 			set_format(it->begin, it->offset, *literalFormat);
 			break;
 		
 		case PRE_PROC:
-			cout << "pre proc: " << it->begin << " " << it->offset - 1 << endl;
+			//cout << "pre proc: " << it->begin << " " << it->offset - 1 << endl;
 			set_format(it->begin, it->offset, *pre_processor);
 			break;
 
@@ -149,21 +125,21 @@ void C_highlighter::lex(const QString &data, QList<hl_info> &hl_info_list)
 	struct hl_info info;
 	bool match;
 	
-	cout << "\nsize = " << size << endl;
+	//cout << "\nsize = " << size << endl;
 	
 	int prev_state = get_previous_block_state();
-	cout << "prev state = " << prev_state << endl;
+	//cout << "prev state = " << prev_state << endl;
 	
 	if (prev_state == IN_COMMENT) {
 		info.begin = pos;
 
-		cout << "first in comment!!" << endl;
+		//cout << "first in comment!!" << endl;
 		int index = data.indexOf("*/", pos);
 		
-		cout << "idx: " << index << " from: " << pos << endl;
+		//cout << "idx: " << index << " from: " << pos << endl;
 		
 		if (index < 0) {
-			cout << "ends in comment" << endl;
+			//cout << "ends in comment" << endl;
 			info.offset = size - info.begin;
 			set_current_block_state(IN_COMMENT);
 			info.token = COMMENT;
@@ -198,10 +174,10 @@ void C_highlighter::lex(const QString &data, QList<hl_info> &hl_info_list)
 
 					int index = data.indexOf("*/", pos + 2);
 					
-					cout << "idx: " << index << " from: " << pos + 2 << endl;
+					//cout << "idx: " << index << " from: " << pos + 2 << endl;
 					
 					if (index < 0) {
-						cout << "ends in comment" << endl;
+						//cout << "ends in comment" << endl;
 						info.offset = size - info.begin;
 						set_current_block_state(IN_COMMENT);
 						info.token = COMMENT;
@@ -279,16 +255,16 @@ void C_highlighter::lex(const QString &data, QList<hl_info> &hl_info_list)
 			} while (pos < size && data[pos].isLower());
 			
 			QString word(data.mid(info.begin, pos - info.begin));
-			cout << "word: " << word.toStdString() << endl;
+			//cout << "word: " << word.toStdString() << endl;
 
-			if (keywords_.find(word) != keywords_.end()) {
-				cout << "found word!!!!" << endl;
+			if ((*keywords_).contains(word)) {
+				//cout << "found word!!!!" << endl;
 				info.offset = pos - info.begin;
 				info.token = KEYWORD;
 				hl_info_list.append(info);
 			}
 		} else {
-			cout << "no match at all" << endl;
+			//cout << "no match at all" << endl;
 		}
 	}
 	
