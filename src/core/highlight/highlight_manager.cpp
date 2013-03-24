@@ -3,10 +3,9 @@
 #include <QSet>
 #include <src_file.h>
 #include <file_type.h>
+#include <debug.h>
 #include <cpp/cpp_hl.h>
 
-#include <iostream>
-using namespace std;
 
 /**
  * Constructor.
@@ -74,12 +73,12 @@ QSharedPointer<QSet<QString> > highlight_manager::get_C_keywords()
 	QSharedPointer<QSet<QString> > ret;
 	
 	if (!(ret = C_keywords_.toStrongRef())) {
-		cout << "\n\nnew qset!!!!\n\n" << endl;
+		debug(DEBUG, HIGHLIGHT, "New C keywords set");
 		ret = QSharedPointer<QSet<QString> >(new QSet<QString>());
 		C_keywords_ = ret;
 		(*ret) << "auto" << "break" << "case" << "char" << "const" << "continue"
 		       << "default" << "do" << "double" << "else" << "enum" << "extern"
-		       << "float" << "for" << "goto" << "if" << "int" << "long"
+		       << "float" << "for" << "goto" << "if" << "inline" << "int" << "long"
 		       << "register" << "return" << "short" << "signed" << "sizeof" 
 		       << "static" << "struct" << "switch" << "typedef" << "union"
 		       << "unsigned" << "void" << "volatile" << "while";
@@ -88,5 +87,38 @@ QSharedPointer<QSet<QString> > highlight_manager::get_C_keywords()
 	return ret;
 }
 
+/**
+ * Returns the C++ language set of keywords.
+ * @return shared pointer to the set of keywords.
+ */
 
+QSharedPointer<QSet<QString> > highlight_manager::get_cpp_keywords()
+{
+	QSharedPointer<QSet<QString> > ret;
+	
+	if (!(ret = cpp_keywords_.toStrongRef())) {
+		debug(DEBUG, HIGHLIGHT, "New C++ keywords set");
+		ret = QSharedPointer<QSet<QString> >(new QSet<QString>());
+		cpp_keywords_ = ret;
+		(*ret) << "alignas" << "alignof" << "and" << "and_eq" << "asm" 
+			   << "auto" << "bitand" << "bitor" << "bool" << "break" << "case" 
+			   << "catch" << "char" << "char16_t" << "char32_t" << "class" 
+			   << "compl" << "const" << "constexpr" << "const_cast" << "continue" 
+			   << "decltype" << "default" << "delete" << "do" << "double" 
+			   << "dynamic_cast" << "else" << "enum" << "explicit" << "export" 
+			   << "extern" << "false" << "float" << "for" << "friend" << "goto" 
+			   << "if" << "inline" << "int" << "long" << "mutable" << "namespace" 
+			   << "new" << "noexcept" << "not" << "not_eq" << "nullptr" 
+			   << "operator" << "or" << "or_eq" << "private" << "protected" 
+			   << "public" << "register" << "reinterpret_cast" << "return" 
+			   << "short" << "signed" << "sizeof" << "static" << "static_assert" 
+			   << "static_cast" << "struct" << "switch" << "template" << "this" 
+			   << "thread_local" << "throw" << "true" << "try" << "typedef" 
+			   << "typeid" << "typename" << "union" << "unsigned" << "using" 
+			   << "virtual" << "void" << "volatile" << "wchar_t" << "while" 
+			   << "xor" << "xor_eq";
+	}
+	
+	return ret;
+}
 

@@ -43,6 +43,7 @@
 #define CODE_EDITOR		1
 #define STATUS_BAR		1
 #define CLI				1
+#define HIGHLIGHT		1
 
 /**
  * Debug macro.

@@ -145,8 +145,8 @@ void status_line::current_file_changed(int index)
 
 void status_line::set_default_colors()
 {
-	setStyleSheet("QComboBox {border: 0px solid gray;border-radius: 0px; \
-	color: black; background-color: gray} QComboBox:on { padding-top: 0px; \
+	setStyleSheet("QComboBox {border: 0px solid gray;border-radius: 0px;padding: 0px 0px 0px 0px; \
+	color: white; background-color: #000999} QComboBox:on { padding-top: 0px; \
 	padding-left: 0px;} QComboBox::drop-down {border-width: 0px;} \
 	 QComboBox::down-arrow {image: url(noimg); border-width: 0px;}");
 }
