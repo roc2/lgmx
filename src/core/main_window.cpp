@@ -56,6 +56,7 @@ MainWindow::MainWindow(list<QString> *files)
 	widget_ = new QWidget(this);	// central widget
 	main_layout_ = new QVBoxLayout(widget_);
 	cli_ = new lgmx::cli(view_manager_);
+	cli_->hide();
 
 	main_layout_->addWidget(view_manager_);
 	main_layout_->addWidget(cli_);
@@ -197,11 +198,14 @@ void MainWindow::create_connections()
 void MainWindow::create_shortcuts()
 {
 	// next file - ctrl + tab
-	next_file_ = new QShortcut(Qt::CTRL+ Qt::Key_Tab, this);
+	next_file_ = new QShortcut(Qt::CTRL + Qt::Key_Tab, this);
 	QObject::connect(next_file_, SIGNAL(activated()), view_manager_, SLOT(set_next_file_as_current()));
 	// jump to tag - ctrl + ]
-	go_to_tag_ = new QShortcut(Qt::CTRL+ Qt::Key_BracketRight, this);
+	go_to_tag_ = new QShortcut(Qt::CTRL + Qt::Key_BracketRight, this);
 	QObject::connect(go_to_tag_, SIGNAL(activated()), view_manager_, SLOT(go_to_tag()));
+	// show cli - ctrl + shift + c
+	show_cli_ = new QShortcut(Qt::ALT + Qt::Key_C, this);
+	QObject::connect(show_cli_, SIGNAL(activated()), this, SLOT(show_cli()));
 }
 
 /**
@@ -212,6 +216,7 @@ void MainWindow::destroy_shortcuts()
 {
 	delete next_file_;
 	delete go_to_tag_;
+	delete show_cli_;
 }
 
 void MainWindow::changeEvent(QEvent *e)
@@ -301,7 +306,7 @@ void MainWindow::show_full_screen(bool)
 }
 
 /**
- * Creates go to line dialog and jumps to specified line.
+ * [slot] Creates go to line dialog and jumps to specified line.
  */
 
 void MainWindow::go_to_ln()
@@ -337,6 +342,16 @@ void MainWindow::go_to_ln()
 	}
 	
 	QObject::disconnect(gt_ln_dialog->spinBox, SIGNAL(valueChanged(int)), src_tab, SLOT(go_to_line(int)));
+}
+
+/**
+ * [slot] Shows the command line interface.
+ */
+
+void MainWindow::show_cli()
+{
+	cli_->show();
+	cli_->setFocus();
 }
 
 /**
@@ -599,7 +614,7 @@ void MainWindow::retranslateUi(QMainWindow *main_window)
 	actionStatus_Bar->setShortcut(QApplication::translate("main_window", "Alt+Z", 0, QApplication::UnicodeUTF8));
 	
 	actionMenuBar->setText(QApplication::translate("main_window", "Menu Bar", 0, QApplication::UnicodeUTF8));
-	actionMenuBar->setShortcut(QApplication::translate("main_window", "Alt+C", 0, QApplication::UnicodeUTF8));
+	actionMenuBar->setShortcut(QApplication::translate("main_window", "Alt+4", 0, QApplication::UnicodeUTF8));
 	actionMenuBar->setShortcutContext(Qt::ApplicationShortcut);
 	
 	actionFullScreen->setText(QApplication::translate("main_window", "Full Screen", 0, QApplication::UnicodeUTF8));

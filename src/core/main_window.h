@@ -90,6 +90,7 @@ private slots:
     void show_menu_bar(bool show);
     void show_full_screen(bool);
 	void go_to_ln();
+	void show_cli();
 
 signals:
     void windowActivated();
@@ -135,6 +136,7 @@ private:
 	
 	QShortcut *next_file_;
 	QShortcut *go_to_tag_;
+	QShortcut *show_cli_;
 	
 	clipboard *c_board;
 	text_manip *text_manip_;

@@ -193,4 +193,12 @@ bool lgmx::cli::eventFilter(QObject *object, QEvent *event)
 	return false;
 }
 
+/**
+ * Focus in event handler.
+ */
+
+void lgmx::cli::focusInEvent(QFocusEvent*)
+{
+	input_->setFocus();
+}
 

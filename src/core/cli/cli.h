@@ -30,6 +30,8 @@ public:
 
 	cmd::stat execute(QString &cmd_str, QString &result);
 
+	void focusInEvent(QFocusEvent*);
+
 private:
 	bool eventFilter(QObject *object, QEvent *event);	
 

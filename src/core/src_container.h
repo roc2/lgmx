@@ -76,7 +76,7 @@ public:
 	
 	//void set_line_wrap(bool on);
     
-    void focusInEvent(QFocusEvent *event);
+    void focusInEvent(QFocusEvent*);
     void update_current_view();
     
     Settings* get_settings();

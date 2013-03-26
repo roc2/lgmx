@@ -36,7 +36,6 @@ void dummy_highlighter::highlight_block(const QString &text)
 
 C_highlighter::C_highlighter(src_file *parent, QSharedPointer<QSet<QString> > keywords) : syntax_highlighter(parent), keywords_(keywords)
 {
-	
 	integerFormat = new QTextCharFormat();
 	integerFormat->setForeground(Qt::blue);
     integerFormat->setBackground(Qt::transparent);

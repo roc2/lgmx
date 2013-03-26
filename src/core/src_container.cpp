@@ -55,9 +55,9 @@ src_container::~src_container()
  * Focus in event handler.
  */
 
-void src_container::focusInEvent(QFocusEvent *event)
+void src_container::focusInEvent(QFocusEvent*)
 {
-	debug(DEBUG, SRC_CONTAINER, "Tab widget has focus!!");
+	debug(DEBUG, SRC_CONTAINER, "Tab widg et has focus!!");
 }
 
 /**
