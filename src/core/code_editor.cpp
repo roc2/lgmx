@@ -8,7 +8,7 @@
  * Constructor.
  */
 
-CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
+CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent), line_colour_(QColor(200, 200, 200, 170))
 {
 	lineNumberArea = new LineNumberArea(this);
 	this->setContentsMargins(0, 0, 0, 0);
@@ -16,6 +16,9 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 	connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
 	connect(this, SIGNAL(updateRequest(const QRect &, int)), this, SLOT(updateLineNumberArea(const QRect &, int)));
 	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+
+	selection.format.setBackground(line_colour_);
+	selection.format.setProperty(QTextFormat::FullWidthSelection, true);
 
 	updateLineNumberAreaWidth(0);
 	highlightCurrentLine();
@@ -144,12 +147,6 @@ void CodeEditor::highlightCurrentLine()
 	QList<QTextEdit::ExtraSelection> extraSelections;
 
 	if (!isReadOnly()) {
-		QTextEdit::ExtraSelection selection;
-
-		QColor lineColor = QColor(Qt::green).lighter(170);
-
-		selection.format.setBackground(lineColor);
-		selection.format.setProperty(QTextFormat::FullWidthSelection, true);
 		selection.cursor = textCursor();
 		selection.cursor.clearSelection();
 		extraSelections.append(selection);

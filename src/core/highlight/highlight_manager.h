@@ -8,14 +8,6 @@ class src_file;
 class file_type;
 class syntax_highlighter;
 
-/**
- * These weak pointers are declared global due to a very strange runtime 
- * allocation abort when they are declared within the class. I don't know
- * why.
- * @todo find a better solution fot this, maybe a Qt newer than 4.7.
- */
-
-static QWeakPointer<QSet<QString> > cpp_keywords_;
 
 class highlight_manager
 {
@@ -32,6 +24,7 @@ private:
 	file_type *type_manager_;
 	
 	QWeakPointer<QSet<QString> > C_keywords_;
+	QWeakPointer<QSet<QString> > cpp_keywords_;
 };
 
 #endif

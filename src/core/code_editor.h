@@ -3,6 +3,7 @@
 
 #include <QtGui/QPlainTextEdit>
 #include <QtCore/QObject>
+#include <QColor>
 
 class QPaintEvent;
 class QResizeEvent;
@@ -41,6 +42,8 @@ private slots:
 
 private:
 	QWidget *lineNumberArea;
+	QColor line_colour_; /**< current line highlight colour */
+	QTextEdit::ExtraSelection selection;
 };
 
 
