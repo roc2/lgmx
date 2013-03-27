@@ -121,12 +121,61 @@ cmd::stat line_wrap_cmd::execute(QStringList &params, QString &result)
 	return cmd::OK_RES;
 }
 
+/**
+ * Tags command.
+ */
+
+tags_cmd::tags_cmd(QString name, view_manager* manager) : command(name, manager)
+{
+}
+
+tags_cmd::~tags_cmd()
+{
+}
+
+cmd::stat tags_cmd::execute(QStringList &params, QString &result)
+{
+	tag* t = manager_->get_tags();
+	
+	switch (params.size()) {
+	
+	case 2: {
+		if (params.at(1) == "clear") {
+			t->clear_tags();
+		} else {
+			result = "Invalid parameters";
+			return cmd::ERR;
+		}
+		
+		return cmd::OK;
+	}
+	
+	case 3: {
+		if (params.at(1) == "add") {
+			if (!t->add_tags_file(params.at(2), result))
+				return cmd::ERR;
+			else
+				return cmd::OK_RES;
+		} else if (params.at(1) == "rm") {
+			if (!t->remove_tags_file(params.at(2), result)) {
+				return cmd::ERR;
+			}
+		} else {
+			result = "Invalid parameter: " + params.at(1);
+			return cmd::ERR;
+		}
+		
+		return cmd::OK;
+	}
+
+	default:
+		result = "Invalid parameters";
+		return cmd::ERR;
+	}
 
 
-
-
-
-
+	return cmd::OK;
+}
 
 
 

@@ -22,7 +22,7 @@ public slots:
 	void slotClicked();
  
 protected:
-	void mousePressEvent(QMouseEvent *event);
+	void mousePressEvent(QMouseEvent*);
 };
 
 #endif

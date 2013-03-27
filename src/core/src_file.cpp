@@ -151,6 +151,7 @@ bool src_file::load_file(const QString &fileName)
     QTextStream in(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
     this->setPlainText(in.readAll());
+    file.close();
     QApplication::restoreOverrideCursor();
 
     return true;
@@ -178,6 +179,7 @@ bool src_file::write_file(const QString &fileName)
 	
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 	out << this->toPlainText();
+	file.close();
 	QApplication::restoreOverrideCursor();
     
     return true;
@@ -504,7 +506,7 @@ void src_file::highlight()
  * Focus in event handler.
  */
 
-void src_file::focusInEvent(QFocusEvent *event)
+void src_file::focusInEvent(QFocusEvent*)
 {
 	// updates the view_manager current view.
 	parent_->update_current_view();
@@ -517,7 +519,7 @@ void src_file::focusInEvent(QFocusEvent *event)
  * Focus out event handler.
  */
 
-void src_file::focusOutEvent(QFocusEvent *event)
+void src_file::focusOutEvent(QFocusEvent*)
 {
 	if (blink_cursor_)
 		setBlinkingCursorEnabled(false);

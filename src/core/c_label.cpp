@@ -17,7 +17,7 @@ void c_label::slotClicked()
 	std::cout << "label clicked" << std::endl;
 }
  
-void c_label::mousePressEvent(QMouseEvent *event) 
+void c_label::mousePressEvent(QMouseEvent*) 
 {
 	emit clicked();
 }

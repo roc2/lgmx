@@ -47,8 +47,8 @@ public:
 
 	bool exists() const;
 	
-	void focusInEvent(QFocusEvent *event);
-	void focusOutEvent(QFocusEvent *event);
+	void focusInEvent(QFocusEvent*);
+	void focusOutEvent(QFocusEvent*);
 
 	int get_first_visible_block();
 	QTextBlock get_text_block(int block);

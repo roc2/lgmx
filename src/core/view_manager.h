@@ -62,6 +62,7 @@ public:
 	highlight_manager* get_highlight_manager();
 	
 	Settings* get_settings();
+	tag * get_tags();
 
 private:
 	void close_file(QTextDocument *content);

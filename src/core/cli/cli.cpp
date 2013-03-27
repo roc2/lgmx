@@ -81,6 +81,7 @@ void lgmx::cli::create_commands()
 		add_command(new tab_width_cmd("tabwidth", manager_));
 		add_command(new version_cmd("version", manager_));
 		add_command(new line_wrap_cmd("linewrap", manager_));
+		add_command(new tags_cmd("tags", manager_));
 	} catch (std::bad_alloc&) {
 		debug(ALERT, CLI, "Bad alloc!");
 	}
@@ -153,11 +154,11 @@ bool lgmx::cli::eventFilter(QObject *object, QEvent *event)
 				result_->hide();
 			} else if (status == cmd::OK_RES) {
 				result_->setText("   " + result + "   " );
-				result_->setStyleSheet("background-color: rgb(0, 0, 230);");
+				result_->setStyleSheet("color: black; background-color: rgb(0, 0, 230);");
 				result_->show();
 			} else {
 				result_->setText("   " + result + "   ");
-				result_->setStyleSheet("background-color: rgb(200, 0, 0);");
+				result_->setStyleSheet("color: black; background-color: rgb(200, 0, 0);");
 				result_->show();
 			}
 			

@@ -68,4 +68,17 @@ public:
 	cmd::stat execute(QStringList &params, QString &result);
 };
 
+/**
+ * Tags command.
+ */
+
+class tags_cmd : public command
+{
+public:
+	tags_cmd(QString name, view_manager* manager);
+	~tags_cmd();
+
+	cmd::stat execute(QStringList &params, QString &result);
+};
+
 #endif

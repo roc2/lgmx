@@ -681,6 +681,16 @@ void view_manager::set_next_file_as_current()
 	get_current_src_container()->set_next_src_file_as_current();
 }
 
+tag * view_manager::get_tags()
+{
+	if (!tag_) {
+		tag_ = new tag();
+		debug(DEBUG, VIEW_MANAGER, "Created tags");
+	}
+	
+	return tag_;
+}
+
 /**
  * [slot] Jumps to the tag under cursor.
  */
