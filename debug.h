@@ -44,6 +44,7 @@
 #define STATUS_BAR		1
 #define CLI				1
 #define HIGHLIGHT		1
+#define F_WATCHER		1
 
 /**
  * Debug macro.

@@ -28,7 +28,7 @@ qint64 start;
  * @brief MainWindow Constructor
  */
 
-MainWindow::MainWindow(list<QString> *files)
+MainWindow::MainWindow(std::list<QString> *files)
 {
 #ifdef _DEBUG_
 	QDateTime boot_time;
@@ -255,12 +255,12 @@ bool MainWindow::is_active_window()
  * Open files passed as parameters.
  */
 
-void MainWindow::load_parameter_files(list<QString> *files)
+void MainWindow::load_parameter_files(std::list<QString> *files)
 {
     QDir dir;
     QString curPath(dir.currentPath());
     
-    for (list<QString>::iterator it = files->begin(); it != files->end(); it++) {
+    for (std::list<QString>::iterator it = files->begin(); it != files->end(); it++) {
         if ((*it)[0] != '/') {  // append file path
 			QString file(curPath + '/' + *it);
             view_manager_->open_file(file);

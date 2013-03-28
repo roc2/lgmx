@@ -12,6 +12,7 @@
 #include <plugin_manager.h>
 #include <settings.h>
 #include <tags.h>
+#include <file_watcher.h>
 
 
 class QSplitter;
@@ -130,6 +131,7 @@ private:
     Id view_id_;	/**< view ID generator */
     
     tag *tag_;
+    file_watcher f_watcher_;
 };
 
 #endif

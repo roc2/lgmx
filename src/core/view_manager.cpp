@@ -16,7 +16,7 @@
  * Constructor.
  */
 
-view_manager::view_manager(QWidget *parent, file_type *type_manager, Settings *settings) : QWidget(parent), settings_(settings)
+view_manager::view_manager(QWidget *parent, file_type *type_manager, Settings *settings) : QWidget(parent), settings_(settings), f_watcher_(this)
 {
 	root_container_ = new src_container(this, settings_);
 	root_container_->hide();
@@ -352,6 +352,8 @@ void view_manager::close_file(src_container *container, src_file *src_tab, int i
 	for (v_it = view_list_.begin(); v_it != view_list_.end(); v_it++)
 		(*v_it)->destroy_src_file(id);
 
+	f_watcher_.remove_file(file_name);	// remove from file watcher
+
 	// remove the file from root container
 	src_tab = root_container_->get_src_file(id);
 	if (!src_tab) {
@@ -415,6 +417,7 @@ void view_manager::open_file(const QString &file_name)
 
 		open_files_.insert(file_name);
 		recent_files_->add_file(file_name);
+		f_watcher_.add_file(file_name);
 	} else {
 		// file already open, only set it as current file
 		int index = get_current_src_container()->get_file_index(file_name);
@@ -536,6 +539,7 @@ bool view_manager::save_file_as(src_container *src_c, int index)
 		
 		open_files_.insert(fileName);
 		recent_files_->add_file(fileName);
+		f_watcher_.add_file(fileName);
         src_c->set_file_name(index, fileName);
         update_status_bar(fileName, id);
         
@@ -568,6 +572,8 @@ bool view_manager::save_file(src_container *src_c, const QString &fileName, int 
         return false;
 
     debug(INFO, VIEW_MANAGER, "File saved: " << fileName.toStdString());
+    // warns the file watcher the modification is internal
+    f_watcher_.notify_internal_modification(fileName);
 
     return true;
 }

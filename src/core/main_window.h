@@ -24,15 +24,14 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QWidget>
 #include <QFontDialog>
-#include <QList>
 #include <QFontInfo>
 #include <QSettings>
 #include <QMenu>
+#include <list>
 
 #include <code_editor.h>
 #include <src_container.h>
 #include <go_to_line.h>
-#include <file_watcher.h>
 #include <recent_files.h>
 #include <search.h>
 #include <view_manager.h>
@@ -59,7 +58,7 @@ private:
 	MainWindow& operator=(const MainWindow&);
 
 public:
-	MainWindow(list<QString> *files = NULL);
+	MainWindow(std::list<QString> *files = NULL);
     ~MainWindow();
 
 private:
@@ -78,7 +77,7 @@ private:
 	void readSettings();
 	bool is_active_window();
 	QString getHomePath();
-	void load_parameter_files(list<QString> *files);
+	void load_parameter_files(std::list<QString> *files);
 
 	virtual void closeEvent(QCloseEvent *event);
 	virtual void changeEvent(QEvent *e);
@@ -131,7 +130,6 @@ private:
     //QMenu *menu_View;
     
 	go_to_line *gt_ln_dialog;
-	file_watcher f_watcher;
 	lgmx::search *search_dialog;
 	
 	QShortcut *next_file_;

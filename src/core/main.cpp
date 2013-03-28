@@ -1,5 +1,6 @@
 #include <QMainWindow>
 #include <main_window.h>
+#include <list>
 
 #define Q_WS_X11
 
@@ -15,7 +16,7 @@ int main(int argc, char *argv[])
     MainWindow *main_window;
 
     {
-		list<QString> file_list;
+		std::list<QString> file_list;
 
 		for (int i = 1; i < argc; i++)
 			file_list.push_back(argv[i]);
