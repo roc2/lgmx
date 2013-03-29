@@ -96,7 +96,7 @@ public slots:
 	void close_file();
 	void new_file();
 	void open_file();
-	void open_file(const QString &file_name);
+	bool open_file(const QString &file_name);
 	void reload_current_file();
 	bool save();
 	
@@ -104,6 +104,7 @@ public slots:
 	void show_status_bar(bool show);
 	void set_next_file_as_current();
 	void go_to_tag();
+	void jump_to(const QString &file_name, int line);
 
 private slots:
 

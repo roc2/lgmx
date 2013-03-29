@@ -407,13 +407,13 @@ void view_manager::open_file()
  * @param file_name -> the complete path of the file to be opened.
  */
 
-void view_manager::open_file(const QString &file_name)
+bool view_manager::open_file(const QString &file_name)
 {
 	// checks whether this file is already open
 	if (open_files_.find(file_name) == open_files_.end()) {
 
 		if (!new_file(file_name))
-			return;
+			return false;
 
 		open_files_.insert(file_name);
 		recent_files_->add_file(file_name);
@@ -423,7 +423,11 @@ void view_manager::open_file(const QString &file_name)
 		int index = get_current_src_container()->get_file_index(file_name);
 		if (index >= 0)
 			set_current_file_index(index);
+		else
+			return false;
 	}
+	
+	return true;
 }
 
 /**
@@ -690,7 +694,7 @@ void view_manager::set_next_file_as_current()
 tag * view_manager::get_tags()
 {
 	if (!tag_) {
-		tag_ = new tag();
+		tag_ = new tag(this);
 		debug(DEBUG, VIEW_MANAGER, "Created tags");
 	}
 	
@@ -704,7 +708,7 @@ tag * view_manager::get_tags()
 void view_manager::go_to_tag()
 {
 	if (!tag_) {
-		tag_ = new tag();
+		tag_ = new tag(this);
 		debug(DEBUG, VIEW_MANAGER, "Created tags");
 	}
 	
@@ -725,14 +729,21 @@ void view_manager::go_to_tag()
 	QString file_name;
 	int line;
 	
-	if (!tag_->find_tag(tag_name, file_name, line))
+	tag_->find_tag(tag_name, file_name, line);
+}
+
+/**
+ * [slot] 
+ */
+
+void view_manager::jump_to(const QString &file_name, int line)
+{
+	if (!open_file(file_name))
 		return;
-		
-	open_file(file_name);
 	
-	src_file* tab = get_current_src_file();
-	if (tab)
-		tab->go_to_line(line);
+	src_file* file = get_current_src_file();
+	if (file)
+		file->go_to_line(line);
 }
 
 /**

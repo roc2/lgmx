@@ -128,7 +128,7 @@ MainWindow::~MainWindow()
 {
 	delete text_manip_;
 	delete c_board;
-	delete search_dialog;
+	//delete search_dialog;	/** @todo review this */ 
 
 	if (gt_ln_dialog)
 		delete gt_ln_dialog;

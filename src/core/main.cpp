@@ -25,6 +25,9 @@ int main(int argc, char *argv[])
 	}
     
     main_window->show();
-    return a.exec();
+    int res = a.exec();
+    delete main_window;
+    
+    return res;
 }
 
