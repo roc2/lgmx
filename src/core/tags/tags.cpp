@@ -5,6 +5,7 @@
 
 #include <QStringListModel>
 #include <QListView>
+#include <QDir>
 
 #include <QEvent>
 #include <QKeyEvent>
@@ -18,7 +19,7 @@ using namespace std;
 tag::tag(view_manager *manager) : manager_(manager)
 {
 	QObject::connect(this, SIGNAL(jump_to(const QString &, int)), manager_, SLOT(jump_to(const QString &, int)));
-	
+
 	model_ = new QStringListModel();
 	view_ = new QListView(manager_);
 	
@@ -46,8 +47,11 @@ tag::~tag()
 
 bool tag::add_tags_file(const QString &file_name, QString &res)
 {
-	QFile file(file_name);
-    
+	// canonical name (no symbolic links, "." or "..")
+	QDir path(file_name);
+	QString can_name(path.canonicalPath());
+	QFile file(can_name);
+
 	if (!file.open(QFile::ReadOnly | QFile::Text)) {
 		res = "Unable to open file: " + file_name;
 		return false;
@@ -59,11 +63,13 @@ bool tag::add_tags_file(const QString &file_name, QString &res)
 	std::list<QString>::iterator it(tag_files_.begin());
 	
 	for (; it != tag_files_.end(); it++) {
-		if (*it == file_name)
+		if (*it == can_name) {
+			res = "Tags file already added";
 			return true;
+		}
 	}
 	
-	tag_files_.push_back(file_name);
+	tag_files_.push_back(can_name);
 	res = "Tags file added: " + file_name;
 	return true;
 }
@@ -152,6 +158,7 @@ bool tag::find_tag(const QString &tag_name, QString &file_name, int &line)
 		tag_matches_.clear();
 		return false;
 	} else if (matches.size() > 1) {
+		cout << "show list" << endl;
 		show_tags_list(matches);
 	} else {
 		emit jump_to(tag_matches_[0].first, tag_matches_[0].second);
@@ -168,8 +175,9 @@ bool tag::find_tag(const QString &tag_name, QString &file_name, int &line)
  */
 
 void tag::show_tags_list(QStringList &matches)
-{
+{	
 	model_->setStringList(matches);
+	
 	view_->setCurrentIndex(model_->index(0, 0));
 	view_->resize (500, 100);
 	view_->move (300, 100);

@@ -305,11 +305,11 @@ void view_manager::close_file(src_container *container, src_file *src_tab, int i
 	unsigned int id;
 	QString file_name(src_tab->get_src_file_full_name());
 	id = src_tab->get_id();
+	bool exists = src_tab->exists();
 
 	// check if file needs to be saved
 	if (src_tab->is_modified()) {
 		QString msg;
-		bool exists = src_tab->exists();
 
 		// build close file message
 		if (!exists) {
@@ -352,8 +352,6 @@ void view_manager::close_file(src_container *container, src_file *src_tab, int i
 	for (v_it = view_list_.begin(); v_it != view_list_.end(); v_it++)
 		(*v_it)->destroy_src_file(id);
 
-	f_watcher_.remove_file(file_name);	// remove from file watcher
-
 	// remove the file from root container
 	src_tab = root_container_->get_src_file(id);
 	if (!src_tab) {
@@ -361,12 +359,21 @@ void view_manager::close_file(src_container *container, src_file *src_tab, int i
 		return;
 	}
 
+	exists = src_tab->exists();
 	delete src_tab;
 	
-	// remove the file from open files list
-	std::set<QString>::iterator it(open_files_.find(file_name));
-    if (it != open_files_.end())
-        open_files_.erase(*it);
+	if (exists) {
+		// canonical name (no symbolic links, "." or "..")
+		QDir path(file_name);
+		QString can_name(path.canonicalPath());
+		
+		f_watcher_.remove_file(can_name);	// remove from file watcher
+		
+		// remove the file from open files list
+		std::set<QString>::iterator it(open_files_.find(can_name));
+		if (it != open_files_.end())
+			open_files_.erase(*it);
+	}
 }
 
 /**
@@ -409,18 +416,23 @@ void view_manager::open_file()
 
 bool view_manager::open_file(const QString &file_name)
 {
-	// checks whether this file is already open
-	if (open_files_.find(file_name) == open_files_.end()) {
+	// canonical name (no symbolic links, "." or "..")
+	QDir path(file_name);
+	QString can_name(path.canonicalPath());
+	debug(DEBUG, VIEW_MANAGER, can_name.toStdString());
 
-		if (!new_file(file_name))
+	// checks whether this file is already open
+	if (open_files_.find(can_name) == open_files_.end()) {
+
+		if (!new_file(can_name))
 			return false;
 
-		open_files_.insert(file_name);
-		recent_files_->add_file(file_name);
-		f_watcher_.add_file(file_name);
+		open_files_.insert(can_name);
+		recent_files_->add_file(can_name);
+		f_watcher_.add_file(can_name);
 	} else {
 		// file already open, only set it as current file
-		int index = get_current_src_container()->get_file_index(file_name);
+		int index = get_current_src_container()->get_file_index(can_name);
 		if (index >= 0)
 			set_current_file_index(index);
 		else
@@ -541,9 +553,13 @@ bool view_manager::save_file_as(src_container *src_c, int index)
 			debug(ERR, VIEW_MANAGER, excp.get_message());
 		}
 		
-		open_files_.insert(fileName);
+		// canonical name (no symbolic links, "." or "..")
+		dir.setPath(fileName);
+		QString can_name(dir.canonicalPath());
+		
+		open_files_.insert(can_name);
 		recent_files_->add_file(fileName);
-		f_watcher_.add_file(fileName);
+		f_watcher_.add_file(can_name);
         src_c->set_file_name(index, fileName);
         update_status_bar(fileName, id);
         
