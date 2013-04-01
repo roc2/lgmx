@@ -45,6 +45,7 @@
 #define CLI				1
 #define HIGHLIGHT		1
 #define F_WATCHER		1
+#define TAGS			1
 
 /**
  * Debug macro.

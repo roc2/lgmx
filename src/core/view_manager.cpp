@@ -184,7 +184,8 @@ void view_manager::new_file()
 		debug(ERR, VIEW_MANAGER, "Could not create a new file");
 		return;
 	}
-	
+
+	debug(DEBUG, VIEW_MANAGER, "New file ID: " << id);
 	src_file *file = root_container_->get_src_file(index);
 
 	std::list<view *>::iterator it;
@@ -220,6 +221,7 @@ bool view_manager::new_file(const QString &file_name)
 		return false;
 	}
 
+	debug(DEBUG, VIEW_MANAGER, "New file ID: " << id);
 	src_file *file = root_container_->get_src_file(index);
 
 	// set file type
@@ -361,6 +363,7 @@ void view_manager::close_file(src_container *container, src_file *src_tab, int i
 
 	exists = src_tab->exists();
 	delete src_tab;
+	file_id_.release_id(id);
 	
 	if (exists) {
 		// canonical name (no symbolic links, "." or "..")
@@ -608,7 +611,7 @@ bool view_manager::save_file(src_container *src_c, const QString &fileName, int 
 
 bool view_manager::check_unsaved_files()
 {
-	int index, tabs;    
+	int index, tabs;
     QString msg;
     src_container *curr = get_current_src_container();
     
@@ -742,14 +745,14 @@ void view_manager::go_to_tag()
 	
 	debug(INFO, VIEW_MANAGER, tag_name.toStdString());
 	
-	QString file_name;
-	int line;
-	
-	tag_->find_tag(tag_name, file_name, line);
+	tag_->find_tag(tag_name);
 }
 
 /**
- * [slot] 
+ * [slot] Jumps to specific location. If the specified file is not open 
+ * the application will try to open it.
+ * @param file_name - file to jump to.
+ * @param line - line to jump to.
  */
 
 void view_manager::jump_to(const QString &file_name, int line)
@@ -769,7 +772,7 @@ void view_manager::jump_to(const QString &file_name, int line)
  */
 
 int view_manager::get_current_file_index(const QString &file_name)
-{	
+{
 	return get_current_src_container()->get_file_index(file_name);
 }
 

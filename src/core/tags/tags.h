@@ -31,7 +31,7 @@ public:
 	bool remove_tags_file(const QString &file_name, QString &err);
 	void clear_tags();
 	
-	bool find_tag(const QString &name, QString &file_name, int &line);
+	bool find_tag(const QString &name);
 	void show_tags_list(QStringList &matches);
 
 private:
@@ -42,7 +42,6 @@ signals:
 
 private:
 	view_manager *manager_;
-	QString tag_file_;
 	std::list<QString> tag_files_;
 	
 	QStringListModel *model_;

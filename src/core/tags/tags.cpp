@@ -2,6 +2,7 @@
 
 #include <tags.h>
 #include <view_manager.h>
+#include <debug.h>
 
 #include <QStringListModel>
 #include <QListView>
@@ -20,11 +21,10 @@ tag::tag(view_manager *manager) : manager_(manager)
 {
 	QObject::connect(this, SIGNAL(jump_to(const QString &, int)), manager_, SLOT(jump_to(const QString &, int)));
 
-	model_ = new QStringListModel();
+	model_ = new QStringListModel(this);
 	view_ = new QListView(manager_);
 	
 	view_->setModel(model_);
-	view_->setViewMode(QListView::ListMode);
 	view_->setEditTriggers(QAbstractItemView::NoEditTriggers);
 	view_->setSelectionMode(QAbstractItemView::SingleSelection);
 	view_->installEventFilter(this);
@@ -109,19 +109,20 @@ void tag::clear_tags()
  * 
  */
 
-bool tag::find_tag(const QString &tag_name, QString &file_name, int &line)
+bool tag::find_tag(const QString &tag_name)
 {
-	tagFile *tag;
-	tagFileInfo info;
-	QStringList matches;
-	
 	if (tag_files_.empty()) {
+		debug(INFO, TAGS, "No tags file set");
 		return false;
 	}
 	
+	tagFile *tag;
+	tagFileInfo info;
+	QStringList matches;
 	tagResult val;
 	tagEntry entry;
 	
+	tag_matches_.clear();	// clear matches from previous calls
 	std::list<QString>::iterator it(tag_files_.begin());
 	
 	for (; it != tag_files_.end(); it++) {
@@ -129,15 +130,13 @@ bool tag::find_tag(const QString &tag_name, QString &file_name, int &line)
 		tag = tagsOpen((*it).toStdString().c_str(), &info);
 		
 		if (!info.status.opened) {
-			std::cout << "could not open tags file" << std::endl;
+			debug(ERR, TAGS, "Unable to open tags file");
 			continue;
 		}
 		
 		val = tagsFind(tag, &entry, tag_name.toStdString().c_str(), TAG_FULLMATCH | TAG_OBSERVECASE);
 
 		if (val == TagSuccess) {
-			file_name = entry.file;
-			line = entry.address.lineNumber;
 			cout << "Found: " << entry.name << " " << entry.file << " " << "line: " << entry.address.lineNumber << endl;
 			
 			tag_matches_.push_back(std::pair<QString, int>(entry.file, entry.address.lineNumber));
@@ -150,19 +149,16 @@ bool tag::find_tag(const QString &tag_name, QString &file_name, int &line)
 			}
 
 		} else {
-			cout << "Tag not found" << endl;
+			debug(INFO, TAGS, "Tag not found");
 		}
 	}
 
 	if (matches.isEmpty()) {
-		tag_matches_.clear();
 		return false;
-	} else if (matches.size() > 1) {
-		cout << "show list" << endl;
-		show_tags_list(matches);
-	} else {
+	} else if (matches.size() == 1) {
 		emit jump_to(tag_matches_[0].first, tag_matches_[0].second);
-		tag_matches_.clear();
+	} else {
+		show_tags_list(matches);
 	}
 
 	return true;
@@ -175,7 +171,7 @@ bool tag::find_tag(const QString &tag_name, QString &file_name, int &line)
  */
 
 void tag::show_tags_list(QStringList &matches)
-{	
+{
 	model_->setStringList(matches);
 	
 	view_->setCurrentIndex(model_->index(0, 0));
@@ -194,33 +190,36 @@ bool tag::eventFilter(QObject *obj, QEvent *event)
 {
 	QListView *view = static_cast<QListView*>(obj);
 	
-	if (event->type() == QEvent::KeyPress) {
-        QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(event);
-        int PressedKey = pKeyEvent->key();
+	if (obj == view_) {
+		if (event->type() == QEvent::KeyPress) {
+			QKeyEvent *key_event = static_cast<QKeyEvent *>(event);
+			int PressedKey = key_event->key();
 
-		switch (PressedKey) {
-		
-		case Qt::Key_Escape:
-            view->hide();
-            break;
-        
-        case Qt::Key_Return:
-        case Qt::Key_Enter: {
-			cout << "chosen " << view->currentIndex().row() << endl;
-			int index = view->currentIndex().row();
+			switch (PressedKey) {
+			
+			case Qt::Key_Escape:
+				view->hide();
+				break;
+			
+			case Qt::Key_Return:
+			case Qt::Key_Enter: {
+				int index = view->currentIndex().row();
+				view->hide();
+				emit jump_to(tag_matches_[index].first, tag_matches_[index].second);
+				break;
+			}
+			default:
+				return false;	// default event handling
+			}
+			
+			return true;
+		} else if (event->type() == QEvent::FocusOut) {
 			view->hide();
-			emit jump_to(tag_matches_[index].first, tag_matches_[index].second);
-			tag_matches_.clear();
-			break;
-        }
-        default:
-			return false;		// default event handling
-        }
-    } else if (event->type() == QEvent::FocusOut) {
-		view->hide();
+			return true;
+		}
 	}
 	
-	return true;
+	return false;		// default event handling
 }
 
 
