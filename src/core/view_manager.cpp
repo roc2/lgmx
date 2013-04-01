@@ -33,7 +33,7 @@ view_manager::view_manager(QWidget *parent, file_type *type_manager, Settings *s
 	layout_->addWidget(curr_view_);
 	layout_->setContentsMargins (0, 0, 0, 0);
 	layout_->setSpacing(0);
-    setLayout(layout_);
+	setLayout(layout_);
 }
 
 /**

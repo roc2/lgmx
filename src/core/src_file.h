@@ -80,6 +80,8 @@ public:
     void set_file_type(file_type::type type);
     
     QString get_word_under_cursor();
+
+    void show_white_spaces(bool show);
     
     bool eventFilter(QObject* pObject, QEvent* pEvent);
     //void mousePressEvent(QMouseEvent *event);

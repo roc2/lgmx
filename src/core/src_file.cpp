@@ -6,6 +6,7 @@
 #include <QTextBlock>
 #include <QtGui/QApplication>
 #include <QScrollBar>
+#include <QTextOption>
 
 #include <src_file.h>
 #include <exception.h>
@@ -326,6 +327,23 @@ QString src_file::get_word_under_cursor()
 	QTextCursor cursor(textCursor());
 	cursor.select(QTextCursor::WordUnderCursor);
 	return cursor.selectedText();
+}
+
+/**
+ * Shows/hides whites spaces.
+ * @param show - if true, shows white spaces, otherwise hides white spaces.
+ */
+
+void src_file::show_white_spaces(bool show)
+{
+	QTextOption opt(document()->defaultTextOption());
+
+	if (show)
+		opt.setFlags(opt.flags() | QTextOption::ShowTabsAndSpaces);
+	else
+		opt.setFlags(opt.flags() & ~QTextOption::ShowTabsAndSpaces);
+
+    document()->setDefaultTextOption(opt);
 }
 
 /**
