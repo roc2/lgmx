@@ -1,17 +1,15 @@
 #include <QFile>
+#include <QStringListModel>
+#include <QListView>
+#include <QDir>
+#include <QEvent>
+#include <QKeyEvent>
 
+#include <readtags.h>
 #include <tags.h>
 #include <view_manager.h>
 #include <debug.h>
 
-#include <QStringListModel>
-#include <QListView>
-#include <QDir>
-
-#include <QEvent>
-#include <QKeyEvent>
-#include <iostream>
-using namespace std;
 
 /**
  * Constructor.
@@ -81,10 +79,14 @@ bool tag::add_tags_file(const QString &file_name, QString &res)
 
 bool tag::remove_tags_file(const QString &file_name, QString &err)
 {
+	// canonical name (no symbolic links, "." or "..")
+	QDir path(file_name);
+	QString can_name(path.canonicalPath());
+
 	std::list<QString>::iterator it(tag_files_.begin());
 
 	while (it != tag_files_.end()) {
-		if (*it == file_name) {
+		if (*it == can_name || *it == file_name) {
 			tag_files_.erase(it);
 			return true;
 		} else {
@@ -97,7 +99,7 @@ bool tag::remove_tags_file(const QString &file_name, QString &err)
 }
 
 /**
- * 
+ * Removes all tags files.
  */
 
 void tag::clear_tags()
@@ -106,7 +108,10 @@ void tag::clear_tags()
 }
 
 /**
- * 
+ * Searches for the specified tag. If only one entry is found it jumps
+ * to it, if more than one entry is found a popup is shown for the user 
+ * to choose from.
+ * @param tag_name - tag to be looked for.
  */
 
 bool tag::find_tag(const QString &tag_name)
@@ -137,17 +142,15 @@ bool tag::find_tag(const QString &tag_name)
 		val = tagsFind(tag, &entry, tag_name.toStdString().c_str(), TAG_FULLMATCH | TAG_OBSERVECASE);
 
 		if (val == TagSuccess) {
-			cout << "Found: " << entry.name << " " << entry.file << " " << "line: " << entry.address.lineNumber << endl;
-			
+			debug(INFO, TAGS, "Tag found: " << entry.name << " " << entry.file << " " << "line: " << entry.address.lineNumber);
 			tag_matches_.push_back(std::pair<QString, int>(entry.file, entry.address.lineNumber));
-			
 			matches << QString(entry.file) + " " + QString::number(entry.address.lineNumber);
 			
 			while (tagsFindNext(tag, &entry) == TagSuccess) {
+				debug(INFO, TAGS, "Tag found: " << entry.name << " " << entry.file << " " << "line: " << entry.address.lineNumber);
 				matches << QString(entry.file) + " " + QString::number(entry.address.lineNumber);
 				tag_matches_.push_back(std::pair<QString, int>(entry.file, entry.address.lineNumber));
 			}
-
 		} else {
 			debug(INFO, TAGS, "Tag not found");
 		}
@@ -175,8 +178,8 @@ void tag::show_tags_list(QStringList &matches)
 	model_->setStringList(matches);
 	
 	view_->setCurrentIndex(model_->index(0, 0));
-	view_->resize (500, 100);
-	view_->move (300, 100);
+	view_->move (300, 50);
+    view_->resize(500, model_->rowCount() * view_->sizeHintForRow(0)); 
 	view_->setFocus();
 	view_->show();
 }
@@ -221,24 +224,4 @@ bool tag::eventFilter(QObject *obj, QEvent *event)
 	
 	return false;		// default event handling
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

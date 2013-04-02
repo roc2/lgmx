@@ -2,7 +2,6 @@
 #define TAGS_H
 
 #include <QObject>
-#include <readtags.h>
 #include <QString>
 #include <list>
 #include <vector>
@@ -20,6 +19,7 @@ class tag : public QObject
 	Q_OBJECT
 
 private:
+	tag();
 	tag(const tag&);
 	tag& operator=(const tag&);
 

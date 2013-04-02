@@ -84,7 +84,7 @@ void lgmx::search::save_settings()
 	if (wrap)
 		p_flags |= WRAP_AROUND;
 	
-	QVariant v(p_flags);	
+	QVariant v(p_flags);
 	settings.setValue(SEARCH_SAVE_KEY, v);
 }
 
@@ -254,7 +254,7 @@ void lgmx::search::find_next()
 	if (pattern.isEmpty())
 		return;
 	
-	if ((flags & QTextDocument::FindBackward) == QTextDocument::FindBackward)
+	if (flags & QTextDocument::FindBackward)
 		flags ^= QTextDocument::FindBackward;
 
 	search_string(pattern);
@@ -373,7 +373,7 @@ void lgmx::search::case_sensitive(bool checked)
 	if (checked) {
 		flags |= QTextDocument::FindCaseSensitively;
 		regex_pattern.setCaseSensitivity(Qt::CaseSensitive);
-	} else if ((flags & QTextDocument::FindCaseSensitively) == QTextDocument::FindCaseSensitively) {
+	} else if (flags & QTextDocument::FindCaseSensitively) {
 		flags ^= QTextDocument::FindCaseSensitively;
 		regex_pattern.setCaseSensitivity(Qt::CaseInsensitive);
 	}
