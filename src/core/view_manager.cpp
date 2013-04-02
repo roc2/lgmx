@@ -422,6 +422,18 @@ bool view_manager::open_file(const QString &file_name)
 	// canonical name (no symbolic links, "." or "..")
 	QDir path(file_name);
 	QString can_name(path.canonicalPath());
+
+	if (can_name.isEmpty()) {	// file does not exist
+		QMessageBox msgBox(this);
+		msgBox.setWindowTitle(tr("Open"));
+		msgBox.setText(tr("Cannot read file ") + file_name);
+		msgBox.setInformativeText(tr("File does not exist."));
+		msgBox.setIcon(QMessageBox::Warning);
+		msgBox.exec();
+
+		return false;
+	}
+
 	debug(DEBUG, VIEW_MANAGER, can_name.toStdString());
 
 	// checks whether this file is already open
