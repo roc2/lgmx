@@ -1,20 +1,19 @@
-#include "search.h"
+#include <search.h>
 #include <QLayout>
-
-#include <iostream>
 #include <view_manager.h>
 #include <view.h>
+#include <debug.h>
 
 #define SEARCH_SAVE_KEY	"search_flags"
 
-using namespace std;
 
 lgmx::search::search(view_manager &manager, QWidget *parent) : QDialog(parent), 
 		       flags(QTextDocument::FindCaseSensitively | QTextDocument::FindWholeWords), manager_(manager)
 {
 	wrap = false;
 	highlight_all = true;
-	cout << "flags: " << int(flags) << endl;
+	
+	debug(DEBUG, SEARCH, "Search flags: " << (int)flags);
 	
 	match_format.setBackground(Qt::darkBlue);
 
@@ -28,8 +27,9 @@ lgmx::search::search(view_manager &manager, QWidget *parent) : QDialog(parent),
 
 lgmx::search::~search()
 {
-	cout << "search destructor" << endl;
 	save_settings();
+	debug(DEBUG, SEARCH, "Settings saved");
+	destroy_ui();
 }
 
 /**
@@ -56,8 +56,6 @@ void lgmx::search::show_search_dialog()
 	
 	if (curr_file_)
 		this->show();
-		
-	cout << "show" << endl;
 }
 
 /**
@@ -173,16 +171,22 @@ void lgmx::search::set_default_settings()
 	checkBox_6->setChecked(false);
 }
 
+/**
+ * Hide dialog.
+ */
+
 void lgmx::search::hide_search_dialog()
 {
 	this->hide();
 }
 
+/**
+ * Highlight all matches in the file.
+ * @todo implement this method
+ */
 
 void lgmx::search::highlight_all_matches(QString &pattern)
 {
-	//int QTextCursor::position ()
-	//this->cursor.setCharFormat(match_format);
 }
 
 /**
@@ -194,8 +198,7 @@ void lgmx::search::search_string(QString &pattern)
 	src_file *curr_file;
 
 	if (!curr_file_) {
-		cout << "nop" << endl;
-		// update current file!!!
+		debug(ERR, SEARCH, "No current file");
 		return;
 	}
 
@@ -326,8 +329,7 @@ void lgmx::search::replace_and_previous()
 void lgmx::search::replace_all()
 {
 	if (!curr_file_) {
-		cout << "nop" << endl;
-		// update current file!!!
+		debug(ERR, SEARCH, "No current file");
 		return;
 	}
 
@@ -596,6 +598,46 @@ void lgmx::search::setup_ui(QDialog *Find)
 	//QMetaObject::connectSlotsByName(Find);
 } // setupUi
 
+/**
+ * Destroys search dialog UI.
+ * @todo fix this
+ */
+
+void lgmx::search::destroy_ui()
+{
+	delete next_button;
+	delete previous_button;
+	delete cancel_button;
+	//delete horizontalSpacer;
+	delete horizontalLayout_5;
+	delete pushButton_5;
+	delete pushButton_7;
+	delete pushButton_6;
+	delete pushButton_4;
+	delete horizontalLayout;
+	delete checkBox_6;
+	delete checkBox_4;
+	delete checkBox_3;
+	delete verticalLayout;
+	delete checkBox_2;
+	delete checkBox_5;
+
+	/*
+	delete verticalLayout_4;
+	delete verticalLayout_2;
+	delete horizontalLayout_2;
+	delete comboBox;
+	delete label_2;
+	return;
+	delete horizontalLayout_3;
+	delete search_cbox;
+	delete label;
+	delete horizontalLayout_4;
+	delete verticalLayout_3;
+	delete verticalLayout_4;
+	delete horizontalLayout_6;*/
+}
+
 void lgmx::search::retranslate_ui(QDialog *Find)
 {
 	Find->setWindowTitle(QApplication::translate("Find", "Find", 0, QApplication::UnicodeUTF8));
@@ -638,6 +680,5 @@ void lgmx::search::connect_slots()
 	connect(checkBox_6, SIGNAL(toggled(bool)), this, SLOT(wrap_around(bool)));
 	connect(checkBox_4, SIGNAL(toggled(bool)), this, SLOT(highlight_all_matches(bool)));
 }
-
 
 

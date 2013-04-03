@@ -128,7 +128,7 @@ MainWindow::~MainWindow()
 {
 	delete text_manip_;
 	delete c_board;
-	//delete search_dialog;	/** @todo review this */ 
+	delete search_dialog;
 
 	if (gt_ln_dialog)
 		delete gt_ln_dialog;
@@ -367,8 +367,6 @@ void MainWindow::writeSettings()
     settings.setValue("mainWindow/pos", pos());
 
 	menu_recent_files->save_files_to_disk(settings);
-    
-    delete search_dialog;
     
 	debug(DEBUG, MAIN_WINDOW, "Settings saved");
 }

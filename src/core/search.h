@@ -11,7 +11,6 @@
 #include <QSettings>
 #include <QPointer>
 
-//////////////////////////////////////////////////////////////////////////////////////
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
@@ -25,19 +24,10 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QSpacerItem>
 #include <QtGui/QVBoxLayout>
-//////////////////////////////////////////////////////////////////////////////////////
 
 class view_manager;
 
-#define NUM_FLAGS	5
-
-// persistent flags masks
-/*#define REGEX			0X01
-#define CASE_SENSITIVE	0X02
-#define WHOLE_WORDS		0X04
-#define HIGHLIGHT_ALL	0X08
-#define WRAP_AROUND		0X10
-*/
+// persistent flags
 #define REGEX			(1 << 0)
 #define CASE_SENSITIVE	(1 << 1)
 #define WHOLE_WORDS		(1 << 2)
@@ -52,8 +42,12 @@ class search : public QDialog
 {
 	Q_OBJECT
 
+private:
+	search();
+	search(const search&);
+	search& operator=(const search&);
+
 public:
-	search(src_container *src_files, QWidget *parent = 0);
 	search(view_manager &manager, QWidget *parent = 0);
 	~search();
 	
@@ -64,12 +58,7 @@ public:
 	void search_string(QString &pattern);
 
 private slots:
-	//void browse();
-	//void find();
-	//void openFileOfItem(int row, int column);
 	void hide_search_dialog();
-
-private slots:
 	void update_current_file(int);
 	void show_search_dialog();
 	void find_next();
@@ -79,12 +68,8 @@ private slots:
 	void use_regex(bool checked);
 	void wrap_around(bool checked);
 	void highlight_all_matches(bool checked);
-	
 	void replace_and_next();
 	void replace_and_previous();
-	
-	//void replace(QString &pattern);
-	//void replace_text(QString &search_pattern, QString &replace_pattern);
 	void replace();
 	void replace_all();
 
@@ -92,16 +77,15 @@ private:
 	QComboBox *create_combo_box(const QString &text);
 
 	void setup_ui(QDialog *Find);
+	void destroy_ui();
 	void retranslate_ui(QDialog *Find);
 	void connect_slots();
 
 	void highlight_all_matches(QString &pattern);
 	
 	void add_to_search_history(const QString &text);
-	
-	QPointer<src_file> curr_file_;
 
-//////////////////////////////////////////////////////////////////////////////////////
+private:	
 	QHBoxLayout *horizontalLayout_6;
     QVBoxLayout *verticalLayout_4;
     QVBoxLayout *verticalLayout_3;
@@ -131,10 +115,10 @@ private:
     QPushButton *previous_button;
     QPushButton *next_button;
 
+
 	QTextDocument::FindFlags flags;
 	QTextCursor cursor;
-//////////////////////////////////////////////////////////////////////////////////////
-
+	QPointer<src_file> curr_file_;
 	src_container *src_ctr;
 	view_manager &manager_;
 	
@@ -143,11 +127,8 @@ private:
 	bool highlight_all;
 	
 	QRegExp regex_pattern;
-
 	QTextCharFormat match_format;
-
 	QComboBox *text_combo_box;
-
 	QString search_pattern;
 	QString replace_pattern;
 };

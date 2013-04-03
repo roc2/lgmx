@@ -41,6 +41,7 @@
 #define VIEW_MANAGER	1
 #define MAIN_WINDOW		1
 #define CODE_EDITOR		1
+#define SEARCH			1
 #define STATUS_BAR		1
 #define CLI				1
 #define HIGHLIGHT		1
