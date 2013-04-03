@@ -113,6 +113,8 @@ src_file::src_file(src_file *base_file, src_container *parent)
 	
 	// when cursor changes highlight
 	QObject::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlight()));
+	// when cursor changes check for matching braces
+	QObject::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(match_braces()));
 }
 
 /**
@@ -520,6 +522,93 @@ void src_file::highlight()
 	highlight_visible_blocks();
 }
 
+QChar src_file::get_matching_brace(QChar c, int *direction)
+{
+	switch (c.unicode()) {
+	case '{':
+		return '}';
+	case '(':
+		return ')';
+	case '[':
+		return ']';
+	case '<':
+		return '>';
+	case '}':
+		*direction = -1;
+		return '{';
+	case ')':
+		*direction = -1;
+		return '(';
+	case ']':
+		*direction = -1;
+		return '[';
+	case '>':
+		*direction = -1;
+		return '<';
+	default:
+		break;
+	}
+	
+	return '\0';
+}
+
+/**
+ * [slot] Matches corresponding '{}', '()', '[]' and '<>'.
+ */
+
+void src_file::src_file::match_braces()
+{
+	match_braces(false);
+}
+
+/**
+ * Matches corresponding '{}', '()', '[]' and '<>'.
+ * @param select - If select is true, everything in between the matching
+ * characters is selected, otherwise only the matching characters are 
+ * highlighted.
+ */
+
+void src_file::match_braces(bool select)
+{
+	QTextDocument *doc = document();
+	QTextCursor cursor(textCursor());
+    int start_pos = cursor.position();
+    int direction = 1;
+    
+    QChar start_c = doc->characterAt(start_pos);
+    QChar end_c = get_matching_brace(start_c, &direction);
+    
+    if (end_c.isNull())
+		return;
+    
+    int end_pos = start_pos + direction;
+    QChar curr;
+    int depth = 0; bool match = false;
+
+    while (!(curr = doc->characterAt(end_pos)).isNull()) {
+		if (curr == start_c) {
+			depth++;
+		} if (curr == end_c) {
+			if (depth == 0) {
+				match = true;
+				break;
+			} else {
+				depth--;
+			}
+		}
+		end_pos += direction;
+	}
+	
+	if (match) {
+		if (select) {
+			cursor.setPosition(end_pos + direction, QTextCursor::KeepAnchor);
+			setTextCursor(cursor);
+		} else {
+			debug(DEBUG, SRC_FILE, "apply format: " << start_pos << " - " << end_pos);
+		}
+	}
+}
+
 /**
  * Focus in event handler.
  */
@@ -655,6 +744,21 @@ void src_file::mousePressEvent(QMouseEvent *event)
 		QWidget::mousePressEvent(event);
 }
 */
+
+/**
+ * Event filter to handle double mouse clicks.
+ */
+
+void src_file::mouseDoubleClickEvent(QMouseEvent *event)
+{
+	if (event->button() == Qt::LeftButton) {
+        match_braces(true);
+        return;
+	}
+	
+	CodeEditor::mouseDoubleClickEvent(event);
+}
+
 /**
  * Events filter. For VI mode and shortcuts
  * 

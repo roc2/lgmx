@@ -89,6 +89,8 @@ public:
 private:
 	void timerEvent(QTimerEvent *);
 	void update_cursor();
+	QChar get_matching_brace(QChar c, int *direction);
+	void mouseDoubleClickEvent(QMouseEvent *event);
 
 signals:
 	void modificationChanged(bool);
@@ -97,6 +99,8 @@ public slots:
     void go_to_line(int line);
     void highlight(int);
     void highlight();
+    void match_braces();
+    void match_braces(bool select);
     
 private:
 	QFileInfo *file_info_;
