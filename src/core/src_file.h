@@ -90,6 +90,7 @@ private:
 	void timerEvent(QTimerEvent *);
 	void update_cursor();
 	QChar get_matching_brace(QChar c, int *direction);
+	void highlight_maching_braces(int start_pos, int end_pos);
 	void mouseDoubleClickEvent(QMouseEvent *event);
 
 signals:
@@ -115,6 +116,7 @@ private:
 	QBasicTimer cursor_blink_timer_;
 	bool cursor_visible_;
 	bool blink_cursor_;
+	QTextCharFormat mb_format_;		/**< matching braces format */
 };
 
 

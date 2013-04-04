@@ -77,6 +77,7 @@ src_file::src_file(src_file *base_file, src_container *parent)
 	blink_cursor_ = false;
 	
 	cursor_visible_ = true;
+	mb_format_.setBackground(Qt::red);
 	
 	/* get file info and content from the base file */
 	file_info_ = base_file->get_file_info();
@@ -522,16 +523,28 @@ void src_file::highlight()
 	highlight_visible_blocks();
 }
 
+/**
+ * Returns the matching brace and the direction within the text.
+ * @param direction - return value for the direction that the cursor 
+ * shall follow to find the matching character. 1 means forward, whereas
+ *  -1 means backwards.
+ * @return the matching character, or '\0' if unknown.
+ */
+
 QChar src_file::get_matching_brace(QChar c, int *direction)
 {
 	switch (c.unicode()) {
 	case '{':
+		*direction = 1;
 		return '}';
 	case '(':
+		*direction = 1;
 		return ')';
 	case '[':
+		*direction = 1;
 		return ']';
 	case '<':
+		*direction = 1;
 		return '>';
 	case '}':
 		*direction = -1;
@@ -574,21 +587,30 @@ void src_file::match_braces(bool select)
 	QTextCursor cursor(textCursor());
     int start_pos = cursor.position();
     int direction = 1;
+    bool prev_ch = false;
     
     QChar start_c = doc->characterAt(start_pos);
     QChar end_c = get_matching_brace(start_c, &direction);
     
-    if (end_c.isNull())
-		return;
+    if (end_c.isNull()) {
+		// no match for the current char, let's try the previous one
+		start_c = doc->characterAt(--start_pos);
+		end_c = get_matching_brace(start_c, &direction);
+		prev_ch = true;
+		
+		if (end_c.isNull())
+			return;
+	}
     
     int end_pos = start_pos + direction;
     QChar curr;
-    int depth = 0; bool match = false;
+    int depth = 0;
+    bool match = false;
 
     while (!(curr = doc->characterAt(end_pos)).isNull()) {
 		if (curr == start_c) {
 			depth++;
-		} if (curr == end_c) {
+		} else if (curr == end_c) {
 			if (depth == 0) {
 				match = true;
 				break;
@@ -601,12 +623,44 @@ void src_file::match_braces(bool select)
 	
 	if (match) {
 		if (select) {
-			cursor.setPosition(end_pos + direction, QTextCursor::KeepAnchor);
+			if (direction == 1) {
+				end_pos++;
+				if (prev_ch)
+					cursor.setPosition(start_pos, QTextCursor::MoveAnchor);
+			} else if (!prev_ch) {
+				cursor.setPosition(start_pos + 1, QTextCursor::MoveAnchor);
+			}
+
+			cursor.setPosition(end_pos, QTextCursor::KeepAnchor);
 			setTextCursor(cursor);
 		} else {
-			debug(DEBUG, SRC_FILE, "apply format: " << start_pos << " - " << end_pos);
+			highlight_maching_braces(start_pos, end_pos);
 		}
 	}
+}
+
+/**
+ * Marks the current matching braces.
+ * @param start_pos - Cursor start position.
+ * @param end_pos - Cursor end position.
+ */
+
+void src_file::highlight_maching_braces(int start_pos, int end_pos)
+{
+	QTextEdit::ExtraSelection sel;
+	QList<QTextEdit::ExtraSelection> extra_selections;
+	
+	sel.format = mb_format_;
+	sel.cursor = textCursor();
+	sel.cursor.setPosition(start_pos);
+	sel.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+	extra_selections.append(sel);
+	
+	sel.cursor.setPosition(end_pos);
+	sel.cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
+	extra_selections.append(sel);
+	
+	setExtraSelections(extra_selections);
 }
 
 /**
@@ -741,7 +795,7 @@ void src_file::mousePressEvent(QMouseEvent *event)
 	if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier) {
 		debug(DEBUG, SRC_FILE, "Ctrl + left_click");
 	} else 
-		QWidget::mousePressEvent(event);
+		CodeEditor::mousePressEvent(event);
 }
 */
 
