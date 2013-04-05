@@ -1,6 +1,8 @@
 #include "cpp_hl.h"
 #include <QString>
 #include <QList>
+#include <stdexcept>
+#include <debug.h>
 #include <iostream>
 
 using namespace std;
@@ -19,57 +21,15 @@ extern QVector<QTextCharFormat> formatChanges;
 #define IN_LITERAL		2
 
 
-dummy_highlighter::dummy_highlighter(src_file *parent) : syntax_highlighter(parent)
+C_highlighter::C_highlighter(src_file *parent, QSharedPointer<QSet<QString> > keywords, 
+                             QSharedPointer<std::vector<QTextCharFormat> > formats) : syntax_highlighter(parent), 
+                             keywords_(keywords), formats_(formats)
 {
-	keywordFormat = new QTextCharFormat();
-	cout << "dummy constructor ok" << endl;
-}
-
-dummy_highlighter::~dummy_highlighter()
-{
-	delete keywordFormat;
-}
-
-void dummy_highlighter::highlight_block(const QString &text)
-{
-}
-
-C_highlighter::C_highlighter(src_file *parent, QSharedPointer<QSet<QString> > keywords) : syntax_highlighter(parent), keywords_(keywords)
-{
-	integerFormat = new QTextCharFormat();
-	integerFormat->setForeground(Qt::blue);
-    integerFormat->setBackground(Qt::transparent);
-	integerFormat->setFontWeight(QFont::Bold);
-	
-	keywordFormat = new QTextCharFormat();
-	keywordFormat->setForeground(Qt::darkCyan);
-    keywordFormat->setBackground(Qt::transparent);
-	keywordFormat->setFontWeight(QFont::Bold);
-	
-	CommentFormat = new QTextCharFormat();
-	CommentFormat->setForeground(Qt::red);
-    CommentFormat->setBackground(Qt::transparent);
-    
-    literalFormat = new QTextCharFormat();
-    literalFormat->setForeground(Qt::magenta);
-    literalFormat->setBackground(Qt::transparent);
-    
-    pre_processor = new QTextCharFormat();
-    pre_processor->setForeground(Qt::darkGreen);
-    pre_processor->setBackground(Qt::transparent);
-    
-    
     cout << "C_highlighter constructor ok" << endl;
 }
 
 C_highlighter::~C_highlighter()
 {
-	delete keywordFormat;
-	delete CommentFormat;
-	delete integerFormat;
-	delete literalFormat;
-	delete pre_processor;
-	
 	cout << "~C_highlighter" << endl;
 }
 
@@ -84,35 +44,38 @@ void C_highlighter::highlight_block(const QString &text)
 	lex(text, hl_info_list);
 	
 	for (it = hl_info_list.begin(); it != hl_info_list.end(); it++) {
-		
-		switch (it->token) {
-		case COMMENT:
-			//cout << "comment: " << it->begin << " " << it->offset - 1 << endl;
-			set_format(it->begin, it->offset, *CommentFormat);
-			break;
+		try {
+			switch (it->token) {
+			case COMMENT:
+				//cout << "comment: " << it->begin << " " << it->offset - 1 << endl;
+				set_format(it->begin, it->offset, (*formats_).at(COMMENT_IDX));
+				break;
+				
+			case KEYWORD:
+				//cout << "keyword: " << it->begin << " " << it->offset - 1 << endl;
+				set_format(it->begin, it->offset, (*formats_).at(KEYWORD_IDX));
+				break;
 			
-		case KEYWORD:
-			//cout << "keyword: " << it->begin << " " << it->offset - 1 << endl;
-			set_format(it->begin, it->offset, *keywordFormat);
-			break;
-		
-		case NUMBER:
-			//cout << "number: " << it->begin << " " << it->offset - 1 << endl;
-			set_format(it->begin, it->offset, *integerFormat);
-			break;
+			case NUMBER:
+				//cout << "number: " << it->begin << " " << it->offset - 1 << endl;
+				set_format(it->begin, it->offset, (*formats_).at(NUMBER_IDX));
+				break;
+				
+			case LITERAL:
+				//cout << "literal: " << it->begin << " " << it->offset - 1 << endl;
+				set_format(it->begin, it->offset, (*formats_).at(LITERAL_IDX));
+				break;
 			
-		case LITERAL:
-			//cout << "literal: " << it->begin << " " << it->offset - 1 << endl;
-			set_format(it->begin, it->offset, *literalFormat);
-			break;
-		
-		case PRE_PROC:
-			//cout << "pre proc: " << it->begin << " " << it->offset - 1 << endl;
-			set_format(it->begin, it->offset, *pre_processor);
-			break;
+			case PRE_PROC:
+				//cout << "pre proc: " << it->begin << " " << it->offset - 1 << endl;
+				set_format(it->begin, it->offset, (*formats_).at(PRE_PROC_IDX));
+				break;
 
-		default:
-			break;
+			default:
+				break;
+			}
+		} catch (const std::out_of_range &err) {
+			debug(ERR, HIGHLIGHT, err.what() << " - " << "Invalid formats vector index");
 		}
 	}
 }

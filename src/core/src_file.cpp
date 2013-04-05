@@ -543,9 +543,6 @@ QChar src_file::get_matching_brace(QChar c, int *direction)
 	case '[':
 		*direction = 1;
 		return ']';
-	case '<':
-		*direction = 1;
-		return '>';
 	case '}':
 		*direction = -1;
 		return '{';
@@ -555,9 +552,6 @@ QChar src_file::get_matching_brace(QChar c, int *direction)
 	case ']':
 		*direction = -1;
 		return '[';
-	case '>':
-		*direction = -1;
-		return '<';
 	default:
 		break;
 	}
@@ -575,7 +569,7 @@ void src_file::src_file::match_braces()
 }
 
 /**
- * Matches corresponding '{}', '()', '[]' and '<>'.
+ * Matches corresponding '{}', '()' and '[]'.
  * @param select - If select is true, everything in between the matching
  * characters is selected, otherwise only the matching characters are 
  * highlighted.

@@ -43,7 +43,7 @@ syntax_highlighter* highlight_manager::build_highlighter(src_file *file)
 
 	case file_type::C:
 	case file_type::CPP:
-		hl = new C_highlighter(file, get_C_keywords());
+		hl = new C_highlighter(file, get_C_keywords(), get_C_formats());
 		break;
 	
 	default:
@@ -61,6 +61,8 @@ syntax_highlighter* highlight_manager::build_highlighter(src_file *file)
  * This saves memory, since all highlighters of the same type use the 
  * same set of keywords, and when there are no files of a specific 
  * type open, the respective set is destroyed automatically.
+ * The "get_*_formats" methods use the same approach, but with a vector
+ * instead.
  */
 
 /**
@@ -82,6 +84,53 @@ QSharedPointer<QSet<QString> > highlight_manager::get_C_keywords()
 		       << "register" << "return" << "short" << "signed" << "sizeof" 
 		       << "static" << "struct" << "switch" << "typedef" << "union"
 		       << "unsigned" << "void" << "volatile" << "while";
+	}
+
+	return ret;
+}
+
+/**
+ * Returns the C language vector of formats.
+ * @return shared pointer to the vector of formats.
+ */
+
+QSharedPointer<std::vector<QTextCharFormat> > highlight_manager::get_C_formats()
+{
+	QSharedPointer<std::vector<QTextCharFormat> > ret;
+	
+	if (!(ret = C_formats_.toStrongRef())) {
+		debug(DEBUG, HIGHLIGHT, "New C formats set");
+		ret = QSharedPointer<std::vector<QTextCharFormat> >(new std::vector<QTextCharFormat>());
+		C_formats_ = ret;
+		
+		QTextCharFormat integerFormat;
+		integerFormat.setForeground(Qt::blue);
+		integerFormat.setBackground(Qt::transparent);
+		integerFormat.setFontWeight(QFont::Bold);
+		
+		QTextCharFormat keywordFormat;
+		keywordFormat.setForeground(Qt::darkCyan);
+		keywordFormat.setBackground(Qt::transparent);
+		keywordFormat.setFontWeight(QFont::Bold);
+		
+		QTextCharFormat CommentFormat;
+		CommentFormat.setForeground(Qt::red);
+		CommentFormat.setBackground(Qt::transparent);
+		
+		QTextCharFormat literalFormat;
+		literalFormat.setForeground(Qt::magenta);
+		literalFormat.setBackground(Qt::transparent);
+		
+		QTextCharFormat pre_processor;
+		pre_processor.setForeground(Qt::darkGreen);
+		pre_processor.setBackground(Qt::transparent);
+		
+		(*ret).resize(C_highlighter::SIZE);
+		(*ret)[C_highlighter::NUMBER_IDX] = integerFormat;
+		(*ret)[C_highlighter::KEYWORD_IDX] = keywordFormat;
+		(*ret)[C_highlighter::COMMENT_IDX] = CommentFormat;
+		(*ret)[C_highlighter::LITERAL_IDX] = literalFormat;
+		(*ret)[C_highlighter::PRE_PROC_IDX] = pre_processor;
 	}
 	
 	return ret;
@@ -119,6 +168,24 @@ QSharedPointer<QSet<QString> > highlight_manager::get_cpp_keywords()
 			   << "xor" << "xor_eq";
 	}
 	
+	return ret;
+}
+
+/**
+ * Returns the C++ language vector of formats.
+ * @return shared pointer to the vector of formats.
+ */
+
+QSharedPointer<std::vector<QTextCharFormat> > highlight_manager::get_cpp_formats()
+{
+	QSharedPointer<std::vector<QTextCharFormat> > ret;
+	
+	if (!(ret = cpp_formats_.toStrongRef())) {
+		debug(DEBUG, HIGHLIGHT, "New C++ formats set");
+		ret = QSharedPointer<std::vector<QTextCharFormat> >(new std::vector<QTextCharFormat>());
+		cpp_formats_ = ret;
+	}
+
 	return ret;
 }
 

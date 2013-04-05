@@ -17,7 +17,17 @@ class C_highlighter : public syntax_highlighter
 	Q_OBJECT
 
 public:
-	 C_highlighter(src_file *parent, QSharedPointer<QSet<QString> > keywords);
+	static const int SIZE = 5;
+	// the following constats must be sequential (no gaps)
+	static const int COMMENT_IDX = 0;
+	static const int KEYWORD_IDX = 1;
+	static const int NUMBER_IDX = 2;
+	static const int LITERAL_IDX = 3;
+	static const int PRE_PROC_IDX = 4;
+
+public:
+	 C_highlighter(src_file *parent, QSharedPointer<QSet<QString> > keywords, 
+		           QSharedPointer<std::vector<QTextCharFormat> > formats);
 	 ~C_highlighter();
 
 protected:
@@ -25,31 +35,10 @@ protected:
 	void lex(const QString &data, QList<hl_info> &hl_info_list);
 
 private:
-	QTextCharFormat *keywordFormat;
-	QTextCharFormat *CommentFormat;
-	QTextCharFormat *integerFormat;
-	QTextCharFormat *literalFormat;
-	QTextCharFormat *pre_processor;
-
 	QSharedPointer<QSet<QString> > keywords_;
+	QSharedPointer<std::vector<QTextCharFormat> > formats_;
 };
 
-class dummy_highlighter : public syntax_highlighter
-{
-	Q_OBJECT
-
-public:
-	 dummy_highlighter(src_file *parent);
-	 ~dummy_highlighter();
-	 
-	 void highlight_block(const QString &text);
-	 
-private:
-	QTextCharFormat *keywordFormat;
-	//QTextCharFormat CommentFormat;
-	//QTextCharFormat integerFormat;
-	//QTextCharFormat literalFormat;
-};
 
 #endif
 
