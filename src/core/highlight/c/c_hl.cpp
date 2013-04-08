@@ -157,10 +157,13 @@ void C_highlighter::lex(const QString &data, QList<hl_info> &hl_info_list)
 		break;
 
 		case '"':		// literal
+		case '\'':
+		{
+			QChar match_ch(data[pos].unicode() == '"' ? '"' : '\'');
 			info.begin = pos++;
 			
 			while (pos < size) {
-				if (data[pos] == '"' && data[pos - 1] != '\\') {
+				if (data[pos] == match_ch && data[pos - 1] != '\\') {
 					info.offset = pos - info.begin + 1;
 					info.token = LITERAL;
 					hl_info_list.append(info);
@@ -169,7 +172,7 @@ void C_highlighter::lex(const QString &data, QList<hl_info> &hl_info_list)
 					pos++;
 				}
 			}
-		
+		}
 			break;
 		
 		case '#':		// pre processor

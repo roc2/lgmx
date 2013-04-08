@@ -108,12 +108,11 @@ QSharedPointer<std::vector<QTextCharFormat> > highlight_manager::get_C_formats()
 		C_formats_ = ret;
 		
 		QTextCharFormat integerFormat;
-		integerFormat.setForeground(Qt::blue);
+		integerFormat.setForeground(QColor("#12A02F"));
 		integerFormat.setBackground(Qt::transparent);
-		integerFormat.setFontWeight(QFont::Bold);
 		
 		QTextCharFormat keywordFormat;
-		keywordFormat.setForeground(Qt::darkCyan);
+		keywordFormat.setForeground(QColor("#0C00B1"));
 		keywordFormat.setBackground(Qt::transparent);
 		keywordFormat.setFontWeight(QFont::Bold);
 		
@@ -122,11 +121,11 @@ QSharedPointer<std::vector<QTextCharFormat> > highlight_manager::get_C_formats()
 		CommentFormat.setBackground(Qt::transparent);
 		
 		QTextCharFormat literalFormat;
-		literalFormat.setForeground(Qt::magenta);
+		literalFormat.setForeground(QColor("#FFA200"));
 		literalFormat.setBackground(Qt::transparent);
 		
 		QTextCharFormat pre_processor;
-		pre_processor.setForeground(Qt::darkGreen);
+		pre_processor.setForeground(Qt::darkCyan);
 		pre_processor.setBackground(Qt::transparent);
 		
 		(*ret).resize(C_highlighter::SIZE);
@@ -190,12 +189,12 @@ QSharedPointer<std::vector<QTextCharFormat> > highlight_manager::get_cpp_formats
 		cpp_formats_ = ret;
 		
 		QTextCharFormat integerFormat;
-		integerFormat.setForeground(Qt::blue);
+		integerFormat.setForeground(QColor("#12A02F"));
 		integerFormat.setBackground(Qt::transparent);
 		integerFormat.setFontWeight(QFont::Bold);
 		
 		QTextCharFormat keywordFormat;
-		keywordFormat.setForeground(Qt::darkCyan);
+		keywordFormat.setForeground(QColor("#0C00B1"));
 		keywordFormat.setBackground(Qt::transparent);
 		keywordFormat.setFontWeight(QFont::Bold);
 		
@@ -204,11 +203,11 @@ QSharedPointer<std::vector<QTextCharFormat> > highlight_manager::get_cpp_formats
 		CommentFormat.setBackground(Qt::transparent);
 		
 		QTextCharFormat literalFormat;
-		literalFormat.setForeground(Qt::magenta);
+		literalFormat.setForeground(QColor("#FFA200"));
 		literalFormat.setBackground(Qt::transparent);
 		
 		QTextCharFormat pre_processor;
-		pre_processor.setForeground(Qt::darkGreen);
+		pre_processor.setForeground(Qt::darkCyan);
 		pre_processor.setBackground(Qt::transparent);
 		
 		(*ret).resize(cpp_highlighter::SIZE);
