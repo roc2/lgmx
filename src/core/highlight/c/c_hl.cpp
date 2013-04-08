@@ -1,4 +1,4 @@
-#include "cpp_hl.h"
+#include "c_hl.h"
 #include <QString>
 #include <QList>
 #include <stdexcept>
@@ -21,20 +21,20 @@ extern QVector<QTextCharFormat> formatChanges;
 #define IN_LITERAL		2
 
 
-cpp_highlighter::cpp_highlighter(src_file *parent, QSharedPointer<QSet<QString> > keywords, 
+C_highlighter::C_highlighter(src_file *parent, QSharedPointer<QSet<QString> > keywords, 
                              QSharedPointer<std::vector<QTextCharFormat> > formats) : syntax_highlighter(parent), 
                              keywords_(keywords), formats_(formats)
 {
-    cout << "cpp_highlighter constructor ok" << endl;
+    cout << "C_highlighter constructor ok" << endl;
 }
 
-cpp_highlighter::~cpp_highlighter()
+C_highlighter::~C_highlighter()
 {
-	cout << "~cpp_highlighter" << endl;
+	cout << "~C_highlighter" << endl;
 }
 
 
-void cpp_highlighter::highlight_block(const QString &text)
+void C_highlighter::highlight_block(const QString &text)
 {
 	QList<hl_info> hl_info_list;
 	QList<hl_info>::iterator it;
@@ -80,7 +80,7 @@ void cpp_highlighter::highlight_block(const QString &text)
 	}
 }
 
-void cpp_highlighter::lex(const QString &data, QList<hl_info> &hl_info_list)
+void C_highlighter::lex(const QString &data, QList<hl_info> &hl_info_list)
 {
 	int pos = 0;
 	int size = data.size();
@@ -198,7 +198,7 @@ void cpp_highlighter::lex(const QString &data, QList<hl_info> &hl_info_list)
 	
 	if (!match) {
 		// number
-		if (data[pos].isDigit()) {
+		if (data[pos].isDigit() /*&& !data[pos - 1].isLetter() && (data[pos - 1] != '_')*/  ) {
 			info.begin = pos;
 			
 			do {

@@ -4,6 +4,7 @@
 #include <src_file.h>
 #include <file_type.h>
 #include <debug.h>
+#include <c/c_hl.h>
 #include <cpp/cpp_hl.h>
 
 
@@ -42,10 +43,13 @@ syntax_highlighter* highlight_manager::build_highlighter(src_file *file)
 	switch (tp) {
 
 	case file_type::C:
-	case file_type::CPP:
 		hl = new C_highlighter(file, get_C_keywords(), get_C_formats());
 		break;
-	
+
+	case file_type::CPP:
+		hl = new cpp_highlighter(file, get_cpp_keywords(), get_cpp_formats());
+		break;
+
 	default:
 		hl = NULL;
 		break;
@@ -184,6 +188,35 @@ QSharedPointer<std::vector<QTextCharFormat> > highlight_manager::get_cpp_formats
 		debug(DEBUG, HIGHLIGHT, "New C++ formats set");
 		ret = QSharedPointer<std::vector<QTextCharFormat> >(new std::vector<QTextCharFormat>());
 		cpp_formats_ = ret;
+		
+		QTextCharFormat integerFormat;
+		integerFormat.setForeground(Qt::blue);
+		integerFormat.setBackground(Qt::transparent);
+		integerFormat.setFontWeight(QFont::Bold);
+		
+		QTextCharFormat keywordFormat;
+		keywordFormat.setForeground(Qt::darkCyan);
+		keywordFormat.setBackground(Qt::transparent);
+		keywordFormat.setFontWeight(QFont::Bold);
+		
+		QTextCharFormat CommentFormat;
+		CommentFormat.setForeground(Qt::red);
+		CommentFormat.setBackground(Qt::transparent);
+		
+		QTextCharFormat literalFormat;
+		literalFormat.setForeground(Qt::magenta);
+		literalFormat.setBackground(Qt::transparent);
+		
+		QTextCharFormat pre_processor;
+		pre_processor.setForeground(Qt::darkGreen);
+		pre_processor.setBackground(Qt::transparent);
+		
+		(*ret).resize(cpp_highlighter::SIZE);
+		(*ret)[cpp_highlighter::NUMBER_IDX] = integerFormat;
+		(*ret)[cpp_highlighter::KEYWORD_IDX] = keywordFormat;
+		(*ret)[cpp_highlighter::COMMENT_IDX] = CommentFormat;
+		(*ret)[cpp_highlighter::LITERAL_IDX] = literalFormat;
+		(*ret)[cpp_highlighter::PRE_PROC_IDX] = pre_processor;
 	}
 
 	return ret;

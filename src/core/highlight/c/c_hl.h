@@ -1,12 +1,13 @@
-#ifndef CPP_HIGHLIGHT_H
-#define CPP_HIGHLIGHT_H
+#ifndef C_HIGHLIGHT_H
+#define C_HIGHLIGHT_H
 
 #include <QTextCharFormat>
 #include <QSet>
 
 #include <syntax_highlighter.h>
 
-class cpp_highlighter : public syntax_highlighter
+
+class C_highlighter : public syntax_highlighter
 {
 	Q_OBJECT
 
@@ -20,9 +21,9 @@ public:
 	static const int PRE_PROC_IDX = 4;
 
 public:
-	 cpp_highlighter(src_file *parent, QSharedPointer<QSet<QString> > keywords, 
+	 C_highlighter(src_file *parent, QSharedPointer<QSet<QString> > keywords, 
 		           QSharedPointer<std::vector<QTextCharFormat> > formats);
-	 ~cpp_highlighter();
+	 ~C_highlighter();
 
 protected:
 	virtual void highlight_block(const QString &text);

@@ -2,15 +2,15 @@ CONFIG += qt
 CONFIG += debug
 
 SOURCES += ./src/core/main.cpp ./src/core/main_window.cpp ./src/core/code_editor.cpp ./src/core/src_container.cpp \
-           ./src/core/highlight/cpp/cpp_hl.cpp go_to_line.cpp ./src/core/src_file.cpp \
+           ./src/core/highlight/c/c_hl.cpp ./src/core/highlight/cpp/cpp_hl.cpp go_to_line.cpp ./src/core/src_file.cpp \
            config.cpp unsvFileDialog.cpp ./src/core/file_watcher.cpp ./src/core/recent_files.cpp ./src/core/search.cpp ./src/core/clipboard.cpp ./src/core/view_manager.cpp \
            ./src/core/view.cpp ./src/core/status_line.cpp ./src/utils/id.cpp ./src/core/file_type.cpp ./src/core/plugin_manager.cpp \
            ./src/core/highlight/highlight_manager.cpp ./src/core/vjson/block_allocator.cpp \
            ./src/core/vjson/json.cpp ./src/core/settings.cpp ./src/core/c_label.cpp ./src/core/text_manip.cpp ./src/core/cli/cli.cpp \
            command.cpp ./src/core/highlight/syntax_highlighter.cpp ./src/core/tags/tags.cpp ./src/core/tags/readtags.cpp
            
-HEADERS += debug.h ./src/core/code_editor.h ./src/core/main_window.h ./src/core/src_container.h ./src/core/highlight/cpp/cpp_hl.h \
-           go_to_line.h ui_go_to_line.h \
+HEADERS += debug.h ./src/core/code_editor.h ./src/core/main_window.h ./src/core/src_container.h ./src/core/highlight/c/c_hl.h \
+           ./src/core/highlight/cpp/cpp_hl.h go_to_line.h ui_go_to_line.h \
            ./src/core/src_file.h config.h unsvFileDialog.h ./src/core/file_watcher.h ./src/core/recent_files.h ./src/core/search.h ./src/core/clipboard.h ./src/core/view_manager.h \
            ./src/core/view.h ./src/core/status_line.h utils.h ./src/utils/id.h ./src/core/exception.h ./src/core/interfaces.h ./src/core/file_type.h \
            ./src/core/plugin_manager.h ./src/core/highlight/highlight_manager.h \ 
