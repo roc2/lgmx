@@ -1,24 +1,22 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-
-//#include <QDomDocument>
-#include <QDir>
 #include <QString>
 
 #define CONF_FILE   "/.lgmxconfig"
 
-
 class Config
 {
-    //QDomDocument *conf;
-    QString conf_file;
-
-    public:
-
+private:
+	Config(const Config&);
+	Config& operator=(const Config&);
+	
+public:
     Config();
+    ~Config();
 
-
+private:
+	QString conf_file;
 };
 
 #endif

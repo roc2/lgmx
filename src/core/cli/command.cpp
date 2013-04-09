@@ -1,25 +1,39 @@
 #include <command.h>
 #include <view_manager.h>
-#include <iostream>
+#include <QStringList>
+
+
+/**
+ * Constructor.
+ */
 
 command::command(QString& name, view_manager* manager) : name_(name), manager_(manager)
 {
 }
 
+/**
+ * Destructor.
+ */
+
 command::~command()
 {
 }
+
+/**
+ * Returns the command name.
+ */
 
 QString command::get_name()
 {
 	return name_;
 }
 
-/////////////////////
+/**
+ * Tab width command.
+ */
 
 tab_width_cmd::tab_width_cmd(QString name, view_manager* manager) : command(name, manager)
 {
-	
 }
 
 tab_width_cmd::~tab_width_cmd()
@@ -51,13 +65,13 @@ cmd::stat tab_width_cmd::execute(QStringList &params, QString &result)
 		result = "Invalid parameters";
 		return cmd::ERR;
 	}
-
 	
-	std::cout << "Executing tab_width_cmd!!" << std::endl;
 	return cmd::OK;
 }
 
-/////////////////////
+/**
+ * Version command.
+ */
 
 version_cmd::version_cmd(QString name, view_manager* manager) : command(name, manager)
 {
@@ -78,7 +92,9 @@ cmd::stat version_cmd::execute(QStringList &params, QString &result)
 	return cmd::OK_RES;
 }
 
-/////////////////////
+/**
+ * Line wrap command.
+ */
 
 line_wrap_cmd::line_wrap_cmd(QString name, view_manager* manager) : command(name, manager)
 {
@@ -176,6 +192,4 @@ cmd::stat tags_cmd::execute(QStringList &params, QString &result)
 
 	return cmd::OK;
 }
-
-
 

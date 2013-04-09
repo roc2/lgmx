@@ -2,9 +2,9 @@
 #define COMMAND_H
 
 #include <QString>
-#include <QStringList>
 
 class view_manager;
+class QStringList;
 
 namespace cmd {
 	enum stat {OK, OK_RES, ERR};
@@ -12,6 +12,11 @@ namespace cmd {
 
 class command
 {
+private:
+	command();
+	command(const command&);
+	command& operator=(const command&);
+	
 public:
 	command(QString& name, view_manager* manager);
 	virtual ~command();
