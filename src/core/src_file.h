@@ -73,6 +73,8 @@ public:
 	bool set_tab_width(int size);
 	int get_tab_width() const;
 
+	bool indent_selection(bool forward);
+
 	void set_line_wrap(bool on);
 	bool get_line_wrap() const;
 
@@ -84,6 +86,7 @@ public:
     void show_white_spaces(bool show);
     
     bool eventFilter(QObject* pObject, QEvent* pEvent);
+    void paintEvent(QPaintEvent *e);
     //void mousePressEvent(QMouseEvent *event);
 
 private:
@@ -92,6 +95,7 @@ private:
 	QChar get_matching_brace(QChar c, int *direction);
 	void highlight_maching_braces(int start_pos, int end_pos);
 	void mouseDoubleClickEvent(QMouseEvent *event);
+	void keyPressEvent(QKeyEvent *e);
 
 signals:
 	void modificationChanged(bool);
@@ -101,7 +105,7 @@ public slots:
     void highlight(int);
     void highlight();
     void match_braces();
-    void match_braces(bool select);
+    bool match_braces(bool select);
     
 private:
 	QFileInfo *file_info_;

@@ -7,6 +7,7 @@
 #include <QtGui/QApplication>
 #include <QScrollBar>
 #include <QTextOption>
+#include <QtGui/QPainter>
 
 #include <src_file.h>
 #include <exception.h>
@@ -575,7 +576,7 @@ void src_file::src_file::match_braces()
  * highlighted.
  */
 
-void src_file::match_braces(bool select)
+bool src_file::match_braces(bool select)
 {
 	QTextDocument *doc = document();
 	QTextCursor cursor(textCursor());
@@ -593,7 +594,7 @@ void src_file::match_braces(bool select)
 		prev_ch = true;
 		
 		if (end_c.isNull())
-			return;
+			return false;
 	}
     
     int end_pos = start_pos + direction;
@@ -631,6 +632,8 @@ void src_file::match_braces(bool select)
 			highlight_maching_braces(start_pos, end_pos);
 		}
 	}
+	
+	return true;
 }
 
 /**
@@ -775,14 +778,63 @@ void src_file::update_cursor()
 {
 	QRect cursor_rect(cursorRect());
 	
-	if (cursor_visible_)
-		setCursorWidth(0);
-	else
-		setCursorWidth(get_font_width());
+	//if (cursor_visible_)
+		//setCursorWidth(0);
+	//else
+		//setCursorWidth(get_font_width());
 
 	cursor_visible_ = !cursor_visible_;
 	viewport()->update(cursor_rect);
 }
+
+/**
+ * 
+ */
+
+bool src_file::indent_selection(bool forward)
+{
+	return false;	// not used for now
+	
+	QTextCursor cursor = textCursor();
+    //cursor.beginEditBlock();
+
+    if (!cursor.hasSelection())
+		return false;
+
+	int pos = cursor.position();
+	int anchor = cursor.anchor();
+	int start_pos = qMin(anchor, pos);
+	int end_pos = qMax(anchor, pos);
+	
+	QTextDocument *doc = document();
+	QTextBlock start_block = doc->findBlock(start_pos);
+	QTextBlock end_block = doc->findBlock(end_pos - 1).next();
+
+	if (start_block.next() == end_block && (start_pos > start_block.position() || end_pos < end_block.position() - 1)) {
+		// Only one line partially selected.
+		cursor.removeSelectedText();
+	} else {
+		for (QTextBlock block = start_block; block != end_block; block = block.next()) {
+			QString text(block.text());
+			
+			//int indentPosition = tabSettings.lineIndentPosition(text);
+			//if (!doIndent && !indentPosition)
+				//indentPosition = tabSettings.firstNonSpace(text);
+			//int targetColumn = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition), doIndent);
+			
+			cursor.setPosition(block.position() + 4);
+			//cursor.insertText(tabSettings.indentationString(0, targetColumn, block));
+			cursor.insertText(text);
+			cursor.setPosition(block.position());
+			cursor.setPosition(block.position() + 4, QTextCursor::KeepAnchor);
+			cursor.removeSelectedText();
+		}
+	}
+	
+	return true;
+}
+
+
 /*
 void src_file::mousePressEvent(QMouseEvent *event)
 {
@@ -800,13 +852,93 @@ void src_file::mousePressEvent(QMouseEvent *event)
 void src_file::mouseDoubleClickEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton) {
-        match_braces(true);
-        return;
+        if (match_braces(true)) {
+			event->accept();
+			return;
+		}
 	}
 	
-	CodeEditor::mouseDoubleClickEvent(event);
+	QPlainTextEdit::mouseDoubleClickEvent(event);
 }
 
+/**
+ * 
+ */
+
+void src_file::keyPressEvent(QKeyEvent *e)
+{
+	switch (e->key()) {
+
+	case Qt::Key_Tab:
+    case Qt::Key_Backtab:
+		debug(DEBUG, SRC_FILE, "tab");
+		if (indent_selection(e->key() == Qt::Key_Tab)) {
+			e->accept();
+			return;
+		}
+		break;
+	}
+	
+	QPlainTextEdit::keyPressEvent(e);
+}
+
+void src_file::paintEvent(QPaintEvent *e)
+{
+	QPlainTextEdit::paintEvent(e);
+#if 0
+	QRect er = e->rect();
+	QVector<QTextLayout::FormatRange> selections;
+	QPainter painter(viewport());
+	QAbstractTextDocumentLayout::PaintContext context = getPaintContext();
+	QTextLayout *cursor_layout = 0;
+
+	QTextBlock block = textCursor().block();
+	QTextLayout *layout = block.layout();
+
+
+	QPointF offset(contentOffset());
+	QRectF r = blockBoundingRect(block).translated(offset);
+
+	int blpos = block.position();
+	int bllen = block.length();
+	
+	QPointF cursor_offset = offset;
+	
+	int cursor_cpos = textCursor().position();
+	
+	int relativePos = context.cursorPosition - blpos;
+	bool doSelection = true;
+	QTextLine line = layout->lineForTextPosition(relativePos);
+	qreal x = line.cursorToX(relativePos);
+	qreal w = 0;
+
+	w = QFontMetrics(layout->font()).width(QLatin1Char(' '));
+	w = get_font_width();
+	
+	QRectF rr = line.rect();
+	rr.moveTop(rr.top() + r.top());
+	rr.moveLeft(r.left() + x);
+	rr.setWidth(w);
+	painter.fillRect(rr, palette().text());
+	if (doSelection) {
+		QTextLayout::FormatRange o;
+		o.start = relativePos;
+		o.length = 1;
+		o.format.setForeground(palette().base());
+		selections.append(o);
+	}
+	
+	offset.ry() += line.y();
+	
+	layout->draw(&painter, offset, selections);
+	//painter.setPen(Qt::blue);
+	//painter.fillRect(cursorRect(), QBrush(Qt::blue));
+	//painter.fillRect(cursorRect(), QColor (0, 0, 0, 50));
+	//painter.fillRect(cursorRect(), palette().text());
+
+	//cursor_layout->drawCursor(&painter, cursor_offset, cursor_cpos, cursorWidth());
+#endif
+}
 /**
  * Events filter. For VI mode and shortcuts
  * 
