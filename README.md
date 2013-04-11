@@ -1,3 +1,5 @@
+![ScreenShot](https://raw.github.com/lgmariano/lgmx/master/screenshot.png)
+
 ########################### lgmx ###########################
 
 Multiplatform source code editor. Currently running on linux, but might 
