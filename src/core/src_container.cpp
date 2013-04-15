@@ -20,23 +20,23 @@ src_container::src_container(view_manager *manager, Settings *settings, QWidget 
 	manager_ = manager;
 	
 	this->installEventFilter(this);
-    setObjectName(QString::fromUtf8("src_tab_widget"));
+	setObjectName(QString::fromUtf8("src_tab_widget"));
 	setTabsClosable(true);
 	setMovable(true);
 	setContentsMargins(0, 0, 0, 0);
 
-    tab_bar = tabBar();
-    tab_bar->setContentsMargins(0, 0, 0, 0);
-    
-    /* Update current tab focus */
+	tab_bar = tabBar();
+	tab_bar->setContentsMargins(0, 0, 0, 0);
+
+	/* Update current tab focus */
 	QObject::connect(this, SIGNAL(currentChanged(int)), this, SLOT(set_focus_to_current_tab(int)));
-    
-    tab_bar->setStyleSheet("border-width: 0px;");
-    
-    //setStyleSheet("border-width: 0px;");
-    setStyleSheet("QTabWidget::pane {border-top: 0px;} QTabBar::tab { height: 25px; }");
-    //setStyleSheet("QTabBar::tab { height: 25px; }");
-    //setStyleSheet("QTabBar::tab { background-color: rgb(60, 60, 60); }");
+
+	tab_bar->setStyleSheet("border-width: 0px;");
+
+	//setStyleSheet("border-width: 0px;");
+	setStyleSheet("QTabWidget::pane {border-top: 0px;} QTabBar::tab { height: 25px; }");
+	//setStyleSheet("QTabBar::tab { height: 25px; }");
+	//setStyleSheet("QTabBar::tab { background-color: rgb(60, 60, 60); }");
 }
 
 /**
@@ -97,14 +97,14 @@ int src_container::new_src_tab(const QString &file_name, unsigned int file_id)
 		return -1;
 	}
 
-    if (file_name.isEmpty())
-        show_name = NEW_FILE_NAME;
-    else
-        show_name = src_tab->get_src_file_name();
+	if (file_name.isEmpty())
+		show_name = NEW_FILE_NAME;
+	else
+		show_name = src_tab->get_src_file_name();
 
-    setTabText(index, QApplication::translate("main_window", show_name.toStdString().c_str(), 0, QApplication::UnicodeUTF8));
-    
-    // slot to add an asterisk to the end of file name in case of unsaved modifications
+	setTabText(index, QApplication::translate("main_window", show_name.toStdString().c_str(), 0, QApplication::UnicodeUTF8));
+
+	// slot to add an asterisk to the end of file name in case of unsaved modifications
 	QObject::connect(src_tab, SIGNAL(modificationChanged(bool)), this, SLOT(file_changed(bool)));
 
 	return index;
@@ -135,11 +135,11 @@ src_file* src_container::new_clone_tab(src_file *base_file)
 		throw excp;
 	}
 
-    setTabText(index, QApplication::translate("main_window", base_file->get_src_file_name().toStdString().c_str(), 0, QApplication::UnicodeUTF8));
-    
-    // slot to add an asterisk to the end of file name in case of unsaved modifications
+	setTabText(index, QApplication::translate("main_window", base_file->get_src_file_name().toStdString().c_str(), 0, QApplication::UnicodeUTF8));
+
+	// slot to add an asterisk to the end of file name in case of unsaved modifications
 	QObject::connect(src_tab, SIGNAL(modificationChanged(bool)), this, SLOT(file_changed(bool)));
-    
+
 	return src_tab;
 }
 
@@ -241,7 +241,7 @@ src_file *src_container::get_src_file(int index)
 {
 	src_file *src_tab;
 
-    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
+	if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return NULL;	/* index out of range */
 		
 	return src_tab;
@@ -258,7 +258,7 @@ src_file *src_container::get_src_file(unsigned int id)
 	src_file *file;
 	int count = this->count();
 
-    for (int i = 0; i < count; i++) {
+	for (int i = 0; i < count; i++) {
 		file = this->get_src_file(i);
 		if (file->get_id() == id)
 			return file;
@@ -294,7 +294,7 @@ void src_container::destroy_src_tab(int index)
 {
 	src_file *src_tab;
 
-    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
+	if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return;	/* index out of range */
 	
 	removeTab(index);	// remove from container
@@ -374,7 +374,7 @@ QString src_container::get_src_tab_short_name(int index)
 {
 	src_file *src_tab;
 
-    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
+	if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return "";	/* index out of range */
 
 	return src_tab->get_src_file_name();
@@ -388,7 +388,7 @@ QString src_container::get_src_tab_path(int index)
 {
 	src_file *src_tab;
 
-    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
+	if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return "";	/* index out of range */
 
 	return src_tab->get_src_file_path();
@@ -404,7 +404,7 @@ bool src_container::get_src_tab_content(int index, QString &content)
 {
 	src_file *src_tab;
 
-    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
+	if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
 	content = src_tab->get_content();
@@ -420,9 +420,9 @@ bool src_container::get_src_tab_content(int index, QString &content)
 
 bool src_container::src_tab_write_file(int index, const QString &fileName)
 {
-    src_file *src_tab;
+	src_file *src_tab;
 
-    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
+	if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
 	return src_tab->write_file(fileName);
@@ -439,7 +439,7 @@ bool src_container::is_modified(int index)
 {
 	src_file *src_tab;
 
-    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
+	if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
 	return src_tab->is_modified();
@@ -451,9 +451,9 @@ bool src_container::is_modified(int index)
 
 bool src_container::set_modified(int index, bool modified)
 {
-    src_file *src_tab;
+	src_file *src_tab;
 
-    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
+	if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
 	src_tab->set_modified(modified);
@@ -462,14 +462,14 @@ bool src_container::set_modified(int index, bool modified)
 
 bool src_container::set_file_name(int index, const QString &fileName)
 {
-    src_file *src_tab;
+	src_file *src_tab;
 
-    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
+	if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
 	src_tab->set_src_file_name(fileName);
-    
-    return true;
+
+	return true;
 }
 
 /**
@@ -478,7 +478,7 @@ bool src_container::set_file_name(int index, const QString &fileName)
 
 //void src_container::setFont(QFont &font)
 //{
-    //this->setFont(font);
+	//this->setFont(font);
 //}
 
 /**
@@ -490,24 +490,24 @@ bool src_container::set_file_name(int index, const QString &fileName)
 
 bool src_container::update_file_info(int index)
 {
-    src_file *src_tab;
+	src_file *src_tab;
 
-    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
+	if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
 	src_tab->update_src_file_info();    /* refresh file info */
-    
-    /* set tab text with the short file name */
-    setTabText(index, src_tab->get_src_file_name());
-    
-    return true;
+
+	/* set tab text with the short file name */
+	setTabText(index, src_tab->get_src_file_name());
+
+	return true;
 }
 
 bool src_container::get_curr_font(int index, QFont &font)
 {
 	src_file *src_tab;
 
-    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
+	if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return false;	/* index out of range */
 
 	font = src_tab->get_font();
@@ -524,7 +524,7 @@ void src_container::go_to_line(int index, int line)
 {
 	src_file *src_tab;
 
-    if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
+	if ((src_tab = static_cast<src_file *>(widget(index))) == 0)
 		return;		/* index out of range */
 
 	src_tab->go_to_line(line);
@@ -538,9 +538,9 @@ void src_container::go_to_line(int index, int line)
 void src_container::show_tabs(bool show)
 {
 	if (show)
-        tab_bar->show();
+		tab_bar->show();
 	else
-        tab_bar->hide();
+		tab_bar->hide();
 }
 
 /**
@@ -562,16 +562,16 @@ bool src_container::tabs_visible()
 int src_container::get_file_index(const QString &file_name)
 {
 	int index;
-    int count = this->count();
-    QString file;
-    
-    for (index = 0; index < count; index++) {
-        this->get_src_tab_full_name(index, file);
-        if (file_name == file)
-            return index;
-    }
-    
-    return -1;
+	int count = this->count();
+	QString file;
+
+	for (index = 0; index < count; index++) {
+		this->get_src_tab_full_name(index, file);
+		if (file_name == file)
+			return index;
+	}
+
+	return -1;
 }
 
 /**

@@ -134,14 +134,14 @@ MainWindow::~MainWindow()
 		delete gt_ln_dialog;
 
 	destroy_menus();
-    destroy_actions();
-    destroy_shortcuts();
+	destroy_actions();
+	destroy_shortcuts();
 
-    delete view_manager_;
-    delete settings_;
-    delete cli_;
+	delete view_manager_;
+	delete settings_;
+	delete cli_;
 	delete main_layout_;
-    delete widget_;
+	delete widget_;
 }
 
 /**
@@ -221,29 +221,29 @@ void MainWindow::destroy_shortcuts()
 
 void MainWindow::changeEvent(QEvent *e)
 {
-    QMainWindow::changeEvent(e);
-    
-    if (e->type() == QEvent::ActivationChange) {
-        if (isActiveWindow()) {
+	QMainWindow::changeEvent(e);
+
+	if (e->type() == QEvent::ActivationChange) {
+		if (isActiveWindow()) {
 			//if (debugMainWindow)
-              //  qDebug() << "main window activated";
-            debug(DEBUG, MAIN_WINDOW, "main window active");
-            emit windowActivated();
-        }
-    } else if (e->type() == QEvent::WindowStateChange) {
+			  //  qDebug() << "main window activated";
+			debug(DEBUG, MAIN_WINDOW, "main window active");
+			emit windowActivated();
+		}
+	} else if (e->type() == QEvent::WindowStateChange) {
 #ifdef Q_WS_MAC
-        bool minimized = isMinimized();
-        
-        //if (debugMainWindow)
-          //  qDebug() << "main window state changed to minimized=" << minimized;
-          
-        m_minimizeAction->setEnabled(!minimized);
-        m_zoomAction->setEnabled(!minimized);
+		bool minimized = isMinimized();
+		
+		//if (debugMainWindow)
+		  //  qDebug() << "main window state changed to minimized=" << minimized;
+		  
+		m_minimizeAction->setEnabled(!minimized);
+		m_zoomAction->setEnabled(!minimized);
 #else
-        //bool isFullScreen = (windowState() & Qt::WindowFullScreen) != 0;
-        //m_toggleFullScreenAction->setChecked(isFullScreen);
+		//bool isFullScreen = (windowState() & Qt::WindowFullScreen) != 0;
+		//m_toggleFullScreenAction->setChecked(isFullScreen);
 #endif
-    }
+	}
 }
 
 bool MainWindow::is_active_window()
@@ -257,16 +257,16 @@ bool MainWindow::is_active_window()
 
 void MainWindow::load_parameter_files(std::list<QString> *files)
 {
-    QDir dir;
-    QString curPath(dir.currentPath());
-    
-    for (std::list<QString>::iterator it = files->begin(); it != files->end(); it++) {
-        if ((*it)[0] != '/') {  // append file path
+	QDir dir;
+	QString curPath(dir.currentPath());
+
+	for (std::list<QString>::iterator it = files->begin(); it != files->end(); it++) {
+		if ((*it)[0] != '/') {  // append file path
 			QString file(curPath + '/' + *it);
-            view_manager_->open_file(file);
-        } else
+			view_manager_->open_file(file);
+		} else
 			view_manager_->open_file(*it);
-    }
+	}
 }
 
 /**
@@ -276,9 +276,9 @@ void MainWindow::load_parameter_files(std::list<QString> *files)
 
 QString MainWindow::getHomePath()
 {
-    QDir dir;
-    
-    return dir.homePath();
+	QDir dir;
+
+	return dir.homePath();
 }
 
 /**
@@ -292,7 +292,7 @@ void MainWindow::show_menu_bar(bool show)
 	if (show)
 		menuBar->show();
 	else
-        menuBar->hide();
+		menuBar->hide();
 }
 
 /**
@@ -362,12 +362,12 @@ void MainWindow::writeSettings()
 {
 	QSettings settings(COMPANY, APPLICATION);
 
-    //settings.setValue("mainWindow/geometry", saveGeometry());
-    settings.setValue("mainWindow/size", size());
-    settings.setValue("mainWindow/pos", pos());
+	//settings.setValue("mainWindow/geometry", saveGeometry());
+	settings.setValue("mainWindow/size", size());
+	settings.setValue("mainWindow/pos", pos());
 
 	menu_recent_files->save_files_to_disk(settings);
-    
+
 	debug(DEBUG, MAIN_WINDOW, "Settings saved");
 }
 
@@ -379,8 +379,8 @@ void MainWindow::readSettings()
 {
 	QSettings settings(COMPANY, APPLICATION);
 
-    resize(settings.value("mainWindow/size", QSize(400, 400)).toSize());
-    move(settings.value("mainWindow/pos", QPoint(200, 200)).toPoint());
+	resize(settings.value("mainWindow/size", QSize(400, 400)).toSize());
+	move(settings.value("mainWindow/pos", QPoint(200, 200)).toPoint());
 	//restoreGeometry(settings.value("mainWindow/geometry").toByteArray());
 
 	menu_recent_files->load_files_from_disk(settings);
@@ -395,13 +395,13 @@ void MainWindow::readSettings()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (!view_manager_->check_unsaved_files()) {
-        event->ignore();
-        return;
-    }
-	
-    writeSettings();    /* save current settings */
-    event->accept();
+	if (!view_manager_->check_unsaved_files()) {
+		event->ignore();
+		return;
+	}
+
+	writeSettings();    /* save current settings */
+	event->accept();
 }
 
 /**
@@ -419,82 +419,82 @@ void MainWindow::quit()
 
 void MainWindow::createActions()
 {
-    actionSave = new QAction(this);
-    actionSave->setObjectName(QString::fromUtf8("actionSave"));
-    
-    actionOpen = new QAction(this);
-    actionOpen->setObjectName(QString::fromUtf8("actionOpen"));
-    
-    action_close_ = new QAction(this);
-    action_close_->setObjectName(QString::fromUtf8("actionClose"));
-    
-    actionNew = new QAction(this);
-    actionNew->setObjectName(QString::fromUtf8("actionNew"));
-    
-    action_reload = new QAction(this);
-    action_reload->setObjectName(QString::fromUtf8("actionReload"));
-    
-    actionQuit = new QAction(this);
-    actionQuit->setObjectName(QString::fromUtf8("actionQuit"));
+	actionSave = new QAction(this);
+	actionSave->setObjectName(QString::fromUtf8("actionSave"));
+
+	actionOpen = new QAction(this);
+	actionOpen->setObjectName(QString::fromUtf8("actionOpen"));
+
+	action_close_ = new QAction(this);
+	action_close_->setObjectName(QString::fromUtf8("actionClose"));
+
+	actionNew = new QAction(this);
+	actionNew->setObjectName(QString::fromUtf8("actionNew"));
+
+	action_reload = new QAction(this);
+	action_reload->setObjectName(QString::fromUtf8("actionReload"));
+
+	actionQuit = new QAction(this);
+	actionQuit->setObjectName(QString::fromUtf8("actionQuit"));
 
 	/* recent files menu */
-    menu_recent_files = new recent_files(tr("Recent Files"), this);
-    connect(menu_recent_files, SIGNAL(open_recent_file(const QString &)), view_manager_, SLOT(open_file(const QString &)));
-    
-    /* menu side bar */
-    //actionSide_Bar = new QAction(this);
-    //actionSide_Bar->setObjectName(QString::fromUtf8("actionSide_Bar"));
-    //actionSide_Bar->setCheckable(true);
-    //actionSide_Bar->setChecked(true);	// default "checked"
-    //actionSide_Bar->setStatusTip(tr("Show or hide side bar"));
-    
-    /* menu status bar */
-    actionStatus_Bar = new QAction(this);
-    actionStatus_Bar->setObjectName(QString::fromUtf8("actionStatus_Bar"));
-    actionStatus_Bar->setCheckable(true);
-    actionStatus_Bar->setChecked(true);	// default "checked"
-    
-    /* menu bar */
-    actionMenuBar = new QAction(this);
-    actionMenuBar->setObjectName(QString::fromUtf8("actionMenu_Bar"));
-    actionMenuBar->setCheckable(true);
-    actionMenuBar->setChecked(true);	// default "checked"
-    
-    /* full screen */
-    actionFullScreen = new QAction(this);
-    actionFullScreen->setObjectName(QString::fromUtf8("actionFull_Screen"));
-    actionFullScreen->setCheckable(true);
-    actionFullScreen->setChecked(false);	// default "unchecked"
-    
-    /* source tab bar */
-    actionSrcTabBar = new QAction(this);
-    actionSrcTabBar->setObjectName(QString::fromUtf8("actionSrcTabBar"));
-    actionSrcTabBar->setCheckable(true);
-    actionSrcTabBar->setChecked(true);	// default "checked"
-    
-    /* split horizontally */
-    action_split_horizontally = new QAction(this);
-    action_split_horizontally->setObjectName(QString::fromUtf8("splitHorizontally"));
-    
-    /* split vertically */
-    action_split_vertically = new QAction(this);
-    action_split_vertically->setObjectName(QString::fromUtf8("splitVertically"));
-    
-    /* unsplit */
-    action_unsplit = new QAction(this);
-    action_unsplit->setObjectName(QString::fromUtf8("unsplit"));
-    
-    /* remove all splits */
-    action_remove_all_splits = new QAction(this);
-    action_remove_all_splits->setObjectName(QString::fromUtf8("removeAllSplits"));
-    
-    /* go to line */
-    actionGo_to_line = new QAction(this);
-    actionGo_to_line->setObjectName(QString::fromUtf8("actionGo_to_line"));
-    
-    /* find */
-    action_find = new QAction(this);
-    action_find->setObjectName(QString::fromUtf8("actionFind"));
+	menu_recent_files = new recent_files(tr("Recent Files"), this);
+	connect(menu_recent_files, SIGNAL(open_recent_file(const QString &)), view_manager_, SLOT(open_file(const QString &)));
+
+	/* menu side bar */
+	//actionSide_Bar = new QAction(this);
+	//actionSide_Bar->setObjectName(QString::fromUtf8("actionSide_Bar"));
+	//actionSide_Bar->setCheckable(true);
+	//actionSide_Bar->setChecked(true);	// default "checked"
+	//actionSide_Bar->setStatusTip(tr("Show or hide side bar"));
+
+	/* menu status bar */
+	actionStatus_Bar = new QAction(this);
+	actionStatus_Bar->setObjectName(QString::fromUtf8("actionStatus_Bar"));
+	actionStatus_Bar->setCheckable(true);
+	actionStatus_Bar->setChecked(true);	// default "checked"
+
+	/* menu bar */
+	actionMenuBar = new QAction(this);
+	actionMenuBar->setObjectName(QString::fromUtf8("actionMenu_Bar"));
+	actionMenuBar->setCheckable(true);
+	actionMenuBar->setChecked(true);	// default "checked"
+
+	/* full screen */
+	actionFullScreen = new QAction(this);
+	actionFullScreen->setObjectName(QString::fromUtf8("actionFull_Screen"));
+	actionFullScreen->setCheckable(true);
+	actionFullScreen->setChecked(false);	// default "unchecked"
+
+	/* source tab bar */
+	actionSrcTabBar = new QAction(this);
+	actionSrcTabBar->setObjectName(QString::fromUtf8("actionSrcTabBar"));
+	actionSrcTabBar->setCheckable(true);
+	actionSrcTabBar->setChecked(true);	// default "checked"
+
+	/* split horizontally */
+	action_split_horizontally = new QAction(this);
+	action_split_horizontally->setObjectName(QString::fromUtf8("splitHorizontally"));
+
+	/* split vertically */
+	action_split_vertically = new QAction(this);
+	action_split_vertically->setObjectName(QString::fromUtf8("splitVertically"));
+
+	/* unsplit */
+	action_unsplit = new QAction(this);
+	action_unsplit->setObjectName(QString::fromUtf8("unsplit"));
+
+	/* remove all splits */
+	action_remove_all_splits = new QAction(this);
+	action_remove_all_splits->setObjectName(QString::fromUtf8("removeAllSplits"));
+
+	/* go to line */
+	actionGo_to_line = new QAction(this);
+	actionGo_to_line->setObjectName(QString::fromUtf8("actionGo_to_line"));
+
+	/* find */
+	action_find = new QAction(this);
+	action_find->setObjectName(QString::fromUtf8("actionFind"));
 }
 
 /**
@@ -503,24 +503,24 @@ void MainWindow::createActions()
 
 void MainWindow::destroy_actions()
 {
-    delete action_find;
-    delete actionGo_to_line;
-    delete actionSrcTabBar;
-    delete actionFullScreen;
-    delete action_split_horizontally;
-    delete action_split_vertically;
-    delete action_unsplit;
-    delete action_remove_all_splits;
-    delete actionMenuBar;
-    delete actionStatus_Bar;
-    //delete actionSide_Bar;
-    delete menu_recent_files;
-    delete actionQuit;
-    delete actionNew;
-    delete action_close_;
-    delete actionOpen;
-    delete action_reload;
-    delete actionSave;
+	delete action_find;
+	delete actionGo_to_line;
+	delete actionSrcTabBar;
+	delete actionFullScreen;
+	delete action_split_horizontally;
+	delete action_split_vertically;
+	delete action_unsplit;
+	delete action_remove_all_splits;
+	delete actionMenuBar;
+	delete actionStatus_Bar;
+	//delete actionSide_Bar;
+	delete menu_recent_files;
+	delete actionQuit;
+	delete actionNew;
+	delete action_close_;
+	delete actionOpen;
+	delete action_reload;
+	delete actionSave;
 }
 
 /**

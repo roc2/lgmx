@@ -885,26 +885,32 @@ void src_file::keyPressEvent(QKeyEvent *e)
 void src_file::paintEvent(QPaintEvent *e)
 {
 	QPlainTextEdit::paintEvent(e);
-#if 0
+
+	return;
 	QRect er = e->rect();
 	QVector<QTextLayout::FormatRange> selections;
 	QPainter painter(viewport());
+	// context
 	QAbstractTextDocumentLayout::PaintContext context = getPaintContext();
 	QTextLayout *cursor_layout = 0;
 
+
+	// get cursor block
 	QTextBlock block = textCursor().block();
 	QTextLayout *layout = block.layout();
 
-
+	// offset
 	QPointF offset(contentOffset());
 	QRectF r = blockBoundingRect(block).translated(offset);
+
+	offset.setY(offset.y() + r.y());
 
 	int blpos = block.position();
 	int bllen = block.length();
 	
-	QPointF cursor_offset = offset;
+	//QPointF cursor_offset = offset;
 	
-	int cursor_cpos = textCursor().position();
+	//int cursor_cpos = textCursor().position();
 	
 	int relativePos = context.cursorPosition - blpos;
 	bool doSelection = true;
@@ -912,7 +918,7 @@ void src_file::paintEvent(QPaintEvent *e)
 	qreal x = line.cursorToX(relativePos);
 	qreal w = 0;
 
-	w = QFontMetrics(layout->font()).width(QLatin1Char(' '));
+	//w = QFontMetrics(layout->font()).width(QLatin1Char(' '));
 	w = get_font_width();
 	
 	QRectF rr = line.rect();
@@ -928,16 +934,16 @@ void src_file::paintEvent(QPaintEvent *e)
 		selections.append(o);
 	}
 	
-	offset.ry() += line.y();
+	//offset.ry() += line.y();
 	
-	layout->draw(&painter, offset, selections);
+	layout->draw(&painter, offset, selections, er);
 	//painter.setPen(Qt::blue);
 	//painter.fillRect(cursorRect(), QBrush(Qt::blue));
 	//painter.fillRect(cursorRect(), QColor (0, 0, 0, 50));
 	//painter.fillRect(cursorRect(), palette().text());
 
 	//cursor_layout->drawCursor(&painter, cursor_offset, cursor_cpos, cursorWidth());
-#endif
+
 }
 /**
  * Events filter. For VI mode and shortcuts
