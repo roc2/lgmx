@@ -2,7 +2,6 @@
 #include <iostream>
 #include <QTextDocument>
 
-using namespace std;
 
 /**
  * Interface definitions.
@@ -32,7 +31,7 @@ cpp_highlighter::~cpp_highlighter()
 
 void cpp_highlighter::highlightBlock(const QString &text)
 {
-	cout << "--" << text.toStdString() << endl;
+	std::cout << "--" << text.toStdString() << std::endl;
 
 }
 

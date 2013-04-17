@@ -4,9 +4,6 @@
 #include <text_manip.h>
 #include <src_file.h>
 
-#include <iostream>
-
-using namespace std;
 
 /**
  * Constructor.

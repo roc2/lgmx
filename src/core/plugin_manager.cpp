@@ -8,7 +8,6 @@
 #include <plugin_manager.h>
 #include <interfaces.h>
 
-using namespace std;
 
 plugin_manager::plugin_manager()
 {
@@ -48,24 +47,24 @@ bool plugin_manager::load_cpp_plugins()
 		QObject *plugin = loader.instance();	// get plugin instance
 
 		if (plugin) {
-			cout << "plugin loaded: " << fileName.toStdString() << endl;
+			std::cout << "plugin loaded: " << fileName.toStdString() << std::endl;
 			
 			Highlighter *hl = qobject_cast<Highlighter *>(plugin);
 			
 			if (hl) {
-				cout << "plugin Ok!!" << endl;
-				cout << hl->test_interface().toStdString() << endl;
+				std::cout << "plugin Ok!!" << std::endl;
+				std::cout << hl->test_interface().toStdString() << std::endl;
 				
 				if (loader.unload()) {
-					cout << "plugin unloaded Ok!!" << endl;
+					std::cout << "plugin unloaded Ok!!" << std::endl;
 				} else {
-					cout << "could not unload plugin" << endl;
+					std::cout << "could not unload plugin" << std::endl;
 				}
 			} else
-				cout << "plugin not ok" << endl; 
+				std::cout << "plugin not ok" << std::endl; 
 			
 		} else {
-			cout << "plugin not loaded: " << fileName.toStdString() << endl;
+			std::cout << "plugin not loaded: " << fileName.toStdString() << std::endl;
 		}
 	 }
 	 

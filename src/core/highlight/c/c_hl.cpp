@@ -5,7 +5,6 @@
 #include <debug.h>
 #include <iostream>
 
-using namespace std;
 
 extern QVector<QTextCharFormat> formatChanges;
 
@@ -25,12 +24,12 @@ C_highlighter::C_highlighter(src_file *parent, QSharedPointer<QSet<QString> > ke
                              QSharedPointer<std::vector<QTextCharFormat> > formats) : syntax_highlighter(parent), 
                              keywords_(keywords), formats_(formats)
 {
-    cout << "C_highlighter constructor ok" << endl;
+    std::cout << "C_highlighter constructor ok" << std::endl;
 }
 
 C_highlighter::~C_highlighter()
 {
-	cout << "~C_highlighter" << endl;
+	std::cout << "~C_highlighter" << std::endl;
 }
 
 
@@ -240,28 +239,3 @@ void C_highlighter::lex(const QString &data, QList<hl_info> &hl_info_list)
 }
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-
