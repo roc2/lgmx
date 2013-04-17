@@ -813,9 +813,9 @@ bool src_file::indent_selection(bool forward)
 	return false;	// not used for now
 	
 	QTextCursor cursor = textCursor();
-    //cursor.beginEditBlock();
+	//cursor.beginEditBlock();
 
-    if (!cursor.hasSelection())
+	if (!cursor.hasSelection())
 		return false;
 
 	int pos = cursor.position();

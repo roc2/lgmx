@@ -8,20 +8,15 @@
  * Constructor.
  */
 
-CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent), line_colour_(QColor(200, 200, 200, 170))
+CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
 	lineNumberArea = new LineNumberArea(this);
 	this->setContentsMargins(0, 0, 0, 0);
 
 	connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
 	connect(this, SIGNAL(updateRequest(const QRect &, int)), this, SLOT(updateLineNumberArea(const QRect &, int)));
-	connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
-
-	selection.format.setBackground(line_colour_);
-	selection.format.setProperty(QTextFormat::FullWidthSelection, true);
 
 	updateLineNumberAreaWidth(0);
-	highlightCurrentLine();
 }
 
 /**
@@ -32,13 +27,6 @@ CodeEditor::~CodeEditor()
 {
 	delete lineNumberArea;
 }
-
-/*
-void CodeEditor::focusInEvent(QFocusEvent *event)
-{
-	cout << "Editor has focus!!" << endl;
-	//_parent->set_current_widget(this);
-}*/
 
 /**
  * Returns the file font.
@@ -135,24 +123,6 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
 
 	QRect cr = contentsRect();
 	lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
-}
-
-
-/**
- * Highlights the current line.
- */
-
-void CodeEditor::highlightCurrentLine()
-{
-	QList<QTextEdit::ExtraSelection> extraSelections;
-
-	if (!isReadOnly()) {
-		selection.cursor = textCursor();
-		selection.cursor.clearSelection();
-		extraSelections.append(selection);
-	}
-
-	setExtraSelections(extraSelections);
 }
 
 /**

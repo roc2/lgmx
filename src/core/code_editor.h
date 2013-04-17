@@ -24,9 +24,6 @@ public:
 	int lineNumberAreaWidth();
 
 	void setHighlighter(int srcType);
-	
-	//void focusInEvent(QFocusEvent *event);
-	
 	QFont get_font() const;
 	void set_font(QFont &font);
 	int get_font_width() const;
@@ -37,13 +34,10 @@ protected:
 
 private slots:
 	void updateLineNumberAreaWidth(int newBlockCount);
-	void highlightCurrentLine();
 	void updateLineNumberArea(const QRect &, int);
 
 private:
 	QWidget *lineNumberArea;
-	QColor line_colour_; /**< current line highlight colour */
-	QTextEdit::ExtraSelection selection;
 };
 
 
