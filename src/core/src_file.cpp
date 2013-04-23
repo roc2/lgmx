@@ -810,10 +810,7 @@ void src_file::update_cursor()
 
 bool src_file::indent_selection(bool forward)
 {
-	return false;	// not used for now
-	
 	QTextCursor cursor = textCursor();
-	//cursor.beginEditBlock();
 
 	if (!cursor.hasSelection())
 		return false;
@@ -827,27 +824,30 @@ bool src_file::indent_selection(bool forward)
 	QTextBlock start_block = doc->findBlock(start_pos);
 	QTextBlock end_block = doc->findBlock(end_pos - 1).next();
 
+	cursor.beginEditBlock();
+
 	if (start_block.next() == end_block && (start_pos > start_block.position() || end_pos < end_block.position() - 1)) {
 		// Only one line partially selected.
 		cursor.removeSelectedText();
+		cursor.insertText("\t");
 	} else {
 		for (QTextBlock block = start_block; block != end_block; block = block.next()) {
 			QString text(block.text());
-			
+
+			cursor.setPosition(block.position());
+			cursor.insertText("\t");
 			//int indentPosition = tabSettings.lineIndentPosition(text);
 			//if (!doIndent && !indentPosition)
-				//indentPosition = tabSettings.firstNonSpace(text);
+			//indentPosition = tabSettings.firstNonSpace(text);
 			//int targetColumn = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition), doIndent);
-			
-			cursor.setPosition(block.position() + 4);
 			//cursor.insertText(tabSettings.indentationString(0, targetColumn, block));
-			cursor.insertText(text);
-			cursor.setPosition(block.position());
-			cursor.setPosition(block.position() + 4, QTextCursor::KeepAnchor);
-			cursor.removeSelectedText();
+			//cursor.setPosition(block.position());
+			//cursor.setPosition(block.position() + 4, QTextCursor::KeepAnchor);
+			//cursor.removeSelectedText();
 		}
 	}
-	
+
+	cursor.endEditBlock();
 	return true;
 }
 
@@ -886,16 +886,15 @@ void src_file::keyPressEvent(QKeyEvent *e)
 {
 	switch (e->key()) {
 
+	//case Qt::Key_Backtab:
 	case Qt::Key_Tab:
-    case Qt::Key_Backtab:
-		debug(DEBUG, SRC_FILE, "tab");
 		if (indent_selection(e->key() == Qt::Key_Tab)) {
 			e->accept();
 			return;
 		}
 		break;
 	}
-	
+
 	QPlainTextEdit::keyPressEvent(e);
 }
 
