@@ -195,7 +195,7 @@ void lgmx::search::highlight_all_matches(QString &pattern)
 
 void lgmx::search::search_string(QString &pattern)
 {
-	src_file *curr_file;
+	visual_src_file *curr_file;
 
 	if (!curr_file_) {
 		debug(ERR, SEARCH, "No current file");
@@ -287,7 +287,7 @@ void lgmx::search::find_previous()
 
 void lgmx::search::replace()
 {
-	src_file *curr_file;
+	visual_src_file *curr_file;
 	
 	if (!(curr_file = src_ctr->get_current_src_file()))
 		return;
@@ -640,22 +640,22 @@ void lgmx::search::destroy_ui()
 
 void lgmx::search::retranslate_ui(QDialog *Find)
 {
-	Find->setWindowTitle(QApplication::translate("Find", "Find", 0, QApplication::UnicodeUTF8));
-	label->setText(QApplication::translate("Find", "Search for:", 0, QApplication::UnicodeUTF8));
-	label_2->setText(QApplication::translate("Find", "Replace with:", 0, QApplication::UnicodeUTF8));
-	checkBox->setText(QApplication::translate("Find", "Use regular expressions", 0, QApplication::UnicodeUTF8));
-	checkBox_5->setText(QApplication::translate("Find", "Use escape sequences", 0, QApplication::UnicodeUTF8));
-	checkBox_2->setText(QApplication::translate("Find", "Case sensitive", 0, QApplication::UnicodeUTF8));
-	checkBox_3->setText(QApplication::translate("Find", "Match whole words only", 0, QApplication::UnicodeUTF8));
-	checkBox_4->setText(QApplication::translate("Find", "Highlight all matches", 0, QApplication::UnicodeUTF8));
-	checkBox_6->setText(QApplication::translate("Find", "Wrap around", 0, QApplication::UnicodeUTF8));
-	pushButton_4->setText(QApplication::translate("Find", "Replace All", 0, QApplication::UnicodeUTF8));
-	pushButton_6->setText(QApplication::translate("Find", "Replace", 0, QApplication::UnicodeUTF8));
-	pushButton_7->setText(QApplication::translate("Find", "Replace and previous", 0, QApplication::UnicodeUTF8));
-	pushButton_5->setText(QApplication::translate("Find", "Replace and next", 0, QApplication::UnicodeUTF8));
-	cancel_button->setText(QApplication::translate("Find", "Cancel", 0, QApplication::UnicodeUTF8));
-	previous_button->setText(QApplication::translate("Find", "Previous", 0, QApplication::UnicodeUTF8));
-	next_button->setText(QApplication::translate("Find", "Next", 0, QApplication::UnicodeUTF8));
+	Find->setWindowTitle(QApplication::translate("Find", "Find", 0));
+	label->setText(QApplication::translate("Find", "Search for:", 0));
+	label_2->setText(QApplication::translate("Find", "Replace with:", 0));
+	checkBox->setText(QApplication::translate("Find", "Use regular expressions", 0));
+	checkBox_5->setText(QApplication::translate("Find", "Use escape sequences", 0));
+	checkBox_2->setText(QApplication::translate("Find", "Case sensitive", 0));
+	checkBox_3->setText(QApplication::translate("Find", "Match whole words only", 0));
+	checkBox_4->setText(QApplication::translate("Find", "Highlight all matches", 0));
+	checkBox_6->setText(QApplication::translate("Find", "Wrap around", 0));
+	pushButton_4->setText(QApplication::translate("Find", "Replace All", 0));
+	pushButton_6->setText(QApplication::translate("Find", "Replace", 0));
+	pushButton_7->setText(QApplication::translate("Find", "Replace and previous", 0));
+	pushButton_5->setText(QApplication::translate("Find", "Replace and next", 0));
+	cancel_button->setText(QApplication::translate("Find", "Cancel", 0));
+	previous_button->setText(QApplication::translate("Find", "Previous", 0));
+	next_button->setText(QApplication::translate("Find", "Next", 0));
 } // retranslateUi
 
 void lgmx::search::connect_slots()

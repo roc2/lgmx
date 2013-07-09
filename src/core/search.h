@@ -12,18 +12,18 @@
 #include <QPointer>
 
 #include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QDialog>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QSpacerItem>
-#include <QtGui/QVBoxLayout>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDialog>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QPushButton>
+#include <QSpacerItem>
+#include <QVBoxLayout>
 
 class view_manager;
 
@@ -118,7 +118,7 @@ private:
 
 	QTextDocument::FindFlags flags;
 	QTextCursor cursor;
-	QPointer<src_file> curr_file_;
+	QPointer<visual_src_file> curr_file_;
 	src_container *src_ctr;
 	view_manager &manager_;
 	

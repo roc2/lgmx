@@ -24,8 +24,9 @@ public:
 	view(view_manager *manager, QWidget *parent = NULL);
 	~view();
 	
-	int new_file(const QString &file_name, unsigned int file_id);
-	void clone_file(src_file *file);
+	//int new_file(const QString &file_name, unsigned int file_id);
+	//void clone_file(src_file *file);
+	void new_visual_file(const src_file *file);
 	void destroy_src_file(unsigned int id);
 	
 	void show_src_tab_bar(bool show);

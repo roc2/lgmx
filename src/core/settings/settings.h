@@ -15,6 +15,8 @@ public:
 	bool read_settings(const QString &file_path);
 	bool parse_json(std::string &buff);
 
+	tab_settings& get_tab_settings();
+
 	bool set_tab_width(int size);
 	int get_tab_width();
 	

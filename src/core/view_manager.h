@@ -13,7 +13,7 @@
 #include <settings.h>
 #include <tags.h>
 #include <file_watcher.h>
-
+#include <root_file_container.h>
 
 class QSplitter;
 class QTextDocument;
@@ -22,6 +22,7 @@ class highlight_manager;
 class view;
 class src_container;
 class src_file;
+class visual_src_file;
 
 class view_manager : public QWidget
 {
@@ -44,10 +45,9 @@ public:
 
 	view* get_root_view() const;
 	view* get_current_view() const;
-	src_container* get_root_src_container() const;
 	src_container* get_current_src_container() const;
 	int get_current_file_index(const QString &file_name);
-	src_file* get_current_src_file() const;
+	visual_src_file* get_current_src_file() const;
 
 	void set_tab_width(int size);
 	int get_tab_width() const;
@@ -58,30 +58,30 @@ public:
 
 	unsigned int generate_view_id();
 	void release_view_id(unsigned int id);
-	
+
 	bool check_unsaved_files();
 	highlight_manager* get_highlight_manager();
-	
+
 	Settings* get_settings();
 	tag * get_tags();
 
 private:
 	void close_file(QTextDocument *content);
-	void close_file(src_container *container, src_file *src_tab, int index);
-	
+	void close_file(src_container *container, visual_src_file *src_tab, int index);
+
 	bool save_file_as(src_container *src_c, int index);
 	bool save_file(src_container *src_c, const QString &fileName, int index);
-	
+
 	void add_to_splitter_list(QSplitter *s);
 	void remove_from_splitter_list(QSplitter *s);
 
 	bool new_file(const QString &file_name);
-	
+
 	view* create_view(QWidget *parent);
 	void destroy_view(view* v);
 	void clear_view_list();
 	void clear_splitter_list();
-	
+
 	void set_view_properties(view &old_view, view &new_view);
 	void update_status_bar(const QString &fileName, unsigned int id);
 
@@ -99,7 +99,7 @@ public slots:
 	bool open_file(const QString &file_name);
 	void reload_current_file();
 	bool save();
-	
+
 	void show_src_tab_bar(bool show);
 	void show_status_bar(bool show);
 	void set_next_file_as_current();
@@ -111,28 +111,28 @@ private slots:
 signals:
 
 private:
-    std::list<view *> view_list_;	/**< list of pointers to all existent views */
-    std::list<QSplitter*> view_splitters_;
-    
-    QPointer<view> curr_view_;
-    src_container *root_container_;
-    Settings *settings_;
-    
-    file_type *type_manager_;
-    plugin_manager plugin_manager_;
-    highlight_manager *highlight_manager_;
-    
-    std::set<QString> open_files_; /**< current open files */
-    recent_files *recent_files_;
-    
-    QVBoxLayout *layout_;
-    int num_splits_;
+	std::list<view *> view_list_;	/**< list of pointers to all existent views */
+	std::list<QSplitter*> view_splitters_;
 
-    Id file_id_;	/**< source file ID generator */
-    Id view_id_;	/**< view ID generator */
-    
-    tag *tag_;
-    file_watcher f_watcher_;
+	QPointer<view> curr_view_;
+	root_file_container root_container_;
+	Settings *settings_;
+
+	file_type *type_manager_;
+	plugin_manager plugin_manager_;
+	highlight_manager *highlight_manager_;
+
+	std::set<QString> open_files_; /**< current open files */
+	recent_files *recent_files_;
+
+	QVBoxLayout *layout_;
+	int num_splits_;
+
+	Id file_id_;	/**< source file ID generator */
+	Id view_id_;	/**< view ID generator */
+
+	tag *tag_;
+	file_watcher f_watcher_;
 };
 
 #endif

@@ -1,11 +1,11 @@
 ![ScreenShot](https://raw.github.com/lgmariano/lgmx/master/screenshot.png)
 
-########################### lgmx ###########################
+lgmx - Source code editor written in C++ with the Qt framework.
 
-Multiplatform source code editor. Currently running on linux, but might 
+Multi-platform source code editor. Currently running on linux, but might 
 compile and run on Windows and Mac too, although not tested.
 
-########################### Features ###########################
+Features:
 
  - Split screen (as many times as you want)
  - CTAGS support

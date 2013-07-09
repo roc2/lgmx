@@ -11,18 +11,18 @@
 #define UI_MAIN_WINDOW_H
 
 #include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QHeaderView>
-#include <QtGui/QMainWindow>
-#include <QtGui/QMenuBar>
-#include <QtGui/QSplitter>
-#include <QtGui/QStatusBar>
-#include <QtGui/QTabWidget>
-#include <QtGui/QToolBar>
-#include <QtGui/QWidget>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QMainWindow>
+#include <QMenuBar>
+#include <QSplitter>
+#include <QStatusBar>
+#include <QTabWidget>
+#include <QToolBar>
+#include <QWidget>
 #include <QFontDialog>
 #include <QFontInfo>
 #include <QSettings>
@@ -72,7 +72,7 @@ private:
 	void load_plugins();
 
     void retranslateUi(QMainWindow *main_window);
-	
+
 	void writeSettings();
 	void readSettings();
 	bool is_active_window();
@@ -94,7 +94,7 @@ private slots:
 signals:
     void windowActivated();
 
-private:	
+private:
 	file_type type_manager;
 	Settings *settings_;
 	view_manager *view_manager_;
@@ -128,14 +128,14 @@ private:
     QMenu *menu_Search;
     recent_files *menu_recent_files;
     //QMenu *menu_View;
-    
+
 	go_to_line *gt_ln_dialog;
 	lgmx::search *search_dialog;
-	
+
 	QShortcut *next_file_;
 	QShortcut *go_to_tag_;
 	QShortcut *show_cli_;
-	
+
 	clipboard *c_board;
 	text_manip *text_manip_;
 };

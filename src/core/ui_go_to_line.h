@@ -11,16 +11,16 @@
 #define UI_GO_TO_LINE_H
 
 #include <QtCore/QVariant>
-#include <QtGui/QAction>
-#include <QtGui/QApplication>
-#include <QtGui/QButtonGroup>
-#include <QtGui/QDialog>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QHeaderView>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QSpinBox>
-#include <QtGui/QVBoxLayout>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QDialog>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QPushButton>
+#include <QSpinBox>
+#include <QVBoxLayout>
 
 QT_BEGIN_NAMESPACE
 
@@ -37,7 +37,7 @@ public:
     {
         if (go_to_line->objectName().isEmpty())
             go_to_line->setObjectName(QString::fromUtf8("go_to_line"));
-        
+
         //go_to_line->resize(252, 127);
         go_to_line->resize(252, 100);
         verticalLayout = new QVBoxLayout(go_to_line);
@@ -50,7 +50,7 @@ public:
         spinBox->setRange(1, 100000000);
         spinBox->setValue(1);
         spinBox->setFocus();
-        
+
         verticalLayout->addWidget(spinBox);
 
         horizontalLayout_2 = new QHBoxLayout();
@@ -80,9 +80,9 @@ public:
 
     void retranslateUi(QDialog *go_to_line)
     {
-        go_to_line->setWindowTitle(QApplication::translate("go_to_line", "Go to line", 0, QApplication::UnicodeUTF8));
-        ok_button->setText(QApplication::translate("go_to_line", "OK", 0, QApplication::UnicodeUTF8));
-        cancel_button->setText(QApplication::translate("go_to_line", "Cancel", 0, QApplication::UnicodeUTF8));
+        go_to_line->setWindowTitle(QApplication::translate("go_to_line", "Go to line", 0));
+        ok_button->setText(QApplication::translate("go_to_line", "OK", 0));
+        cancel_button->setText(QApplication::translate("go_to_line", "Cancel", 0));
     } // retranslateUi
 
 };

@@ -57,18 +57,6 @@ int CodeEditor::get_font_width() const
 }
 
 /**
- * Sets the source file default font.
- */
-
-void CodeEditor::set_default_font()
-{
-	QFont def("monospace", 10);
-    def.setFixedPitch(true);
-    
-    this->setFont(def);
-}
-
-/**
  * Returns the width of the line number area based on the number of digits 
  * of the biggest line number.
  */

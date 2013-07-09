@@ -1,7 +1,7 @@
 #include <QShortcut>
 #include <clipboard.h>
 #include <view_manager.h>
-#include <src_file.h>
+#include <visual_src_file.h>
 #include <sstream>
 
 /**
@@ -73,7 +73,7 @@ clipboard::~clipboard()
 
 void clipboard::copy_buff(int index)
 {
-	src_file *curr_file;
+	visual_src_file *curr_file;
 	QTextCursor cursor;
 	
 	if (!(curr_file = manager_.get_current_src_file()))
@@ -89,7 +89,7 @@ void clipboard::copy_buff(int index)
 
 void clipboard::cut_buff(int index)
 {
-	src_file *curr_file;
+	visual_src_file *curr_file;
 	QTextCursor cursor;
 	
 	if (!(curr_file = manager_.get_current_src_file()))
@@ -107,7 +107,7 @@ void clipboard::cut_buff(int index)
 
 void clipboard::paste_buff(int index)
 {
-	src_file *curr_file;
+	visual_src_file *curr_file;
 	
 	if (!(curr_file = manager_.get_current_src_file()))
 		return;

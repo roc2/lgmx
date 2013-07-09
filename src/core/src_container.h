@@ -1,11 +1,12 @@
 #ifndef SRC_CONTAINER_H
 #define SRC_CONTAINER_H
 
-#include <QtGui/QTabWidget>
+#include <QTabWidget>
 #include <QTabBar>
 #include <QFont>
 
 #include <src_file.h>
+#include <visual_src_file.h>
 
 
 #define NEW_FILE_NAME	"untitled"
@@ -26,11 +27,9 @@ private:
 public:
 	src_container(view_manager *manager, Settings *settings, QWidget *parent = 0);
 	~src_container();
-	
-	int new_src_tab(const QString &file_name, unsigned int file_id);
-	src_file* new_clone_tab(src_file *base_file);
+
+	visual_src_file* new_visual_tab(const src_file *base_file);
 	void destroy_src_tab(int index);
-	void destroy_src_tab(src_file *file);
 	void destroy_src_tab(unsigned int id);
 
 	bool is_modified(int index);
@@ -46,17 +45,16 @@ public:
     bool src_tab_write_file(int index, const QString &fileName);
     bool src_tab_load_file(const QString &fileName);
     
-	bool get_src_tab_content(int index, QString &content);
+	//bool get_src_tab_content(int index, QString &content);
 
 	int get_current_tab_index();
-	int index_of(src_file *src_tab) const;
-	int get_index_of(src_file *src_tab);
-	src_file *get_current_src_file();
+	int index_of(visual_src_file *src_tab) const;
+	visual_src_file *get_current_src_file();
 	unsigned int get_src_file_id(int index);
 	void set_current_src_file(unsigned int id);
 	void set_next_src_file_as_current();
-	src_file *get_src_file(int index);
-	src_file *get_src_file(unsigned int id);
+	visual_src_file *get_src_file(int index);
+	visual_src_file *get_src_file(unsigned int id);
 	
 	void highlight_current_src_file();
 	
@@ -73,8 +71,6 @@ public:
     
     void set_tab_width(int size);
 	int get_tab_width() const;
-	
-	//void set_line_wrap(bool on);
     
     void focusInEvent(QFocusEvent*);
     void update_current_view();

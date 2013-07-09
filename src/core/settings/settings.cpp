@@ -78,6 +78,11 @@ bool Settings::parse_json(std::string &buff)
 	return true;
 }
 
+tab_settings& Settings::get_tab_settings()
+{
+	return tab_settings_;
+}
+
 bool Settings::set_tab_width(int size)
 {
 	if (size <= 0)
@@ -90,7 +95,7 @@ bool Settings::set_tab_width(int size)
 
 int Settings::get_tab_width()
 {
-	return tab_width_;
+	return tab_settings_.get_tab_width();
 }
 	
 void Settings::set_line_wrap(bool wrap)
@@ -102,8 +107,6 @@ bool Settings::get_line_wrap()
 {
 	return line_wrap_;
 }
-
-
 
 
 

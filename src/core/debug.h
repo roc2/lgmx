@@ -37,9 +37,12 @@
 
 #define VIEW			1
 #define SRC_FILE		1
+#define V_SRC_FILE		1
 #define SRC_CONTAINER	1
+#define ROOT_CONTAINER	1
 #define VIEW_MANAGER	1
 #define MAIN_WINDOW		1
+#define MAIN			1
 #define CODE_EDITOR		1
 #define SEARCH			1
 #define STATUS_BAR		1

@@ -18,6 +18,8 @@
 qint64 start;
 #endif
 
+//#include <QX11EmbedContainer>
+#include <QProcess>
 
 /**
  * @todo create user_opt class to parse command line user options
@@ -43,14 +45,14 @@ MainWindow::MainWindow(std::list<QString> *files)
 	settings_ = new Settings();
 	view_manager_ = new view_manager(this, &type_manager, settings_);
 	gt_ln_dialog = NULL;
-	
+
 	search_dialog = new lgmx::search(*view_manager_, this);
-	
+
 	c_board = new clipboard(*view_manager_, this);
 	text_manip_ = new text_manip(*view_manager_, this);
-	
+
 	createActions();
-	
+
 	view_manager_->set_recent_files_widget(menu_recent_files);
 
 	widget_ = new QWidget(this);	// central widget
@@ -70,7 +72,18 @@ MainWindow::MainWindow(std::list<QString> *files)
 	dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	//dockWidget->setWidget(symbol_tab_widget);
 	addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
-	
+
+	QX11EmbedContainer *container = new QX11EmbedContainer();
+	container->show();
+	//dockWidget->setWidget(container);
+	QProcess *process = new QProcess(container);
+	QString executable("/usr/bin/terminator");
+	QStringList arguments;
+	arguments << QString::number(container->winId());
+	process->start(executable, arguments);
+	container->embedClient(container->clientWinId());
+	//this->show();
+
 	QDockWidget *dockWidget_2 = new QDockWidget(tr("Dock Widget 2"), this);
 	dockWidget_2->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	//dockWidget->setWidget(symbol_tab_widget);
@@ -89,14 +102,14 @@ MainWindow::MainWindow(std::list<QString> *files)
 	addAction(action_split_vertically);
 	addAction(action_unsplit);
 	addAction(action_remove_all_splits);
-	
+
 	/* view actions */
 	//addAction(actionSide_Bar);
 	addAction(actionStatus_Bar);
 	addAction(actionMenuBar);
 	addAction(actionFullScreen);
 	addAction(actionSrcTabBar);
-	
+
 	menuBar->addAction(menuView->menuAction());
 	menuBar->addAction(menu_Search->menuAction());
 	menuView->addSeparator();
@@ -105,18 +118,18 @@ MainWindow::MainWindow(std::list<QString> *files)
 	menu_Search->addAction(action_find);
 	addAction(actionGo_to_line);
 	addAction(action_find);
-		
+
 	create_shortcuts();
 	create_connections();
 	retranslateUi(this);
 
 	readSettings();
-	
+
 	if (!files->empty()) {
 		this->load_parameter_files(files);
 	}
-	
-	//Config conf;	
+
+	//Config conf;
 	debug(DEBUG, MAIN_WINDOW, "init time = " << boot_time.currentMSecsSinceEpoch() - start);
 }
 
@@ -153,14 +166,14 @@ void MainWindow::create_connections()
 	QObject::connect(actionSave, SIGNAL(triggered()), view_manager_, SLOT(save()));
 
 	QObject::connect(actionOpen, SIGNAL(triggered()), view_manager_, SLOT(open_file()));
-	
+
 	QObject::connect(action_close_, SIGNAL(triggered()), view_manager_, SLOT(close_file()));
-	
+
 	QObject::connect(action_reload, SIGNAL(triggered()), view_manager_, SLOT(reload_current_file()));
-	
+
 	QObject::connect(actionNew, SIGNAL(triggered()), view_manager_, SLOT(new_file()));
 	QObject::connect(actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
-	
+
 	/* side bar */
 	//QObject::connect(actionSide_Bar, SIGNAL(toggled(bool)), this, SLOT(show_side_bar(bool)));
 	/* status bar */
@@ -185,7 +198,7 @@ void MainWindow::create_connections()
 	QObject::connect(action_find, SIGNAL(triggered()), search_dialog, SLOT(show_search_dialog()));
 
 	QMetaObject::connectSlotsByName(this);
-	
+
 	// file watcher signals
 	//QObject::connect(&f_watcher, SIGNAL(reload(const QString &)), this, SLOT(reload_file(const QString &)));
 	//QObject::connect(this, SIGNAL(windowActivated()), &f_watcher, SLOT(check_for_reload()));
@@ -233,10 +246,10 @@ void MainWindow::changeEvent(QEvent *e)
 	} else if (e->type() == QEvent::WindowStateChange) {
 #ifdef Q_WS_MAC
 		bool minimized = isMinimized();
-		
+
 		//if (debugMainWindow)
 		  //  qDebug() << "main window state changed to minimized=" << minimized;
-		  
+
 		m_minimizeAction->setEnabled(!minimized);
 		m_zoomAction->setEnabled(!minimized);
 #else
@@ -312,27 +325,27 @@ void MainWindow::show_full_screen(bool)
 void MainWindow::go_to_ln()
 {
 	view *curr_view;
-	src_file *src_tab;
+	visual_src_file *src_tab;
 
 	curr_view = view_manager_->get_current_view();
 	src_tab = curr_view->get_src_container()->get_current_src_file();
 
-    if (!src_tab)
+	if (!src_tab)
 		return;
-	
+
 	// get current cursor position
 	QTextCursor curr(src_tab->get_cursor());
-	
+
 	if (!gt_ln_dialog) {
 		int line = curr.block().blockNumber() + 1;
 		gt_ln_dialog = new go_to_line(this, line);
 	}
-	
+
 	gt_ln_dialog->regular_size();
 	gt_ln_dialog->set_focus();
-	
+
 	QObject::connect(gt_ln_dialog->spinBox, SIGNAL(valueChanged(int)), src_tab, SLOT(go_to_line(int)));
-	
+
 	// run modal dialog
 	if (gt_ln_dialog->exec() == 1) {
 		src_tab->go_to_line(gt_ln_dialog->get_line());
@@ -340,7 +353,7 @@ void MainWindow::go_to_ln()
 		src_tab->set_cursor(curr);
 		src_tab->centerCursor();
 	}
-	
+
 	QObject::disconnect(gt_ln_dialog->spinBox, SIGNAL(valueChanged(int)), src_tab, SLOT(go_to_line(int)));
 }
 
@@ -387,7 +400,7 @@ void MainWindow::readSettings()
 }
 
 /**
- * Closes the application. Checks if there are unsaved changes and saves 
+ * Closes the application. Checks if there are unsaved changes and saves
  * configuration before quiting.
  * @brief Closes the editor
  * @param event -> closing event
@@ -532,16 +545,16 @@ void MainWindow::create_menus()
 	menuBar = new QMenuBar(this);
 	menuBar->setObjectName(QString::fromUtf8("menuBar"));
 	menuBar->setGeometry(QRect(0, 0, 831, 25));
-	
+
 	menu_File = new QMenu(menuBar);
 	menu_File->setObjectName(QString::fromUtf8("menu_File"));
-	
+
 	menuView = new QMenu(menuBar);
 	menuView->setObjectName(QString::fromUtf8("menuView"));
 	/* search menu */
 	menu_Search = new QMenu(menuBar);
 	menu_Search->setObjectName(QString::fromUtf8("menu_Search"));
-	
+
 	setMenuBar(menuBar);
 
 	menuBar->addAction(menu_File->menuAction());
@@ -554,13 +567,13 @@ void MainWindow::create_menus()
 
 	menu_File->addSeparator();
 	menu_File->addMenu(menu_recent_files);
-	
+
 	menu_File->addSeparator();
 	menu_File->addAction(action_reload);
-	
+
 	menu_File->addSeparator();
 	menu_File->addAction(actionQuit);
-	
+
 	menuView->addSeparator();
 	//menuView->addAction(actionSide_Bar);
 	menuView->addAction(actionStatus_Bar);
@@ -588,66 +601,66 @@ void MainWindow::destroy_menus()
 
 void MainWindow::retranslateUi(QMainWindow *main_window)
 {
-	main_window->setWindowTitle(QApplication::translate("main_window", "lgmx", 0, QApplication::UnicodeUTF8));
-	actionSave->setText(QApplication::translate("MainWindow", "Save", 0, QApplication::UnicodeUTF8));
-	actionSave->setShortcut(QApplication::translate("MainWindow", "Ctrl+S", 0, QApplication::UnicodeUTF8));
-	actionOpen->setText(QApplication::translate("MainWindow", "Open", 0, QApplication::UnicodeUTF8));
-	actionOpen->setShortcut(QApplication::translate("MainWindow", "Ctrl+O", 0, QApplication::UnicodeUTF8));
-	
-	action_close_->setText(QApplication::translate("MainWindow", "Close", 0, QApplication::UnicodeUTF8));
-	action_close_->setShortcut(QApplication::translate("MainWindow", "Ctrl+F4", 0, QApplication::UnicodeUTF8));
-	
-	actionNew->setText(QApplication::translate("MainWindow", "New", 0, QApplication::UnicodeUTF8));
-	actionNew->setShortcut(QApplication::translate("MainWindow", "Ctrl+N", 0, QApplication::UnicodeUTF8));
-	action_reload->setText(QApplication::translate("MainWindow", "Reload", 0, QApplication::UnicodeUTF8));
-	action_reload->setShortcut(QApplication::translate("MainWindow", "Ctrl+R", 0, QApplication::UnicodeUTF8));
-	
-	actionQuit->setText(QApplication::translate("MainWindow", "Quit", 0, QApplication::UnicodeUTF8));
-	actionQuit->setShortcut(QApplication::translate("MainWindow", "Alt+F4", 0, QApplication::UnicodeUTF8));
-	
-	//actionSide_Bar->setText(QApplication::translate("main_window", "Side Bar", 0, QApplication::UnicodeUTF8));
-	//actionSide_Bar->setShortcut(QApplication::translate("main_window", "Alt+X", 0, QApplication::UnicodeUTF8));
-	
-	actionStatus_Bar->setText(QApplication::translate("main_window", "Status Bar", 0, QApplication::UnicodeUTF8));
-	actionStatus_Bar->setShortcut(QApplication::translate("main_window", "Alt+Z", 0, QApplication::UnicodeUTF8));
-	
-	actionMenuBar->setText(QApplication::translate("main_window", "Menu Bar", 0, QApplication::UnicodeUTF8));
-	actionMenuBar->setShortcut(QApplication::translate("main_window", "Alt+4", 0, QApplication::UnicodeUTF8));
-	actionMenuBar->setShortcutContext(Qt::ApplicationShortcut);
-	
-	actionFullScreen->setText(QApplication::translate("main_window", "Full Screen", 0, QApplication::UnicodeUTF8));
-	actionFullScreen->setShortcut(QApplication::translate("main_window", "F11", 0, QApplication::UnicodeUTF8));
-	actionFullScreen->setShortcutContext(Qt::ApplicationShortcut);
-	
-	action_split_horizontally->setText(QApplication::translate("main_window", "Split Horizontally", 0, QApplication::UnicodeUTF8));
-	action_split_horizontally->setShortcut(QApplication::translate("main_window", "Ctrl+E, 2", 0, QApplication::UnicodeUTF8));
-	action_split_horizontally->setShortcutContext(Qt::ApplicationShortcut);
-	
-	action_split_vertically->setText(QApplication::translate("main_window", "Split Vertically", 0, QApplication::UnicodeUTF8));
-	action_split_vertically->setShortcut(QApplication::translate("main_window", "Ctrl+E, 3", 0, QApplication::UnicodeUTF8));
-	action_split_vertically->setShortcutContext(Qt::ApplicationShortcut);
-	
-	action_unsplit->setText(QApplication::translate("main_window", "Unsplit", 0, QApplication::UnicodeUTF8));
-	action_unsplit->setShortcut(QApplication::translate("main_window", "Ctrl+E, 0", 0, QApplication::UnicodeUTF8));
-	action_unsplit->setShortcutContext(Qt::ApplicationShortcut);
-	
-	action_remove_all_splits->setText(QApplication::translate("main_window", "Remove all splits", 0, QApplication::UnicodeUTF8));
-	action_remove_all_splits->setShortcut(QApplication::translate("main_window", "Ctrl+E, 1", 0, QApplication::UnicodeUTF8));
-	action_remove_all_splits->setShortcutContext(Qt::ApplicationShortcut);
-	
-	actionSrcTabBar->setText(QApplication::translate("main_window", "Source Tab Bar", 0, QApplication::UnicodeUTF8));
-	actionSrcTabBar->setShortcut(QApplication::translate("main_window", "Alt+3", 0, QApplication::UnicodeUTF8));
-	actionSrcTabBar->setShortcutContext(Qt::ApplicationShortcut);
-	
-	actionGo_to_line->setText(QApplication::translate("main_window", "Go to line", 0, QApplication::UnicodeUTF8));
-	actionGo_to_line->setShortcut(QApplication::translate("main_window", "Ctrl+L", 0, QApplication::UnicodeUTF8));
-	
-	action_find->setText(QApplication::translate("main_window", "Find", 0, QApplication::UnicodeUTF8));
-	action_find->setShortcut(QApplication::translate("main_window", "Ctrl+F", 0, QApplication::UnicodeUTF8));
+	main_window->setWindowTitle(QApplication::translate("main_window", "lgmx", 0));
+	actionSave->setText(QApplication::translate("MainWindow", "Save", 0));
+	actionSave->setShortcut(QApplication::translate("MainWindow", "Ctrl+S", 0));
+	actionOpen->setText(QApplication::translate("MainWindow", "Open", 0));
+	actionOpen->setShortcut(QApplication::translate("MainWindow", "Ctrl+O", 0));
 
-	menu_File->setTitle(QApplication::translate("MainWindow", "&File", 0, QApplication::UnicodeUTF8));
-	menuView->setTitle(QApplication::translate("main_window", "&View", 0, QApplication::UnicodeUTF8));
-	menu_Search->setTitle(QApplication::translate("main_window", "&Search", 0, QApplication::UnicodeUTF8));
+	action_close_->setText(QApplication::translate("MainWindow", "Close", 0));
+	action_close_->setShortcut(QApplication::translate("MainWindow", "Ctrl+F4", 0));
+
+	actionNew->setText(QApplication::translate("MainWindow", "New", 0));
+	actionNew->setShortcut(QApplication::translate("MainWindow", "Ctrl+N", 0));
+	action_reload->setText(QApplication::translate("MainWindow", "Reload", 0));
+	action_reload->setShortcut(QApplication::translate("MainWindow", "Ctrl+R", 0));
+
+	actionQuit->setText(QApplication::translate("MainWindow", "Quit", 0));
+	actionQuit->setShortcut(QApplication::translate("MainWindow", "Alt+F4", 0));
+
+	//actionSide_Bar->setText(QApplication::translate("main_window", "Side Bar", 0));
+	//actionSide_Bar->setShortcut(QApplication::translate("main_window", "Alt+X", 0));
+
+	actionStatus_Bar->setText(QApplication::translate("main_window", "Status Bar", 0));
+	actionStatus_Bar->setShortcut(QApplication::translate("main_window", "Alt+Z", 0));
+
+	actionMenuBar->setText(QApplication::translate("main_window", "Menu Bar", 0));
+	actionMenuBar->setShortcut(QApplication::translate("main_window", "Alt+4", 0));
+	actionMenuBar->setShortcutContext(Qt::ApplicationShortcut);
+
+	actionFullScreen->setText(QApplication::translate("main_window", "Full Screen", 0));
+	actionFullScreen->setShortcut(QApplication::translate("main_window", "F11", 0));
+	actionFullScreen->setShortcutContext(Qt::ApplicationShortcut);
+
+	action_split_horizontally->setText(QApplication::translate("main_window", "Split Horizontally", 0));
+	action_split_horizontally->setShortcut(QApplication::translate("main_window", "Ctrl+E, 2", 0));
+	action_split_horizontally->setShortcutContext(Qt::ApplicationShortcut);
+
+	action_split_vertically->setText(QApplication::translate("main_window", "Split Vertically", 0));
+	action_split_vertically->setShortcut(QApplication::translate("main_window", "Ctrl+E, 3", 0));
+	action_split_vertically->setShortcutContext(Qt::ApplicationShortcut);
+
+	action_unsplit->setText(QApplication::translate("main_window", "Unsplit", 0));
+	action_unsplit->setShortcut(QApplication::translate("main_window", "Ctrl+E, 0", 0));
+	action_unsplit->setShortcutContext(Qt::ApplicationShortcut);
+
+	action_remove_all_splits->setText(QApplication::translate("main_window", "Remove all splits", 0));
+	action_remove_all_splits->setShortcut(QApplication::translate("main_window", "Ctrl+E, 1", 0));
+	action_remove_all_splits->setShortcutContext(Qt::ApplicationShortcut);
+
+	actionSrcTabBar->setText(QApplication::translate("main_window", "Source Tab Bar", 0));
+	actionSrcTabBar->setShortcut(QApplication::translate("main_window", "Alt+3", 0));
+	actionSrcTabBar->setShortcutContext(Qt::ApplicationShortcut);
+
+	actionGo_to_line->setText(QApplication::translate("main_window", "Go to line", 0));
+	actionGo_to_line->setShortcut(QApplication::translate("main_window", "Ctrl+L", 0));
+
+	action_find->setText(QApplication::translate("main_window", "Find", 0));
+	action_find->setShortcut(QApplication::translate("main_window", "Ctrl+F", 0));
+
+	menu_File->setTitle(QApplication::translate("MainWindow", "&File", 0));
+	menuView->setTitle(QApplication::translate("main_window", "&View", 0));
+	menu_Search->setTitle(QApplication::translate("main_window", "&Search", 0));
 }
 
 /**
@@ -658,7 +671,7 @@ void MainWindow::load_plugins()
 {
 	QDir pluginsDir = QDir(QApplication::applicationDirPath());
 	pluginsDir.cd("plugins");
-	
+
 	foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
 		QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
 
@@ -666,13 +679,13 @@ void MainWindow::load_plugins()
 
 		if (plugin) {
 			debug(DEBUG, MAIN_WINDOW, "plugin loaded: " << fileName.toStdString());
-			
+
 			Highlighter *hl = qobject_cast<Highlighter *>(plugin);
-			
+
 			if (hl) {
 				debug(DEBUG, MAIN_WINDOW, "plugin Ok!!");
 				debug(DEBUG, MAIN_WINDOW, hl->test_interface().toStdString());
-				
+
 				if (loader.unload()) {
 					debug(DEBUG, MAIN_WINDOW, "plugin unloaded Ok!!");
 				} else {
@@ -680,7 +693,7 @@ void MainWindow::load_plugins()
 				}
 			} else
 				debug(DEBUG, MAIN_WINDOW, "plugin not ok");
-			
+
 		} else {
 			debug(DEBUG, MAIN_WINDOW, "plugin not loaded: " << fileName.toStdString());
 		}

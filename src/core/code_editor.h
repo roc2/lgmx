@@ -1,7 +1,7 @@
 #ifndef CODE_EDITOR_H
 #define CODE_EDITOR_H
 
-#include <QtGui/QPlainTextEdit>
+#include <QPlainTextEdit>
 #include <QtCore/QObject>
 #include <QColor>
 
@@ -27,7 +27,6 @@ public:
 	QFont get_font() const;
 	void set_font(QFont &font);
 	int get_font_width() const;
-	void set_default_font();
 
 protected:
 	void resizeEvent(QResizeEvent *event);

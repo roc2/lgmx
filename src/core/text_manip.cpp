@@ -3,6 +3,7 @@
 
 #include <text_manip.h>
 #include <src_file.h>
+#include <visual_src_file.h>
 
 
 /**
@@ -39,7 +40,7 @@ text_manip::~text_manip()
 
 void text_manip::duplicate_up()
 {
-	src_file *curr_file;
+	visual_src_file *curr_file;
 	QTextCursor cursor;
 	QString buff;
 	
@@ -70,7 +71,7 @@ void text_manip::duplicate_up()
 
 void text_manip::duplicate_down()
 {
-	src_file *curr_file;
+	visual_src_file *curr_file;
 	QTextCursor cursor;
 	QString buff;
 	
@@ -98,7 +99,7 @@ void text_manip::duplicate_down()
  
 void text_manip::delete_current_line()
 {
-	src_file *curr_file;
+	visual_src_file *curr_file;
 	QTextCursor cursor;
 	
 	if (!(curr_file = manager_.get_current_src_file()))

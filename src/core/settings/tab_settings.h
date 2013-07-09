@@ -11,11 +11,11 @@ public:
 	enum policy {tabs_only, spaces_only, mixed};
 
 	tab_settings();
-	
+
 	bool set_tab_width(int size);
-	int get_tab_width();
+	int get_tab_width() const;
 	void set_tab_policy(tab_settings::policy pol);
-	tab_settings::policy get_tab_policy();
+	tab_settings::policy get_tab_policy() const;
 
 private:
 	int tab_width_;
