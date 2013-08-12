@@ -6,6 +6,8 @@
 
 #include <view_manager.h>
 #include <view.h>
+#include <src_file.h>
+#include <visual_src_file.h>
 #include <highlight_manager.h>
 #include <exception.h>
 #include <global.h>
@@ -43,9 +45,7 @@ view_manager::~view_manager()
 	delete highlight_manager_;
 	clear_view_list();
 	clear_splitter_list();
-
-	if (tag_)
-		delete tag_;
+	delete tag_;
 }
 
 /**
@@ -223,13 +223,8 @@ bool view_manager::new_file(const QString &file_name)
 		return false;
 	}
 
-	debug(DEBUG, VIEW_MANAGER, "New file ID: " << id);
+	debug(DEBUG, VIEW_MANAGER, "New file created - ID: " << id);
 	src_file *file = root_container_.get_file(id);
-
-	// set file type
-	file_type::type ft;
-	ft = type_manager_->get_file_type(file->get_src_file_extension());
-	debug(DEBUG, VIEW_MANAGER, "File type: " << ft);
 
 	std::list<view *>::iterator it;
 	view *curr_view = get_current_view();
@@ -585,8 +580,10 @@ bool view_manager::save_file_as(src_container *src_c, int index)
 		if (file) {
 			file_type::type ft;
 			ft = type_manager_->get_file_type(file->get_src_file_extension());
-			//file->set_file_type(ft);
-			debug(DEBUG, VIEW_MANAGER, "File type: " << ft);
+			file->set_file_type(ft);
+			debug(DEBUG, VIEW_MANAGER, "File type: " << file_type::to_string(ft).toStdString());
+		} else {
+			debug(ERR, VIEW_MANAGER, "File not found " << fileName.toStdString());
 		}
 
         return true;
@@ -697,6 +694,11 @@ highlight_manager* view_manager::get_highlight_manager()
 Settings* view_manager::get_settings()
 {
 	return settings_;
+}
+
+file_type& view_manager::get_type_manager()
+{
+	return *type_manager_;
 }
 
 /**

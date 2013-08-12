@@ -6,6 +6,9 @@ namespace lgmx {
 
 class exception : public std::exception
 {
+private:
+	exception& operator=(const exception &);
+
 public:
 	exception() {};
 	exception(const std::string &msg) : msg_(msg) {};

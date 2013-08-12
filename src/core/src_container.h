@@ -2,25 +2,21 @@
 #define SRC_CONTAINER_H
 
 #include <QTabWidget>
-#include <QTabBar>
-#include <QFont>
-
-#include <src_file.h>
-#include <visual_src_file.h>
-
 
 #define NEW_FILE_NAME	"untitled"
 
 class QVBoxLayout;
+class QTabBar;
 class view_manager;
 class Settings;
+class visual_src_file;
+class src_file;
 
 class src_container : public QTabWidget
 {
 	Q_OBJECT
 
 private:
-	src_container();
 	src_container(const src_container&);
 	src_container& operator=(const src_container&);
 
@@ -44,8 +40,6 @@ public:
 	
     bool src_tab_write_file(int index, const QString &fileName);
     bool src_tab_load_file(const QString &fileName);
-    
-	//bool get_src_tab_content(int index, QString &content);
 
 	int get_current_tab_index();
 	int index_of(visual_src_file *src_tab) const;
@@ -65,7 +59,6 @@ public:
 	void go_to_line(int index, int line);
     
     int get_file_index(const QString &file_name);
-    //void setFont(QFont &font);
     void set_line_wrap(bool wrap);
     bool get_line_wrap() const;
     
@@ -74,8 +67,6 @@ public:
     
     void focusInEvent(QFocusEvent*);
     void update_current_view();
-    
-    Settings* get_settings();
 	
 public slots:
 	void file_changed(bool changed);
@@ -84,9 +75,7 @@ private slots:
 	void set_focus_to_current_tab(int index);
 
 private:
-    QTabBar *tab_bar;
-    QVBoxLayout *main_layout_;
-    QFont font;
+    QTabBar *tab_bar_;
     view_manager *manager_;
     Settings *settings_;
 };

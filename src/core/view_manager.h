@@ -63,6 +63,7 @@ public:
 	highlight_manager* get_highlight_manager();
 
 	Settings* get_settings();
+	file_type& get_type_manager();
 	tag * get_tags();
 
 private:

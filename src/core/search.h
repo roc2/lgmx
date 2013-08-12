@@ -24,6 +24,8 @@
 #include <QPushButton>
 #include <QSpacerItem>
 #include <QVBoxLayout>
+#include <QTextDocument>
+#include <QTextCursor>
 
 class view_manager;
 
@@ -43,7 +45,6 @@ class search : public QDialog
 	Q_OBJECT
 
 private:
-	search();
 	search(const search&);
 	search& operator=(const search&);
 

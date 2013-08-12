@@ -2,12 +2,11 @@
 #define SRC_FILE_H
 
 #include <QString>
+#include <QFileInfo>
 #include <code_editor.h>
 #include <file_type.h>
 
 
-class QFileInfo;
-class src_container;
 class root_file_container;
 class highlight_manager;
 class syntax_highlighter;
@@ -21,14 +20,11 @@ class src_file : public CodeEditor
 	friend class visual_src_file;
 
 private:
-	src_file();
 	src_file(const src_file&);
 	src_file& operator=(const src_file&);
 
 public:
-	//src_file(const QString &file_name, unsigned int id, src_container *parent, Settings &settings, highlight_manager *hl_manager = NULL);
-	src_file(const QString &file_name, unsigned int id, root_file_container *parent, Settings &settings, highlight_manager *hl_manager);
-	//src_file(src_file *base_file, src_container *parent);
+	src_file(const QString &file_name, unsigned int id, root_file_container *parent, Settings &settings, highlight_manager *hl_manager, file_type &type_manager);
 	~src_file();
 
 	bool load_file(const QString &fileName);
@@ -39,7 +35,6 @@ public:
 
 	QString get_content() const;
 	QTextDocument *get_mutable_content();
-	void set_content(QTextDocument *content);
 
 	unsigned int get_id() const;
 
@@ -63,33 +58,25 @@ public:
 	QTextCursor get_cursor();
 	int get_cursor_position();
 
-	void set_file_info(QFileInfo *file_info);
-	QFileInfo *get_file_info() const;
+	QFileInfo *get_file_info();
 
 	file_type::type get_file_type() const;
 	void set_file_type(file_type::type type);
 
-private:
-	//void paintEvent(QPaintEvent *e);
-
 signals:
 	void modificationChanged(bool);
+	void fileTypeChanged();
 
 private:
-	QFileInfo *file_info_;
+	QFileInfo file_info_;
 	file_type::type type_;
-	src_container *parent_;
-	root_file_container *rparent_;
+	root_file_container *parent_;
 	Settings &settings_;
+	const file_type &type_manager_;
 
 	highlight_manager *highlight_manager_;
 	syntax_highlighter *highlighter_;
 	unsigned int id_;
-
-	bool cursor_visible_;
-	bool blink_cursor_;
-	QTextCharFormat mb_format_;		/**< matching braces format */
 };
-
 
 #endif

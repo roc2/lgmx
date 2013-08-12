@@ -9,6 +9,7 @@ class view_manager;
 class view;
 class status_line;
 class QVBoxLayout;
+class QFont;
 
 
 class view : public QWidget
@@ -16,7 +17,6 @@ class view : public QWidget
 	Q_OBJECT
 
 private:
-	view();
 	view(const view&);
 	view& operator=(const view&);
 
@@ -40,6 +40,7 @@ public:
 	//void focusInEvent(QFocusEvent *event);
 	
 	unsigned int get_id() const;
+	void set_font(QFont &font);
 	
 	void clone_src_container(src_container *base_src_ctr);
 

@@ -11,8 +11,6 @@
 #include <syntax_highlighter.h>
 #include <debug.h>
 
-#include <iostream>
-using namespace std;
 
 visual_src_file::visual_src_file(src_file *parent_file, src_container *container) : settings_(parent_file->get_settings())
 {
@@ -20,7 +18,7 @@ visual_src_file::visual_src_file(src_file *parent_file, src_container *container
 	container_ = container;
 
 	// get file info and content from the parent file
-	file_info_ = parent_file->file_info_;
+	file_info_ = &(parent_file->file_info_);
 	set_content(parent_file->document());
 
 	blink_cursor_ = false;
@@ -32,11 +30,14 @@ visual_src_file::visual_src_file(src_file *parent_file, src_container *container
 	type_ = parent_file->type_;
 	id_ = parent_file->get_id();
 	highlighter_ = parent_file->get_highlighter();
-	cursor_visible_ = true;
-	blink_cursor_ = true;
 	set_default_font();
 	set_line_wrap(false);
+	blink_cursor_ = true;	// needs to be true!!
 	QApplication::setCursorFlashTime(1000);
+
+	//this->setTabStopWidth(parent->get_settings()->get_tab_width() * 8);
+	//set_line_wrap(parent->get_settings()->get_line_wrap());
+	//setCursorWidth(get_font_width());
 
 	// set colours
 	set_base_color(Qt::white);
@@ -48,21 +49,14 @@ visual_src_file::visual_src_file(src_file *parent_file, src_container *container
 	QObject::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(match_braces()));
 	// when cursor changes highlight
 	QObject::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlight()));
+	// when vertical scroll bar moves highlight
+	QObject::connect(verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(highlight(int)));
+	// when file type changes update highlighter
+	QObject::connect(parent_file_, SIGNAL(fileTypeChanged()), this, SLOT(update_highlighter()));
 }
 
-visual_src_file& visual_src_file::operator=(const visual_src_file &other)
+visual_src_file::~visual_src_file()
 {
-	if (this == &other)
-		return *this;
-
-	file_info_ = other.file_info_;
-	set_content(other.document());
-
-	id_ = other.id_;
-	cursor_visible_ = other.cursor_visible_;
-	blink_cursor_ = other.blink_cursor_;
-
-	return *this;
 }
 
 void visual_src_file::set_content(QTextDocument *content)
@@ -832,9 +826,24 @@ void visual_src_file::highlight(int)
 	highlight_visible_blocks();
 }
 
+/**
+ * [slot]
+ */
+
 void visual_src_file::highlight()
 {
 	highlight_visible_blocks();
+}
+
+/**
+ * [slot] Updates the syntax highlighter. This is called when the file 
+ * type changes.
+ */
+
+void visual_src_file::update_highlighter()
+{
+	highlighter_ = parent_file_->get_highlighter();
+	highlight();
 }
 
 /**
@@ -889,6 +898,24 @@ void visual_src_file::highlight_visible_blocks()
 		int count = this->get_visible_blocks(first_block);
 		highlighter_->highlight_blocks(first_block, count);
 	}
+}
+
+/**
+ * Returns the file type.
+ */
+
+file_type::type visual_src_file::get_file_type() const
+{
+	return parent_file_->get_file_type();
+}
+
+/**
+ * Sets the file type.
+ */
+
+void visual_src_file::set_file_type(file_type::type type)
+{
+	parent_file_->set_file_type(type);
 }
 
 /**

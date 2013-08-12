@@ -1,7 +1,10 @@
 #include <QVBoxLayout>
+#include <QFont>
 
 #include <view.h>
 #include <view_manager.h>
+#include <src_file.h>
+#include <visual_src_file.h>
 #include <debug.h>
 #include <exception.h>
 #include <status_line.h>
@@ -194,6 +197,11 @@ unsigned int view::get_id() const
 	return id_;
 }
 
+void view::set_font(QFont &font)
+{
+	src_container_->setFont(font);
+}
+
 /**
  * Returns the address of the source container from this view.
  */
@@ -265,17 +273,5 @@ void view::update_status_bar(const QString &fileName, unsigned int id)
 {
 	status_line_->update_file_name(fileName, id);
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 

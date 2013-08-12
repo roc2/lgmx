@@ -1,4 +1,4 @@
-#CONFIG += debug
+CONFIG += debug
 QT += core gui widgets
 
 SOURCES += ./src/core/main.cpp ./src/core/main_window.cpp ./src/core/code_editor.cpp ./src/core/src_container.cpp \

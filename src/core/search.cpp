@@ -2,6 +2,7 @@
 #include <QLayout>
 #include <view_manager.h>
 #include <view.h>
+#include <visual_src_file.h>
 #include <debug.h>
 
 #define SEARCH_SAVE_KEY	"search_flags"

@@ -1,9 +1,9 @@
-#include <QPushButton>
 #include <QApplication>
-#include <QDesktopWidget>
-#include <QVBoxLayout>
+#include <QTabBar>
 
 #include <src_container.h>
+#include <visual_src_file.h>
+#include <src_file.h>
 #include <debug.h>
 #include <exception.h>
 #include <view_manager.h>
@@ -12,31 +12,25 @@
 
 /**
  * Constructor.
+ * @param manager -> view manager.
+ * @param settings -> settings manager.
  * @param parent -> parent widget.
  */
 
-src_container::src_container(view_manager *manager, Settings *settings, QWidget *parent) : QTabWidget(parent), settings_(settings)
+src_container::src_container(view_manager *manager, Settings *settings, QWidget *parent) : QTabWidget(parent)
 {
 	manager_ = manager;
+	settings_ = settings;
 
-	this->installEventFilter(this);
-	setObjectName(QString::fromUtf8("src_tab_widget"));
 	setTabsClosable(true);
 	setMovable(true);
-	setContentsMargins(0, 0, 0, 0);
+	tab_bar_ = tabBar();
 
-	tab_bar = tabBar();
-	tab_bar->setContentsMargins(0, 0, 0, 0);
-
-	/* Update current tab focus */
+	// Update current tab focus
 	QObject::connect(this, SIGNAL(currentChanged(int)), this, SLOT(set_focus_to_current_tab(int)));
 
-	tab_bar->setStyleSheet("border-width: 0px;");
-
-	//setStyleSheet("border-width: 0px;");
+	tab_bar_->setStyleSheet("border-width: 0px;");
 	setStyleSheet("QTabWidget::pane {border-top: 0px;} QTabBar::tab { height: 25px; }");
-	//setStyleSheet("QTabBar::tab { height: 25px; }");
-	//setStyleSheet("QTabBar::tab { background-color: rgb(60, 60, 60); }");
 }
 
 /**
@@ -68,11 +62,6 @@ void src_container::focusInEvent(QFocusEvent*)
 void src_container::update_current_view()
 {
 	manager_->set_current_view(static_cast<view *>(this->parent()));
-}
-
-Settings* src_container::get_settings()
-{
-	return settings_;
 }
 
 /**
@@ -330,24 +319,6 @@ QString src_container::get_src_tab_path(int index)
 }
 
 /**
- * Retrieves the content of the entire file.
- * @param index - file index.
- * @param content - string to hold the result.
- */
-/*
-bool src_container::get_src_tab_content(int index, QString &content)
-{
-	visual_src_file *src_tab;
-
-	if ((src_tab = static_cast<visual_src_file *>(widget(index))) == 0)
-		return false;	// index out of range
-
-	content = src_tab->get_content();
-
-	return true;
-}*/
-
-/**
  * Writes file content to disk.
  * @param fileName -> complete path of the file to be written.
  * @return true, if file written ok, false otherwise.
@@ -381,7 +352,9 @@ bool src_container::is_modified(int index)
 }
 
 /**
- *
+ * Sets the file modified state.
+ * @param index -> file index.
+ * @param modified -> true, if the file is modified, false otherwise.
  */
 
 bool src_container::set_modified(int index, bool modified)
@@ -406,15 +379,6 @@ bool src_container::set_file_name(int index, const QString &fileName)
 
 	return true;
 }
-
-/**
- *
- */
-
-//void src_container::setFont(QFont &font)
-//{
-	//this->setFont(font);
-//}
 
 /**
  * Updates the information from a file already saved on disk
@@ -473,9 +437,9 @@ void src_container::go_to_line(int index, int line)
 void src_container::show_tabs(bool show)
 {
 	if (show)
-		tab_bar->show();
+		tab_bar_->show();
 	else
-		tab_bar->hide();
+		tab_bar_->hide();
 }
 
 /**
@@ -485,7 +449,7 @@ void src_container::show_tabs(bool show)
 
 bool src_container::tabs_visible()
 {
-	return !tab_bar->isHidden();
+	return !tab_bar_->isHidden();
 }
 
 /**
@@ -536,6 +500,10 @@ void src_container::set_tab_width(int size)
 		src_tab->set_tab_width(size);
 	}
 }
+
+/**
+ * @todo fix this
+ */
 
 int src_container::get_tab_width() const
 {

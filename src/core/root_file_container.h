@@ -2,6 +2,7 @@
 #define ROOT_FILE_CONTAINER_H
 
 #include <map>
+#include <file_type.h>
 
 class src_file;
 class view_manager;
@@ -11,7 +12,6 @@ class QString;
 class root_file_container
 {
 private:
-	root_file_container();
 	root_file_container(const root_file_container&);
 	root_file_container& operator=(const root_file_container&);
 

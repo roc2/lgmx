@@ -17,18 +17,18 @@ class visual_src_file : public CodeEditor
 	Q_OBJECT
 
 private:
-	visual_src_file();
 	visual_src_file(const visual_src_file&);
+	visual_src_file& operator=(const visual_src_file&);
 
 public:
 	visual_src_file(src_file *parent, src_container *container);
+	~visual_src_file();
 
 	void set_default_font();
 
 	void set_base_color(const QColor &color);
 	void set_text_color(const QColor &color);
 
-	visual_src_file& operator=(const visual_src_file &other);
 	bool write_file(const QString &fileName);
 
 	QString get_file_name() const;
@@ -67,6 +67,9 @@ public:
 	void get_visible_blocks_range(int &first, int &last);
 	int get_visible_blocks(QTextBlock &first_block);
 	void highlight_visible_blocks();
+	
+	file_type::type get_file_type() const;
+	void set_file_type(file_type::type type);
 
 private:
 	void set_content(QTextDocument *content);
@@ -90,6 +93,9 @@ public slots:
 	bool match_braces(bool select);
 	void highlight(int);
 	void highlight();
+
+private slots:
+	void update_highlighter();
 
 private:
 	src_file *parent_file_;

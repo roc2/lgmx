@@ -2,7 +2,7 @@
 #include <QTextBlock>
 
 #include <text_manip.h>
-#include <src_file.h>
+#include <view_manager.h>
 #include <visual_src_file.h>
 
 
@@ -14,10 +14,10 @@ text_manip::text_manip(view_manager &manager, QWidget *parent) : manager_(manage
 {
 	dup_up = new QShortcut(Qt::CTRL+ Qt::ALT + Qt::Key_Up, parent);
 	connect(dup_up, SIGNAL(activated()), this, SLOT(duplicate_up()));
-	
+
 	dup_down = new QShortcut(Qt::CTRL+ Qt::ALT + Qt::Key_Down, parent);
 	connect(dup_down, SIGNAL(activated()), this, SLOT(duplicate_down()));
-	
+
 	delete_line = new QShortcut(Qt::CTRL+ Qt::Key_K, parent);
 	connect(delete_line, SIGNAL(activated()), this, SLOT(delete_current_line()));
 }
@@ -43,7 +43,7 @@ void text_manip::duplicate_up()
 	visual_src_file *curr_file;
 	QTextCursor cursor;
 	QString buff;
-	
+
 	if (!(curr_file = manager_.get_current_src_file()))
 		return;
 
@@ -57,7 +57,7 @@ void text_manip::duplicate_up()
 		buff = cursor.block().text() + '\n';
 		cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
 	}
-	
+
 	cursor.insertText(buff);
 	cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor);
 	cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
@@ -74,7 +74,7 @@ void text_manip::duplicate_down()
 	visual_src_file *curr_file;
 	QTextCursor cursor;
 	QString buff;
-	
+
 	if (!(curr_file = manager_.get_current_src_file()))
 		return;
 
@@ -88,7 +88,7 @@ void text_manip::duplicate_down()
 		buff = '\n' + cursor.block().text();
 		cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
 	}
-	
+
 	cursor.insertText(buff);
 	curr_file->set_cursor(cursor);
 }
@@ -96,18 +96,18 @@ void text_manip::duplicate_down()
 /**
  * Removes the line where the cursor is positioned in.
  */
- 
+
 void text_manip::delete_current_line()
 {
 	visual_src_file *curr_file;
 	QTextCursor cursor;
-	
+
 	if (!(curr_file = manager_.get_current_src_file()))
 		return;
 
 	cursor = curr_file->get_cursor();
 	cursor.select(QTextCursor::BlockUnderCursor);
-	
+
 	if (cursor.hasSelection()) {
 		cursor.removeSelectedText();
 		cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor);

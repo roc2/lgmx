@@ -9,6 +9,7 @@
 #include <config.h>
 #include <clipboard.h>
 #include <view.h>
+#include <visual_src_file.h>
 #include <text_manip.h>
 #include <interfaces.h>
 #include <debug.h>
@@ -38,7 +39,7 @@ MainWindow::MainWindow(std::list<QString> *files)
 #endif
 
 	QCoreApplication::setOrganizationName(COMPANY);
-    QCoreApplication::setApplicationName(APPLICATION);
+	QCoreApplication::setApplicationName(APPLICATION);
 	setObjectName(QString::fromUtf8("main_window"));
 	setDockOptions(QMainWindow::AnimatedDocks | QMainWindow::AllowTabbedDocks | QMainWindow::VerticalTabs);
 
@@ -73,15 +74,15 @@ MainWindow::MainWindow(std::list<QString> *files)
 	//dockWidget->setWidget(symbol_tab_widget);
 	addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
 
-	QX11EmbedContainer *container = new QX11EmbedContainer();
-	container->show();
+	//QX11EmbedContainer *container = new QX11EmbedContainer();
+	//container->show();
 	//dockWidget->setWidget(container);
-	QProcess *process = new QProcess(container);
-	QString executable("/usr/bin/terminator");
-	QStringList arguments;
-	arguments << QString::number(container->winId());
-	process->start(executable, arguments);
-	container->embedClient(container->clientWinId());
+	//QProcess *process = new QProcess(container);
+	//QString executable("/usr/bin/terminator");
+	//QStringList arguments;
+	//arguments << QString::number(container->winId());
+	//process->start(executable, arguments);
+	//container->embedClient(container->clientWinId());
 	//this->show();
 
 	QDockWidget *dockWidget_2 = new QDockWidget(tr("Dock Widget 2"), this);
@@ -648,7 +649,7 @@ void MainWindow::retranslateUi(QMainWindow *main_window)
 	action_remove_all_splits->setShortcut(QApplication::translate("main_window", "Ctrl+E, 1", 0));
 	action_remove_all_splits->setShortcutContext(Qt::ApplicationShortcut);
 
-	actionSrcTabBar->setText(QApplication::translate("main_window", "Source Tab Bar", 0));
+	actionSrcTabBar->setText(QApplication::translate("main_window", "Tabs", 0));
 	actionSrcTabBar->setShortcut(QApplication::translate("main_window", "Alt+3", 0));
 	actionSrcTabBar->setShortcutContext(Qt::ApplicationShortcut);
 

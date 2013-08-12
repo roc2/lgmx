@@ -38,7 +38,7 @@ bool root_file_container::new_file(const QString &file_name, unsigned int file_i
 	src_file *new_file;
 
 	try {
-		new_file = new src_file(file_name, file_id, this, *manager_.get_settings(), manager_.get_highlight_manager());
+		new_file = new src_file(file_name, file_id, this, *manager_.get_settings(), manager_.get_highlight_manager(), manager_.get_type_manager());
 		debug(INFO, ROOT_CONTAINER, "New file created with ID " << file_id);
 	} catch(lgmx::exception &excp) {
 		debug(ERR, ROOT_CONTAINER, excp.get_message());
