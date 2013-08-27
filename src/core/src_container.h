@@ -24,7 +24,7 @@ public:
 	src_container(view_manager *manager, Settings *settings, QWidget *parent = 0);
 	~src_container();
 
-	visual_src_file* new_visual_tab(const src_file *base_file);
+	visual_src_file* new_visual_src_file(src_file *base_file);
 	void destroy_src_tab(int index);
 	void destroy_src_tab(unsigned int id);
 

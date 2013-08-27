@@ -1,29 +1,28 @@
-#include <QMainWindow>
 #include <main_window.h>
-#include <list>
 #include <debug.h>
-
-#define Q_WS_X11
+#include <CLI_args.h>
 
 
 int main(int argc, char *argv[])
 {
 	debug(INFO, MAIN, "lgmx - Compiled with Qt " << QT_VERSION_STR);
-	QApplication a(argc, argv);
+	QApplication *app;
 	MainWindow *main_window;
 
 	{
-		std::list<QString> file_list;
+		CLI_args args(argc, argv);
+		if (!args.exec_pre_init())
+			return 0;		// found termination option
 
-		for (int i = 1; i < argc; i++)
-			file_list.push_back(argv[i]);
-
-		main_window = new MainWindow(&file_list);
+		app = new QApplication(argc, argv);
+		main_window = new MainWindow();
+		main_window->init(args);
 	}
 
 	main_window->show();
-	int res = a.exec();
+	int res = app->exec();
 	delete main_window;
+	delete app;
 
 	return res;
 }

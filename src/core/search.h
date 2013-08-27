@@ -82,7 +82,7 @@ private:
 	void retranslate_ui(QDialog *Find);
 	void connect_slots();
 
-	void highlight_all_matches(QString &pattern);
+	//void highlight_all_matches(QString &pattern);
 	
 	void add_to_search_history(const QString &text);
 

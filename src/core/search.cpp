@@ -186,9 +186,9 @@ void lgmx::search::hide_search_dialog()
  * @todo implement this method
  */
 
-void lgmx::search::highlight_all_matches(QString &pattern)
-{
-}
+//void lgmx::search::highlight_all_matches(QString &pattern)
+//{
+//}
 
 /**
  * 
@@ -220,8 +220,8 @@ void lgmx::search::search_string(QString &pattern)
 		curr_file_->set_cursor(this->cursor);
 		curr_file_->centerCursor();
 		
-		if (highlight_all)
-			highlight_all_matches(pattern);
+		//if (highlight_all)
+			//highlight_all_matches(pattern);
 		
 		
 	} else if (wrap) {

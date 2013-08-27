@@ -4,6 +4,7 @@
 #include <view.h>
 #include <view_manager.h>
 #include <src_file.h>
+#include <src_container.h>
 #include <visual_src_file.h>
 #include <debug.h>
 #include <exception.h>
@@ -39,6 +40,7 @@ view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
 	QObject::connect(src_container_, SIGNAL(currentChanged(int)), status_line_, SLOT(update_file_name(int)));
 
 	this->setFocusPolicy(Qt::StrongFocus);
+	debug(DEBUG, VIEW, "New view created - ID: " << id_);
 }
 
 /**
@@ -56,83 +58,28 @@ view::~view()
 }
 
 /**
- * Creates a new file.
- * @param file_name - the new file name.
- * @param file_id - the unique file ID.
- * @return file index within the container, or -1 in case of error.
- */
-/*
-int view::new_file(const QString &file_name, unsigned int file_id)
-{
-	return src_container_->new_src_tab(file_name, file_id);
-}*/
-
-/**
- *
- */
-/*
-int view::close_file(int index)
-{
-	int index;
-
-	index = src_container_->new_src_tab(file_name);
-
-	if (index < 0)
-		return index;
-
-	if (splitted_) {
-		cout << "clone files" << endl;
-		src_file *file = src_container_->get_src_file(index);
-		view_a_->clone_file(file);
-		view_b_->clone_file(file);
-	}
-
-	// destroy current src container
-
-	return index;
-}
-*/
-
-/**
  * Clones a source file. Creates a new file structure using a reference to
  * the original file content, therefore the changes in the clone file are
  * reflected in the original file as well as in the other clone files.
  * @param file - the file to be cloned.
  */
-/*
-void view::clone_file(src_file *file)
-{
-	src_file *new_file;
 
-	try {
-		new_file = src_container_->new_clone_tab(file);
-	} catch (lgmx::exception &excp) {
-		debug(ERR, VIEW, excp.get_message());
-		return;
-	}
-
-	new_file->setTextCursor(file->textCursor());
-	new_file->set_modified(file->is_modified());
-
-	status_line_->add_file(file->get_src_file_full_name(), file->get_id());
-}*/
-
-void view::new_visual_file(const src_file *file)
+void view::new_visual_file(src_file *base_file)
 {
 	visual_src_file *new_file;
 
 	try {
-		new_file = src_container_->new_visual_tab(file);
+		new_file = src_container_->new_visual_src_file(base_file);
 	} catch (lgmx::exception &excp) {
 		debug(ERR, VIEW, excp.get_message());
 		return;
 	}
 
-	new_file->setTextCursor(file->textCursor());
-	new_file->set_modified(file->is_modified());
+	new_file->setTextCursor(base_file->textCursor());
+	new_file->set_modified(base_file->is_modified());
 	new_file->highlight();
 
-	status_line_->add_file(file->get_src_file_full_name(), file->get_id());
+	status_line_->add_file(base_file->get_src_file_full_name(), base_file->get_id());
 }
 
 /**

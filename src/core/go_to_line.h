@@ -3,13 +3,11 @@
 
 #include <QDialog>
 #include "ui_go_to_line.h"
-#include "src_container.h"
+
 
 class go_to_line : public QDialog, public Ui_go_to_line
 {
     Q_OBJECT
-
-    int line;
 
 public:
     go_to_line(QWidget *parent = 0, int val = 0);
@@ -19,8 +17,11 @@ public:
     void set_focus();
 
 private slots:
-    void input_changed(int val);
+    void input_changed(int);
     void accept();
+
+private:
+	int line;
 };
 
 #endif

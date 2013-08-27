@@ -70,7 +70,7 @@ void src_container::update_current_view()
  * @return address of the new visual file.
  */
 
-visual_src_file* src_container::new_visual_tab(const src_file *base_file)
+visual_src_file* src_container::new_visual_src_file(src_file *base_file)
 {
 	int index;
 	visual_src_file *src_tab;
@@ -81,7 +81,7 @@ visual_src_file* src_container::new_visual_tab(const src_file *base_file)
 	}
 
 	try {
-		src_tab = new visual_src_file((src_file *)base_file, this);	/** @todo fix this const cast */
+		src_tab = new visual_src_file(base_file, this);
 		index = addTab(src_tab, "");
 	} catch(lgmx::exception &excp) {
 		lgmx::exception excp("At src_container::new_clone_tab: Unable to create file.");

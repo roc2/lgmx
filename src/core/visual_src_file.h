@@ -41,7 +41,7 @@ public:
 
 	QTextDocument *get_mutable_content();
 	bool load_file(const QString &fileName);
-	const src_file* get_root_file();
+	src_file* get_root_file();
 
 	unsigned int get_id() const;
 	bool exists() const;
@@ -54,7 +54,7 @@ public:
 
 	bool set_tab_width(int size);
 	int get_tab_width() const;
-	bool indent_selection(bool forward);
+	bool indent_selection(bool);
 
 	QString get_word_under_cursor();
 	void show_white_spaces(bool show);

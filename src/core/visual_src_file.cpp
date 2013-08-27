@@ -126,7 +126,7 @@ QTextDocument *visual_src_file::get_mutable_content()
 	return this->document();
 }
 
-const src_file* visual_src_file::get_root_file()
+src_file* visual_src_file::get_root_file()
 {
 	return parent_file_;
 }
@@ -776,7 +776,7 @@ void visual_src_file::insert_tab(QTextCursor &cursor)
  *
  */
 
-bool visual_src_file::indent_selection(bool forward)
+bool visual_src_file::indent_selection(bool)
 {
 	QTextCursor cursor = textCursor();
 

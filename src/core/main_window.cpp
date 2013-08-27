@@ -13,6 +13,7 @@
 #include <text_manip.h>
 #include <interfaces.h>
 #include <debug.h>
+#include <CLI_args.h>
 
 #ifdef _DEBUG_
 #include <QDateTime>
@@ -22,16 +23,13 @@ qint64 start;
 //#include <QX11EmbedContainer>
 #include <QProcess>
 
-/**
- * @todo create user_opt class to parse command line user options
- */
 
 /**
  * MainWindow Constructor with file list as parameter
  * @brief MainWindow Constructor
  */
 
-MainWindow::MainWindow(std::list<QString> *files)
+MainWindow::MainWindow()
 {
 #ifdef _DEBUG_
 	QDateTime boot_time;
@@ -126,10 +124,6 @@ MainWindow::MainWindow(std::list<QString> *files)
 
 	readSettings();
 
-	if (!files->empty()) {
-		this->load_parameter_files(files);
-	}
-
 	//Config conf;
 	debug(DEBUG, MAIN_WINDOW, "init time = " << boot_time.currentMSecsSinceEpoch() - start);
 }
@@ -143,9 +137,7 @@ MainWindow::~MainWindow()
 	delete text_manip_;
 	delete c_board;
 	delete search_dialog;
-
-	if (gt_ln_dialog)
-		delete gt_ln_dialog;
+	delete gt_ln_dialog;
 
 	destroy_menus();
 	destroy_actions();
@@ -156,6 +148,18 @@ MainWindow::~MainWindow()
 	delete cli_;
 	delete main_layout_;
 	delete widget_;
+}
+
+/**
+ * 
+ */
+
+void MainWindow::init(CLI_args &args)
+{
+	if (args.empty())
+		view_manager_->new_file();
+	else
+		load_parameter_files(args.get_args());
 }
 
 /**

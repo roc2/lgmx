@@ -6,6 +6,7 @@
 
 #include <view_manager.h>
 #include <view.h>
+#include <src_container.h>
 #include <src_file.h>
 #include <visual_src_file.h>
 #include <highlight_manager.h>
@@ -168,13 +169,12 @@ void view_manager::remove_from_splitter_list(QSplitter *s)
 }
 
 /**
- * Creates new empty file. A file is always created in the root view, which
+ * Creates a new empty file. A file is always created in the root view, which
  * in turn propagates the file creation to other views, if they exist.
  */
 
 void view_manager::new_file()
 {
-	int index;
 	unsigned int id = file_id_.generate_id();	// new file unique ID
 
 	if (!root_container_.new_file("", id)) {
@@ -197,7 +197,7 @@ void view_manager::new_file()
 	// clone the new file in all views
 	for (it = view_list_.begin(); it != view_list_.end(); it++) {
 		//(*it)->clone_file(file);
-		(*it)->new_visual_file((const src_file *)file);	/** @todo fix this const */
+		(*it)->new_visual_file(file);
 
 		if (*it == curr_view) {
 			curr_view->get_src_container()->set_current_src_file(id);
@@ -214,7 +214,6 @@ void view_manager::new_file()
 
 bool view_manager::new_file(const QString &file_name)
 {
-	int index;
 	unsigned int id = file_id_.generate_id();
 
 	if (!root_container_.new_file(file_name, id)) {
@@ -230,7 +229,7 @@ bool view_manager::new_file(const QString &file_name)
 	view *curr_view = get_current_view();
 
 	for (it = view_list_.begin(); it != view_list_.end(); it++) {
-		(*it)->new_visual_file((const src_file *)file);	/** @todo fix this const */
+		(*it)->new_visual_file(file);
 
 		if (*it == curr_view) {
 			curr_view->get_src_container()->set_current_src_file(id);
@@ -398,7 +397,6 @@ void view_manager::open_file()
 
 	// list of files to be opened
 	QFileDialog dialog(this);
-	dialog.setFileMode(QFileDialog::ExistingFiles);
 	QStringList files(dialog.getOpenFileNames(this, tr("Open File"), path));
 
 	size = files.size();

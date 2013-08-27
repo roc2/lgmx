@@ -14,7 +14,6 @@ class clipboard : public QObject
 	Q_OBJECT
 
 private:
-	clipboard();
 	clipboard(const clipboard&);
 	clipboard& operator=(const clipboard&);
 
@@ -28,8 +27,6 @@ public slots:
 	void copy_buff(int index);
 	void cut_buff(int index);
 	void paste_buff(int index);
-
-private slots:
 
 private:
 	view_manager &manager_;

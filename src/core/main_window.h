@@ -45,6 +45,7 @@
 class QShortcut;
 class clipboard;
 class text_manip;
+class CLI_args;
 
 QT_BEGIN_NAMESPACE
 
@@ -53,13 +54,14 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 
 private:
-	MainWindow();
 	MainWindow(const MainWindow&);
 	MainWindow& operator=(const MainWindow&);
 
 public:
-	MainWindow(std::list<QString> *files = NULL);
+	MainWindow();
     ~MainWindow();
+
+	void init(CLI_args &args);
 
 private:
 	void createActions();

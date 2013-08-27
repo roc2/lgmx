@@ -3,11 +3,13 @@
 
 #include <QWidget>
 
-#include <src_container.h>
+
 
 class view_manager;
 class view;
 class status_line;
+class src_container;
+class src_file;
 class QVBoxLayout;
 class QFont;
 
@@ -23,10 +25,8 @@ private:
 public:
 	view(view_manager *manager, QWidget *parent = NULL);
 	~view();
-	
-	//int new_file(const QString &file_name, unsigned int file_id);
-	//void clone_file(src_file *file);
-	void new_visual_file(const src_file *file);
+
+	void new_visual_file(src_file *file);
 	void destroy_src_file(unsigned int id);
 	
 	void show_src_tab_bar(bool show);

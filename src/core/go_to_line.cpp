@@ -8,7 +8,7 @@ go_to_line::go_to_line(QWidget *parent, int val) : QDialog(parent)   /*, ui(new 
 
 	line = val;
 	spinBox->setValue(line);
-	//Ui_go_to_line *ui;
+	//Ui_go_to_line *ui; 
 
 	//ui = new Ui_go_to_line;
 	//ui->setupUi(this);
@@ -50,7 +50,7 @@ void go_to_line::set_focus()
 	spinBox->setFocus();
 }
 
-void go_to_line::input_changed(int val)
+void go_to_line::input_changed(int)
 {
 	if (spinBox->value() > 0)
 		ok_button->setEnabled(true);
