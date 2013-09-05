@@ -98,7 +98,7 @@ signals:
 
 private:
 	file_type type_manager;
-	Settings *settings_;
+	//Settings *settings_;
 	view_manager *view_manager_;
 
 	QAction *actionSave;

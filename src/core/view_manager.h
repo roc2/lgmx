@@ -14,6 +14,7 @@
 #include <tags.h>
 #include <file_watcher.h>
 #include <root_file_container.h>
+#include <file_settings.h>
 
 class QSplitter;
 class QTextDocument;
@@ -34,7 +35,7 @@ private:
 	view_manager& operator=(const view_manager&);
 
 public:
-	view_manager(QWidget *parent, file_type *type_manager, Settings *settings);
+	view_manager(QWidget *parent, file_type *type_manager);
 	~view_manager();
 
 	void add_to_view_list(view *v);
@@ -62,7 +63,7 @@ public:
 	bool check_unsaved_files();
 	highlight_manager* get_highlight_manager();
 
-	Settings* get_settings();
+	file_settings* get_settings();
 	file_type& get_type_manager();
 	tag * get_tags();
 
@@ -116,8 +117,8 @@ private:
 	std::list<QSplitter*> view_splitters_;
 
 	QPointer<view> curr_view_;
+	file_settings file_settings_;
 	root_file_container root_container_;
-	Settings *settings_;
 
 	file_type *type_manager_;
 	plugin_manager plugin_manager_;

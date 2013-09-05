@@ -10,7 +10,7 @@
 class root_file_container;
 class highlight_manager;
 class syntax_highlighter;
-class Settings;
+class file_settings;
 class visual_src_file;
 
 class src_file : public CodeEditor
@@ -24,7 +24,7 @@ private:
 	src_file& operator=(const src_file&);
 
 public:
-	src_file(const QString &file_name, unsigned int id, root_file_container *parent, Settings &settings, highlight_manager *hl_manager, file_type &type_manager);
+	src_file(const QString &file_name, unsigned int id, root_file_container *parent, file_settings &settings, highlight_manager *hl_manager, file_type &type_manager);
 	~src_file();
 
 	bool load_file(const QString &fileName);
@@ -46,7 +46,7 @@ public:
 	QString get_src_file_extension() const;
 
 	bool exists() const;
-	Settings& get_settings();
+	file_settings& get_settings();
 
 	int get_first_visible_block();
 	QTextBlock get_text_block(int block);
@@ -71,7 +71,7 @@ private:
 	QFileInfo file_info_;
 	file_type::type type_;
 	root_file_container *parent_;
-	Settings &settings_;
+	file_settings &settings_;
 	const file_type &type_manager_;
 
 	highlight_manager *highlight_manager_;

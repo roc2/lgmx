@@ -6,7 +6,7 @@
 
 #include <visual_src_file.h>
 #include <src_file.h>
-#include <settings.h>
+#include <file_settings.h>
 #include <src_container.h>
 #include <syntax_highlighter.h>
 #include <debug.h>
@@ -31,7 +31,7 @@ visual_src_file::visual_src_file(src_file *parent_file, src_container *container
 	id_ = parent_file->get_id();
 	highlighter_ = parent_file->get_highlighter();
 	set_default_font();
-	set_line_wrap(false);
+	set_line_wrap(settings_.get_line_wrap());
 	blink_cursor_ = true;	// needs to be true!!
 	QApplication::setCursorFlashTime(1000);
 
@@ -53,6 +53,8 @@ visual_src_file::visual_src_file(src_file *parent_file, src_container *container
 	QObject::connect(verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(highlight(int)));
 	// when file type changes update highlighter
 	QObject::connect(parent_file_, SIGNAL(fileTypeChanged()), this, SLOT(update_highlighter()));
+	// when cursor changes highlight current line
+	QObject::connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
 }
 
 visual_src_file::~visual_src_file()
@@ -78,8 +80,9 @@ void visual_src_file::set_default_font()
 {
 	QFont def("monospace", 10);
 	def.setFixedPitch(true);
+	def.setStyleStrategy(QFont::PreferQuality);
 
-	this->setFont(def);
+	setFont(def);
 }
 
 /**
@@ -355,7 +358,7 @@ void visual_src_file::focusOutEvent(QFocusEvent*)
  * Paint event. This is a copy of QPlainTextEdit::paintEvent with some
  * customizations (fat cursor, highlight current line).
  */
-
+#if 1
 void visual_src_file::paintEvent(QPaintEvent *e)
 {
 	QPainter painter(viewport());
@@ -440,15 +443,18 @@ void visual_src_file::paintEvent(QPaintEvent *e)
 
 			// highlight current line
 			if (block == cursor_block) {
-				QRectF rr = layout->lineForTextPosition(textCursor().positionInBlock()).rect();
+				//QRectF rr = layout->lineForTextPosition(textCursor().positionInBlock()).rect();
+				QRectF rr = layout->lineForTextPosition(0).rect();
 				rr.moveTop(rr.top() + r.top());
 				rr.setLeft(0);
-				rr.setRight(viewportRect.width() - offset.x());
+				//rr.setRight(viewportRect.width() - offset.x());
+				rr.setRight(viewportRect.width());
 				QColor color(200, 200, 200);
 				// set alpha, otherwise we cannot see block highlighting and find scope underneath
 				color.setAlpha(128);
 				painter.fillRect(rr, color);
 				drawCursor = true;
+				//debug(DEBUG, V_SRC_FILE, "highlight current line");
 			}
 
 			bool drawCursorAsBlock = drawCursor;
@@ -497,7 +503,7 @@ void visual_src_file::paintEvent(QPaintEvent *e)
 		painter.fillRect(QRect(QPoint((int)er.left(), (int)offset.y()), er.bottomRight()), palette().background());
 	}
 }
-
+#endif
 /**
  * [slot] Moves the cursor to the beginning of the specified line.
  * @param line -> line number
@@ -649,7 +655,6 @@ QChar visual_src_file::get_matching_brace(QChar c, int *direction)
 void visual_src_file::match_braces()
 {
 	match_braces(false);
-	//this->repaint();	// repaints the widget
 }
 
 /**
@@ -760,12 +765,32 @@ void visual_src_file::clear_extra_selections()
 	setExtraSelections(extra_selections);
 }
 
+/**
+ * 
+ */
+
+void visual_src_file::highlightCurrentLine()
+{
+    QList<QTextEdit::ExtraSelection> extraSelections(this->extraSelections());
+	QTextEdit::ExtraSelection selection;
+	
+	//QColor lineColor = QColor(Qt::red);
+
+	//selection.format.setBackground(lineColor);
+	selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+	selection.cursor = textCursor();
+	selection.cursor.clearSelection();
+	extraSelections.append(selection);
+
+    setExtraSelections(extraSelections);
+}
+
 void visual_src_file::insert_tab(QTextCursor &cursor)
 {
-	if (settings_.get_tab_settings().get_tab_policy() == tab_settings::tabs_only) {
+	if (!settings_.get_spaces_only()) {
 		cursor.insertText("\t");
 	} else {
-		int num_spaces = settings_.get_tab_settings().get_tab_width();
+		int num_spaces = settings_.get_tab_width();
 		QString text(num_spaces, ' ');
 		cursor.insertText(text);
 		debug(DEBUG, V_SRC_FILE, "inserted spaces");

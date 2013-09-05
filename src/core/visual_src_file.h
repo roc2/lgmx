@@ -10,7 +10,7 @@ class src_file;
 class src_container;
 class QFileInfo;
 class syntax_highlighter;
-class Settings;
+class file_settings;
 
 class visual_src_file : public CodeEditor
 {
@@ -74,6 +74,7 @@ public:
 private:
 	void set_content(QTextDocument *content);
 	void insert_tab(QTextCursor &cursor);
+	
 	void paintEvent(QPaintEvent *e);
 	void timerEvent(QTimerEvent *);
 	void update_cursor();
@@ -96,13 +97,14 @@ public slots:
 
 private slots:
 	void update_highlighter();
+	void highlightCurrentLine();
 
 private:
 	src_file *parent_file_;
 	src_container *container_;
 	unsigned int id_;
 	QFileInfo *file_info_;
-	Settings &settings_;
+	file_settings &settings_;
 	syntax_highlighter *highlighter_;
 	file_type::type type_;
 	QBasicTimer cursor_blink_timer_;

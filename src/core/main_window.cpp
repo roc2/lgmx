@@ -41,8 +41,7 @@ MainWindow::MainWindow()
 	setObjectName(QString::fromUtf8("main_window"));
 	setDockOptions(QMainWindow::AnimatedDocks | QMainWindow::AllowTabbedDocks | QMainWindow::VerticalTabs);
 
-	settings_ = new Settings();
-	view_manager_ = new view_manager(this, &type_manager, settings_);
+	view_manager_ = new view_manager(this, &type_manager);
 	gt_ln_dialog = NULL;
 
 	search_dialog = new lgmx::search(*view_manager_, this);
@@ -144,7 +143,6 @@ MainWindow::~MainWindow()
 	destroy_shortcuts();
 
 	delete view_manager_;
-	delete settings_;
 	delete cli_;
 	delete main_layout_;
 	delete widget_;

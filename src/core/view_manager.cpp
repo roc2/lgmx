@@ -19,7 +19,7 @@
  * Constructor.
  */
 
-view_manager::view_manager(QWidget *parent, file_type *type_manager, Settings *settings) : QWidget(parent), root_container_(*this, *settings), settings_(settings), f_watcher_(this)
+view_manager::view_manager(QWidget *parent, file_type *type_manager) : QWidget(parent), root_container_(*this), f_watcher_(this)
 {
 	type_manager_ = type_manager;
 
@@ -42,6 +42,8 @@ view_manager::view_manager(QWidget *parent, file_type *type_manager, Settings *s
 
 view_manager::~view_manager()
 {
+	file_settings_.save();
+	
 	delete layout_;
 	delete highlight_manager_;
 	clear_view_list();
@@ -689,9 +691,9 @@ highlight_manager* view_manager::get_highlight_manager()
  * Returns a pointer to the settings object.
  */
 
-Settings* view_manager::get_settings()
+file_settings* view_manager::get_settings()
 {
-	return settings_;
+	return &file_settings_;
 }
 
 file_type& view_manager::get_type_manager()
@@ -812,7 +814,7 @@ void view_manager::set_tab_width(int size)
 	for (; it != view_list_.end(); it++)
 		(*it)->get_src_container()->set_tab_width(size);
 
-	settings_->set_tab_width(size);
+	//settings_->set_tab_width(size);
 }
 
 /**
@@ -836,7 +838,7 @@ void view_manager::set_line_wrap(bool wrap)
 	for (; it != view_list_.end(); it++)
 		(*it)->get_src_container()->set_line_wrap(wrap);
 
-	settings_->set_line_wrap(wrap);
+	//settings_->set_line_wrap(wrap);
 }
 
 /**

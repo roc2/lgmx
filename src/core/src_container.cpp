@@ -17,10 +17,10 @@
  * @param parent -> parent widget.
  */
 
-src_container::src_container(view_manager *manager, Settings *settings, QWidget *parent) : QTabWidget(parent)
+src_container::src_container(view_manager *manager, QWidget *parent) : QTabWidget(parent)
 {
 	manager_ = manager;
-	settings_ = settings;
+	settings_ = manager->get_settings();
 
 	setTabsClosable(true);
 	setMovable(true);

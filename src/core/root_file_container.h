@@ -6,7 +6,7 @@
 
 class src_file;
 class view_manager;
-class Settings;
+class file_settings;
 class QString;
 
 class root_file_container
@@ -16,7 +16,7 @@ private:
 	root_file_container& operator=(const root_file_container&);
 
 public:
-	root_file_container(view_manager& manager, Settings& settings);
+	root_file_container(view_manager& manager);
 	~root_file_container();
 
 	bool new_file(const QString &file_name, unsigned int file_id);
@@ -25,7 +25,7 @@ public:
 
 private:
 	view_manager &manager_;
-	Settings &settings_;
+	file_settings &settings_;
 	std::map<unsigned int, src_file *> root_files_;
 };
 

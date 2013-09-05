@@ -13,7 +13,7 @@
  * [throw] Constructor.
  */
 
-src_file::src_file(const QString &file_name, unsigned int id, root_file_container *parent, Settings &settings, highlight_manager *hl_manager, file_type &type_manager) : settings_(settings), type_manager_(type_manager)
+src_file::src_file(const QString &file_name, unsigned int id, root_file_container *parent, file_settings &settings, highlight_manager *hl_manager, file_type &type_manager) : settings_(settings), type_manager_(type_manager)
 {
 	id_ = id;
 	parent_ = parent;
@@ -292,7 +292,7 @@ bool src_file::exists() const
     return file_info_.exists();
 }
 
-Settings& src_file::get_settings()
+file_settings& src_file::get_settings()
 {
 	return settings_;
 }

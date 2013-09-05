@@ -1,6 +1,6 @@
 #include <root_file_container.h>
 #include <view_manager.h>
-#include <settings.h>
+#include <file_settings.h>
 #include <src_file.h>
 #include <exception.h>
 #include <debug.h>
@@ -10,7 +10,7 @@
  * Constructor.
  */
 
-root_file_container::root_file_container(view_manager& manager, Settings& settings) : manager_(manager), settings_(settings)
+root_file_container::root_file_container(view_manager& manager) : manager_(manager), settings_(*(manager.get_settings()))
 {
 }
 

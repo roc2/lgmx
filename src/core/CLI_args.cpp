@@ -9,7 +9,9 @@ static void print_version(void *)
 
 static void print_help(void *)
 {
-	std::cout << "lgmx help" << std::endl;
+	std::cout << "Arguments:\n"
+	<< "  -h or --help  Print Help (this message) and exit\n"
+	<< "  --version     Print version information and exit" << std::endl;
 }
 
 /**

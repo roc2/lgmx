@@ -8,7 +8,7 @@
 class QVBoxLayout;
 class QTabBar;
 class view_manager;
-class Settings;
+class file_settings;
 class visual_src_file;
 class src_file;
 
@@ -21,7 +21,7 @@ private:
 	src_container& operator=(const src_container&);
 
 public:
-	src_container(view_manager *manager, Settings *settings, QWidget *parent = 0);
+	src_container(view_manager *manager, QWidget *parent = 0);
 	~src_container();
 
 	visual_src_file* new_visual_src_file(src_file *base_file);
@@ -77,7 +77,7 @@ private slots:
 private:
     QTabBar *tab_bar_;
     view_manager *manager_;
-    Settings *settings_;
+    file_settings *settings_;
 };
 
 #endif

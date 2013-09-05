@@ -19,7 +19,7 @@ view::view(view_manager *manager, QWidget *parent) : QWidget(parent)
 	manager_ = manager;		// view manager
 	id_ = manager_->generate_view_id();	// ask manager for ID
 
-	src_container_ = new src_container(manager_, manager->get_settings(), this);
+	src_container_ = new src_container(manager_, this);
 	status_line_ = new status_line(src_container_);
 	main_layout_ = new QVBoxLayout(this);
 
